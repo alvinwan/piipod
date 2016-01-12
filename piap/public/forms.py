@@ -1,15 +1,15 @@
 from wtforms_alchemy import ModelForm, ModelFieldList
 from wtforms.fields import FormField
 import wtforms as wtf
-from piap.staff.models import User
+from piap.admin.models import User
 
 
-class SigninForm(wtf.Form):
+class LoginForm(wtf.Form):
     username = wtf.StringField()
     password = wtf.PasswordField()
 
 
-class UserForm(ModelForm):
+class RegisterForm(ModelForm):
     """form for user signup and signin"""
     class Meta:
         model = User

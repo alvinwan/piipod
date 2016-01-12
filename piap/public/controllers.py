@@ -1,6 +1,6 @@
-from queue import db
+from piap import db
 from flask import redirect, url_for
-from piap.staff.models import User, add_obj
+from piap.admin.models import User, add_obj
 
 #############
 # UTILITIES #
@@ -27,8 +27,8 @@ def add_user(data):
             'email': data['email'],
             'name': data['name']
         }),
-        'action': 'Sign in',
-        'url': url_for('public.signin')
+        'action': 'Login',
+        'url': url_for('public.login')
     }
 
 def get_user(**kwargs):
@@ -47,6 +47,7 @@ def get_user_home(user):
     :param User user: user object
     :return: User object or None
     """
-    if user and getattr(user, 'role', None) == 'staff':
-        return redirect(url_for('staff.home'))
-    return redirect(url_for('public.queue'))
+    # TODO: update to become event-specific
+    # if user and getattr(user, 'role', None) == 'staff':
+    #     return redirect(url_for('admin.home'))
+    return redirect(url_for('public.home'))

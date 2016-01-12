@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import url_for, redirect
 import flask_login
-from queue.public.controllers import get_user_home
+from piap.public.controllers import get_user_home
 
 
 def anonymous_required(f):

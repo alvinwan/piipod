@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for
-from queue import app
+from piap import app
 from .models import User
 from .controllers import *
 import flask_login

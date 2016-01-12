@@ -14,19 +14,19 @@ public = Blueprint('public', __name__)
 
 @public.route('/')
 def home():
-    """"""
-    pass
+    """Home page"""
+    return render_template('index.html')
 
 
-###################
-# SIGN IN/SIGN UP #
-###################
+##################
+# LOGIN/REGISTER #
+##################
 
-@public.route('/signin', methods=['POST', 'GET'])
+@public.route('/login', methods=['POST', 'GET'])
 @anonymous_required
-def signin():
-    """Sign in"""
-    form, message = SigninForm(request.form), ''
+def login():
+    """login to the web application"""
+    form, message = LoginForm(request.form), ''
     if request.method == 'POST' and form.validate():
         user = get_user(username=request.form['username'])
         if user and user.password == request.form['password']:
@@ -34,16 +34,16 @@ def signin():
             print(' * %s (%s) logged in.' % (user.name, user.email))
             return get_user_home(user)
         message = 'Login failed.'
-    return render_template('signin.html', message=message, form=form)
+    return render_template('login.html', message=message, form=form)
 
-@public.route('/signup', methods=['GET', 'POST'])
+@public.route('/register', methods=['GET', 'POST'])
 @anonymous_required
-def signup():
-    """Sign up"""
-    form = UserForm(request.form)
+def register():
+    """register for the piap network"""
+    form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         return render_template('confirm.html', **add_user(request.form))
-    return render_template('signup.html', form=form)
+    return render_template('register.html', form=form)
 
 ######################
 # SESSION UTILIITIES #
@@ -72,7 +72,7 @@ def request_loader(request):
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return redirect(url_for('public.queue'))
+    return redirect(url_for('public.home'))
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
