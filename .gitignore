@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 # configuration file
-queue.cfg
+config.cfg
 
->>>>>>> queue/master
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
