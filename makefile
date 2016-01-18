@@ -10,8 +10,8 @@ run:
 
 db:
 	source activate.sh && \
-		python3 dbcreate.py
+		python3 run.py -db create
 
 refresh: piap/*/models.py
 	source activate.sh && \
-		python3 dbrefresh.py
+		python3 run.py -db refresh

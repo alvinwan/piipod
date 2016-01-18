@@ -5,8 +5,8 @@ Important: Changes here need to be followed by `make refresh`.
 from piipod import db
 from piipod.models import Base
 from sqlalchemy import types
-from sqlalchemy_utils import PasswordType
-from sqlalchemy_utils.types.choice import ChoiceType
+from sqlalchemy_utils import PasswordType, ArrowType
+import arrow
 import flask_login
 
 ############
@@ -42,8 +42,8 @@ class Event(Base):
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
-    start = db.Column(db.DateTime)
-    end = db.Column(db.DateTime)
+    start = db.Column(ArrowType)
+    end = db.Column(ArrowType)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
 
 
