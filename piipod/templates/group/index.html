@@ -1,4 +1,5 @@
 {% extends "base.html" %}
 {% block main %}
 <h1>Welcome to {{ group.name }}</h1>
+<a href="{{ url_for('group.create_event') }}">Create Event</a>
 {% endblock %}

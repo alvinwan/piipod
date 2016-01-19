@@ -5,7 +5,7 @@ from piipod.models import Group
 
 class GroupForm(ModelForm):
     """form for groups"""
-    
+
     class Meta:
         model = Group
         only = ('name', 'description')

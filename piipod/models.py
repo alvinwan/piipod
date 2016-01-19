@@ -2,7 +2,7 @@
 Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db
-from flask import request
+from flask import request, g
 from sqlalchemy import types
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import AbstractConcreteBase

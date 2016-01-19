@@ -2,20 +2,21 @@ from flask import Blueprint, request, redirect, url_for, g
 from piipod.views import current_user, login_required
 from .forms import *
 from piipod.event.forms import EventForm
+from piipod.models import Event, Group
 
 
-group = Blueprint('group', __name__, url_prefix='/g/<string:group_id>')
+group = Blueprint('group', __name__, url_prefix='/g/<int:group_id>')
 
 
 @group.url_defaults
 def add_group_id(endpoint, values):
-    values.setdefault('group_id', g.group_id)
+    values.setdefault('group_id', getattr(g, 'group_id', None))
 
 
 @group.url_value_preprocessor
 def pull_group_id(endpoint, values):
     g.group_id = values.pop('group_id')
-    g.group = Group.get(g.group_id)
+    g.group = Group.query.get(g.group_id)
     g.user = current_user()
 
 
@@ -42,19 +43,27 @@ def home():
 @login_required
 def edit():
     """group edit"""
-    if request.form == 'POST':
+    form = GroupForm(request.form, obj=g.group)
+    if request.method == 'POST' and form.validate():
         return redirect(url_for('group.home'))
-    return render_group('form.html', form=GroupForm(request.form, obj=g.group))
+    return render_group('form.html',
+        title='Edit Group',
+        submit='Save',
+        form=form)
 
 
 @group.route('/e/', methods=['GET', 'POST'])
 @login_required
 def create_event():
     """create event"""
-    if request.form == 'POST':
+    form = EventForm()
+    if request.method == 'POST' and form.validate():
         return redirect(url_for('event.home',
             event_id=Event.from_request().save().id))
-    return render_group('form.html', form=EventForm())
+    return render_group('form.html',
+        title='Create Event',
+        submit='Create',
+        form=form)
 
 
 @group.route('/events')
