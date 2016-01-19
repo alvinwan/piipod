@@ -1,8 +1,6 @@
 from functools import wraps
-from flask import url_for, redirect, render_template
+from flask import url_for, redirect, render_template, g
 from flask_login import login_required
-from piipod.public.controllers import get_user_home
-
 import flask_login
 
 
@@ -13,16 +11,15 @@ def current_user():
 
 def render(f, *args, **kwargs):
     """Render templates with defaults"""
-    return render_template(*args, **kwargs)
+    return render_template(f, *args, **kwargs)
 
 
 def anonymous_required(f):
     """Decorator for views that require anonymous users (e.g., sign in)"""
     @wraps(f)
     def decorator(*args, **kwargs):
-        user = flask_login.current_user
-        if user.is_authenticated:
-            return get_user_home(user)
+        if flask_login.current_user.is_authenticated:
+            return url_for('dashboard.home')
         return f(*args, **kwargs)
     return decorator
 
@@ -32,7 +29,7 @@ def requires(*roles):
     def wrap(f):
         @wraps(f)
         def decorator(*args, **kwargs):
-            if getattr(flask_login.current_user, 'role', None) not in roles:
+            if getattr(g.user, 'role', None) not in roles:
                 return 'Permission denied.'
             return f(*args, **kwargs)
         return decorator

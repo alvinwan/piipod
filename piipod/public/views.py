@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for, redirect
 from .forms import *
-from .controllers import *
 from piipod import app, login_manager
 from piipod.models import User
 from piipod.views import anonymous_required
@@ -28,13 +27,18 @@ def login():
     """login to the web application"""
     form, message = LoginForm(request.form), ''
     if request.method == 'POST' and form.validate():
-        user = get_user(username=request.form['username'])
+        user = User.query.filter(
+            User.username == request.form['username']).one_or_none()
         if user and user.password == request.form['password']:
             flask_login.login_user(user)
             print(' * %s (%s) logged in.' % (user.name, user.email))
-            return get_user_home(user)
+            return redirect(url_for('dashboard.home'))
         message = 'Login failed.'
-    return render_template('login.html', message=message, form=form)
+    return render_template('form.html',
+        title='Login',
+        submit='login',
+        message=message,
+        form=form)
 
 @public.route('/register', methods=['GET', 'POST'])
 @anonymous_required
@@ -42,9 +46,12 @@ def register():
     """register for the piap network"""
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
-        # TODO: doesn't work, fix
-        return render_template('confirm.html', User.from_request().save())
-    return render_template('register.html', form=form)
+        user = User.from_request().save()
+        return redirect(url_for('public.login'))
+    return render_template('form.html',
+        title='Register',
+        submit='register',
+        form=form)
 
 ######################
 # SESSION UTILIITIES #
@@ -54,13 +61,13 @@ def register():
 def user_loader(id):
     """Load user by id"""
     print(' * Reloading user with id "%s", from user_loader' % id)
-    return get_user(id=id)
+    return User.query.get(id)
 
 @login_manager.request_loader
 def request_loader(request):
     """Loads user by Flask Request object"""
-    id = request.form.get('id')
-    user = get_user(id=id)
+    id = int(request.form.get('id') or 0)
+    user = User.query.get(id) if id else None
     if not user:
         print(' * Anonymous user found.')
         return

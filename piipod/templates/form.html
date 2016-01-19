@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block main %}
+<h2>{{ title }}</h2>
+<p>{{ message }}</p>
+<form method="POST">
+{% for field in form %}
+  <h3>{{ field.label }}</h3>
+  {% if field.description %}
+  <p>{{ field.description | safe }}</p>
+  {% endif %}
+  {% for error in form.errors[field.name] %}
+    <p style="color:red"><strong>Error!</strong> {{error}}</p>
+  {% endfor %}
+  {{ field }}
+{% endfor %}
+  <input type="submit" value="{{ submit }}">
+</form>
+{% endblock %}

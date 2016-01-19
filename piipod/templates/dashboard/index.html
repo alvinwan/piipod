@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block main %}
-dashboard
+<h1>dashboard</h1>
+<a href="{{ url_for('dashboard.create_group') }}">Create group</a>
 {% for group in groups %}
 <a href="{{ url_for('group.home', group_name=group.name) }}">group.name</a>
 {% endfor %}

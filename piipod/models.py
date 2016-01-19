@@ -7,7 +7,8 @@ from sqlalchemy import types
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
-import arrow, flask_login
+import arrow
+import flask_login
 
 
 class Base(db.Model):
@@ -24,7 +25,7 @@ class Base(db.Model):
     @classmethod
     def from_request(cls):
         """Create object from request"""
-        return cls(dict(request.form.items())).save()
+        return cls(**dict(request.form.items())).save()
 
     def save(self):
         """Save object"""
@@ -61,6 +62,10 @@ class Group(Base):
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
     events = db.relationship('Event', backref='group', lazy='dynamic')
+
+    def __init__(self, *args, **kwargs):
+        super(Group, self).__init__(*args, **kwargs)
+        Membership(user_id=g.user.id, group_id=self.id, role='owner').save()
 
 
 class Event(Base):
@@ -108,6 +113,15 @@ class Membership(Base):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     role = db.Column(db.String(50))
+
+    def save(self):
+        """save membership"""
+        if not Membership.query.filter(
+            Membership.user_id == self.user_id,
+            Membership.group_id == self.group_id
+        ).one_or_none():
+            return super(Membership, self).save()
+        return self
 
     @property
     def group(self):

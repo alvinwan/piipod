@@ -1,5 +1,6 @@
 from flask import Blueprint, request, redirect, url_for, g
 from piipod.views import current_user, login_required
+from piipod.group.forms import GroupForm
 
 
 dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
@@ -26,3 +27,16 @@ def render_dashboard(f, *args, **kwargs):
 def home():
     """user dashboard"""
     return render_dashboard('dashboard/index.html', groups=g.user.groups())
+
+
+@dashboard.route('/g/', methods=['GET', 'POST'])
+@login_required
+def create_group():
+    """create group form"""
+    if request.form == 'POST':
+        return redirect(url_for('group.home',
+            group_id=Group.from_request().save().id))
+    return render_dashboard('form.html',
+        title='Create Group',
+        submit='create',
+        form=GroupForm())

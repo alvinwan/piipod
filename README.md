@@ -1,4 +1,4 @@
-# Peas In a Pod (PIAP)
+# Piipod
 staff and event management, with Google calendar sync
 
 ## Features

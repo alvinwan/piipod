@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urlparse
+import functools
 import flask_login
 import os
 
@@ -71,3 +72,18 @@ blueprints = (public, dashboard, group, event)
 for blueprint in blueprints:
     print(' * Registering blueprint "%s"' % blueprint.name)
     app.register_blueprint(blueprint)
+
+
+def hook(f):
+    pre = 'pre_%s' % f.__name__
+    post = 'post_%s' % f.__name__
+    @functools.wraps(f)
+    def wrap(self, *args, **kwargs):
+        pref, postf = getattr(self, pre, None), getattr(self, post, None)
+        if callable(pref):
+            pref(self, *args, **kwargs)
+        rv = f(*args, **kwargs)
+        if callable(postf):
+            postf(self, *args, **kwargs)
+        return rv
+    return wrap

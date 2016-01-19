@@ -22,6 +22,8 @@ def pull_ids(endpoint, values):
 def render_event(f, *args, **kwargs):
     """custom render for events"""
     from piipod.views import render
+    kwargs.setdefault('group', g.group)
+    kwargs.setdefault('event', g.event)
     return render(f, *args, **kwargs)
 
 
@@ -37,8 +39,10 @@ def home():
     return render_event('event/index.html')
 
 
-@event.route('/events')
+@event.route('/edit', methods=['GET', 'POST'])
 @login_required
-def events():
-    """group events"""
-    return 'events'
+def edit():
+    """event edit"""
+    if request.form == 'POST':
+        return redirect(url_for('event.home'))
+    return render_event('form.html', form=EventForm(request.form, obj=g.event))
