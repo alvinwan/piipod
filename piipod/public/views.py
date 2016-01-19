@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request
 from .forms import *
 from .controllers import *
-from piap import app, login_manager
-from piap.admin.models import User
-from piap.views import anonymous_required
+from piipod import app, login_manager
+from piipod.models import User
+from piipod.views import anonymous_required
 import flask_login
 
 public = Blueprint('public', __name__)
@@ -42,7 +42,8 @@ def register():
     """register for the piap network"""
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
-        return render_template('confirm.html', **add_user(request.form))
+        # TODO: doesn't work, fix
+        return render_template('confirm.html', User.from_request().save())
     return render_template('register.html', form=form)
 
 ######################

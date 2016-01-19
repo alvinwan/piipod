@@ -1,7 +1,18 @@
 from functools import wraps
-from flask import url_for, redirect
+from flask import url_for, redirect, render_template
+from flask_login import login_required
+from piipod.public.controllers import get_user_home
+
 import flask_login
-from piap.public.controllers import get_user_home
+
+def me():
+    """Returns currently-logged-in user"""
+    return flask_login.current_user
+
+
+def render(f, *args, **kwargs):
+    """Render templates with defaults"""
+    return render_template(*args, **kwargs)
 
 
 def anonymous_required(f):

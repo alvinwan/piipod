@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block main %}
+dashboard
+{% for group in groups %}
+<a href="{{ url_for('group.home', group_name=group.name) }}">group.name</a>
+{% endfor %}
+{% endblock %}

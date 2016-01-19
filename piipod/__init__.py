@@ -1,3 +1,9 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from urllib.parse import urlparse
+import flask_login
+import os
+
 # Extract information from environment.
 get = lambda v, default: os.environ.get(v, default)
 
@@ -57,9 +63,10 @@ login_manager.init_app(app)
 
 # Configuration for app views
 from .public.views import public
-from .admin.views import admin
+from .dashboard.views import dashboard
+from .group.views import group
 
-blueprints = (public, admin)
+blueprints = (public, dashboard, group)
 for blueprint in blueprints:
     print(' * Registering blueprint "%s"' % blueprint.name)
     app.register_blueprint(blueprint)

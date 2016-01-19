@@ -1,5 +1,5 @@
-from piipod import app, db
-import argsparse
+from piipod import app, db, debug
+import argparse
 import os
 
 
@@ -12,7 +12,6 @@ def db_refresh():
 def db_create():
     """Create database"""
     db.create_all()
-    load_settings()
 
 
 def run(app):
