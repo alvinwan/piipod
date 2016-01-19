@@ -5,7 +5,8 @@ from piipod.public.controllers import get_user_home
 
 import flask_login
 
-def me():
+
+def current_user():
     """Returns currently-logged-in user"""
     return flask_login.current_user
 

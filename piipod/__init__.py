@@ -65,8 +65,9 @@ login_manager.init_app(app)
 from .public.views import public
 from .dashboard.views import dashboard
 from .group.views import group
+from .event.views import event
 
-blueprints = (public, dashboard, group)
+blueprints = (public, dashboard, group, event)
 for blueprint in blueprints:
     print(' * Registering blueprint "%s"' % blueprint.name)
     app.register_blueprint(blueprint)
