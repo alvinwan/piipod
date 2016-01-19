@@ -2,7 +2,9 @@
 {% block main %}
 <h1>dashboard</h1>
 <a href="{{ url_for('dashboard.create_group') }}">Create group</a>
+<ul>
 {% for group in groups %}
-<a href="{{ url_for('group.home', group_name=group.name) }}">group.name</a>
+<li><a href="{{ url_for('group.home', group_id=group.id) }}">{{ group.name }}</a></li>
 {% endfor %}
+</ul>
 {% endblock %}

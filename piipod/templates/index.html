@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block main %}
+{% if current_user.is_authenticated %}
+<a href="{{ url_for('dashboard.home') }}">dashboard</a>
+{% endif %}
 <h1>Welcome to Piipod.</h1>
 <p>Login to get started.</p>
 {% endblock %}

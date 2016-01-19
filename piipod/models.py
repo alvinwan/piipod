@@ -71,7 +71,11 @@ class Group(Base):
 
     def __init__(self, *args, **kwargs):
         super(Group, self).__init__(*args, **kwargs)
-        Membership(user_id=g.user.id, group_id=self.id, role='owner').save()
+
+    def link(self, user, role):
+        """links group to a user"""
+        assert self.id, 'Save the object first.'
+        return Membership(user_id=user.id, group_id=self.id, role=role).save()
 
 
 class Event(Base):
@@ -87,7 +91,7 @@ class Event(Base):
 
     @property
     def group(self):
-        return Group.get(self.group_id)
+        return Group.query.get(self.group_id)
 
 
 ########################
@@ -105,11 +109,11 @@ class Signup(Base):
 
     @property
     def event(self):
-        return Event.get(self.event_id)
+        return Event.query.get(self.event_id)
 
     @property
     def user(self):
-        return User.get(self.user_id)
+        return User.query.get(self.user_id)
 
 
 class Membership(Base):
@@ -131,8 +135,8 @@ class Membership(Base):
 
     @property
     def group(self):
-        return Group.get(self.group_id)
+        return Group.query.get(self.group_id)
 
     @property
     def user(self):
-        return User.get(self.user_id)
+        return User.query.get(self.user_id)

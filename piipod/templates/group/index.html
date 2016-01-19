@@ -7,4 +7,7 @@
 <h1>Welcome to {{ group.name }}</h1>
 <a href="{{ url_for('group.edit') }}">Edit {{ group.name }}</a>
 <a href="{{ url_for('group.create_event') }}">Create Event</a>
+{% for event in events %}
+<li><a href="{{ url_for('event.home', event_id=event.id) }}">{{ event.name }}</a></li>
+{% endfor %}
 {% endblock %}

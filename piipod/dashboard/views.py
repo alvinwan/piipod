@@ -36,8 +36,9 @@ def create_group():
     """create group form"""
     form = GroupForm()
     if request.method == 'POST' and form.validate():
+        group = Group.from_request().save()
         return redirect(url_for('group.home',
-            group_id=Group.from_request().save().id))
+            group_id=group.link(g.user, role='owner').group_id))
     return render_dashboard('form.html',
         title='Create Group',
         submit='create',

@@ -1,4 +1,5 @@
 from piipod import app, db, debug
+from sqlalchemy.exc import OperationalError
 import argparse
 import os
 
@@ -11,7 +12,10 @@ def db_refresh():
 
 def db_create():
     """Create database"""
-    db.create_all()
+    try:
+        db.create_all()
+    except OperationalError:
+        raise UserWarning('It looks like your MySQL server hasn\'t been started yet.')
 
 
 def run(app):
