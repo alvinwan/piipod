@@ -27,6 +27,12 @@ class Base(db.Model):
         """Create object from request"""
         return cls(**dict(request.form.items())).save()
 
+    def update(self, **kwargs):
+        """Update object with kwargs"""
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        return self
+
     def save(self):
         """Save object"""
         db.session.add(self)

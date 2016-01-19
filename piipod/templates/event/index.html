@@ -1,4 +1,10 @@
 {% extends "base.html" %}
 {% block main %}
+<p>
+  <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
+  <a href="{{ url_for('group.home') }}">{{ group.name }}</a> &raquo;
+  {{ event.name }}
+</p>
 <h1>Welcome to {{ event.name }}</h1>
+<a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
 {% endblock %}

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, url_for, g
 from piipod.views import current_user, login_required
-from .forms import *
+from .forms import GroupForm
 from piipod.event.forms import EventForm
 from piipod.models import Event, Group
 
@@ -45,6 +45,7 @@ def edit():
     """group edit"""
     form = GroupForm(request.form, obj=g.group)
     if request.method == 'POST' and form.validate():
+        g.group.update(**request.form).save()
         return redirect(url_for('group.home'))
     return render_group('form.html',
         title='Edit Group',
@@ -57,6 +58,8 @@ def edit():
 def create_event():
     """create event"""
     form = EventForm()
+    form.group_id.default = g.group_id
+    form.process()
     if request.method == 'POST' and form.validate():
         return redirect(url_for('event.home',
             event_id=Event.from_request().save().id))
