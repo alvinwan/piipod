@@ -7,7 +7,7 @@ from sqlalchemy import types
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
-from passlib import CryptContext
+from passlib.context import CryptContext
 import arrow
 import flask_login
 
@@ -17,11 +17,28 @@ class Base(db.Model):
 
     __abstract__ = True
 
+    __access_token = None
+
     id = db.Column(db.Integer, primary_key=True)
     updated_at = db.Column(ArrowType)
     updated_by = db.Column(db.Integer)
     created_at = db.Column(ArrowType, default=arrow.utcnow())
     created_by = db.Column(db.Integer)
+
+    def __init__(self, *args, **kwargs):
+        super(db.Model, self).__init__(*args, **kwargs)
+        self.context = CryptContext(schemes=['pbkdf2_sha512'])
+
+    @property
+    def access_token(self):
+        """Generate token"""
+        if not self.__access_token:
+            self.__access_token = self.generate_access_token()
+        return self.__access_token
+
+    def random_hash(self):
+        """Generates random hash"""
+        return self.context.encrypt(arrow.utcnow())
 
     @classmethod
     def from_request(cls):
@@ -42,10 +59,7 @@ class Base(db.Model):
 
     def setting(self, shortname):
         """Get setting by shortname"""
-        for setting in self.settings:
-            if setting.shortname == shortname:
-                return setting
-        raise NameError('No "%s" setting found.' % shortname)
+        return self.__settingclass__.query.filter_by(shortname=shortname).one()
 
 
 class Setting(Base):
@@ -63,6 +77,14 @@ class Setting(Base):
 ############
 
 
+class UserSetting(Setting):
+    """settings for a PIAP user"""
+
+    __tablename__ = 'user_setting'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
 class User(Base, flask_login.UserMixin):
     """PIAP system user"""
 
@@ -73,17 +95,6 @@ class User(Base, flask_login.UserMixin):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
     settings = relationship("UserSetting", backref="user")
-
-    def __init__(self, *args, **kwargs):
-        super(Base, self).__init__(*args, **kwargs)
-        self.context = CryptContext(schemes=['pbkdf2_sha512'])
-
-    @property
-    def access_token(self):
-        """Returns access token"""
-        setting = UserSetting.query.filter_by(name='access_token').one_or_none()
-        if setting:
-            return setting.value
 
     def groups(self):
         """All groups for this user"""
@@ -102,24 +113,31 @@ class User(Base, flask_login.UserMixin):
         return Signup(user_id=self.id, event_id=event.id, role=role).save()
 
     def generate_access_token(self):
-        """generate an access token"""
-        return UserSetting(
+        """Generates access token"""
+        return (UserSetting(
+            user_id=self.id,
+            shortname='access_token'
+        ).one_or_none() or UserSetting(
+            user_id=self.id,
             shortname='access_token',
             name='Access Token',
-            value=self.context.encrypt(arrow.utcnow())).save().value
+            value=self.random_hash()
+        ).save()).value
 
-class UserSetting(Setting):
-    """settings for a PIAP user"""
 
-    __tablename__ = 'user_setting'
+class GroupSetting(Setting):
+    """settings for a PIAP group"""
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    __tablename__ = 'group_setting'
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
 
 
 class Group(Base):
     """A PIAP group can be any form or sort of organization."""
 
     __tablename__ = 'group'
+    __settingclass__ = GroupSetting
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
@@ -144,6 +162,18 @@ class Group(Base):
         assert self.id, 'Save the object first.'
         return user.join(self, role)
 
+    def generate_access_token(self):
+        """Generates access token"""
+        return (GroupSetting(
+            group_id=self.id,
+            shortname='access_token'
+        ).one_or_none() or GroupSetting(
+            group_id=self.id,
+            shortname='access_token',
+            name='Access Token',
+            value=self.random_hash()
+        ).save()).value
+
     def __contains__(self, user):
         """Tests if user is in group"""
         return Membership.query.filter_by(
@@ -151,18 +181,19 @@ class Group(Base):
         ).one_or_none() is not None
 
 
-class GroupSetting(Setting):
-    """settings for a PIAP group"""
+class EventSetting(Setting):
+    """settings for a PIAP event"""
 
-    __tablename__ = 'group_setting'
+    __tablename__ = 'event_setting'
 
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
 
 
 class Event(Base):
     """PIAP event"""
 
     __tablename__ = 'event'
+    __settingclass__ = EventSetting
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
@@ -186,13 +217,17 @@ class Event(Base):
             user_id=user.id, event_id=self.id
         ).one_or_none() is not None
 
-
-class EventSetting(Setting):
-    """settings for a PIAP event"""
-
-    __tablename__ = 'event_setting'
-
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    def generate_access_token(self):
+        """Generates access token"""
+        return (EventSetting(
+            event_id=self.id,
+            shortname='access_token'
+        ).one_or_none() or EventSetting(
+            event_id=self.id,
+            shortname='access_token',
+            name='Access Token',
+            value=self.random_hash()
+        ).save()).value
 
 
 ########################

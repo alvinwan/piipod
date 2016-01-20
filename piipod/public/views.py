@@ -37,8 +37,7 @@ def login():
             print(' * %s (%s) logged in.' % (user.name, user.email))
             redirect_url = urlparse(form.pop('redirect', None))
             if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
-                return redirect(redirect_url + '?access-token=%s' %
-                    user.generate_access_token())
+                return redirect(redirect_url + '?access-token=%s' % user.access_token)
             return redirect(url_for('dashboard.home'))
         message = 'Login failed.'
     return render_template('form.html',
