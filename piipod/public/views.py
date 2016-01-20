@@ -3,6 +3,7 @@ from .forms import *
 from piipod import app, login_manager, logger
 from piipod.models import User
 from piipod.views import anonymous_required
+from urllib.parse import urlparse
 import flask_login
 
 public = Blueprint('public', __name__)
@@ -27,6 +28,10 @@ def login():
     """login to the web application"""
     form, message = LoginForm(request.form), ''
     if request.method == 'POST' and form.validate():
+        redirect_url = urlparse(form.pop('redirect', None))
+        if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
+            return redirect(redirect_url + '?access-token=%s' %
+                user.generate_access_token())
         user = User.query.filter(
             User.username == request.form['username']).one_or_none()
         if user and user.password == request.form['password']:
@@ -48,6 +53,10 @@ def register():
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         user = User.from_request().save()
+        redirect_url = urlparse(form.pop('redirect', None))
+        if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
+            return redirect(redirect_url + '?access-token=%s' %
+                user.generate_access_token())
         return redirect(url_for('public.login'))
     return render_template('form.html',
         title='Register',

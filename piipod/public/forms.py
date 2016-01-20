@@ -7,6 +7,7 @@ from piipod.models import User
 class LoginForm(wtf.Form):
     username = wtf.StringField()
     password = wtf.PasswordField()
+    redirect = wtf.HiddenField()
 
 
 class RegisterForm(ModelForm):
@@ -14,3 +15,5 @@ class RegisterForm(ModelForm):
     class Meta:
         model = User
         only = ('name', 'email', 'username', 'password')
+
+    redirect = wtf.HiddenField()

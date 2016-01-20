@@ -7,6 +7,7 @@ from sqlalchemy import types
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
+from passlib import CryptContext
 import arrow
 import flask_login
 
@@ -39,13 +40,21 @@ class Base(db.Model):
         db.session.commit()
         return self
 
+    def setting(self, shortname):
+        """Get setting by shortname"""
+        for setting in self.settings:
+            if setting.shortname == shortname:
+                return setting
+        raise NameError('No "%s" setting found.' % shortname)
+
 
 class Setting(Base):
     """base setting model"""
 
     __abstract__ = True
 
-    name = db.Column(db.String(50))
+    shortname = db.Column(db.String(50))
+    name = db.Column(db.String(100))
     value = db.Column(db.Text)
 
 
@@ -65,6 +74,17 @@ class User(Base, flask_login.UserMixin):
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
     settings = relationship("UserSetting", backref="user")
 
+    def __init__(self, *args, **kwargs):
+        super(Base, self).__init__(*args, **kwargs)
+        self.context = CryptContext(schemes=['pbkdf2_sha512'])
+
+    @property
+    def access_token(self):
+        """Returns access token"""
+        setting = UserSetting.query.filter_by(name='access_token').one_or_none()
+        if setting:
+            return setting.value
+
     def groups(self):
         """All groups for this user"""
         return Group.query.join(Membership).filter_by(user_id=self.id).all()
@@ -81,6 +101,12 @@ class User(Base, flask_login.UserMixin):
         assert isinstance(event, Event), 'Can only signup for events.'
         return Signup(user_id=self.id, event_id=event.id, role=role).save()
 
+    def generate_access_token(self):
+        """generate an access token"""
+        return UserSetting(
+            shortname='access_token',
+            name='Access Token',
+            value=self.context.encrypt(arrow.utcnow())).save().value
 
 class UserSetting(Setting):
     """settings for a PIAP user"""
