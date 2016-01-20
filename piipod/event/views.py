@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, g
 from piipod.views import current_user, login_required
-from .forms import EventForm
+from .forms import EventForm, EventSignupForm
 from piipod.models import Group, Event
 
 
@@ -54,4 +54,23 @@ def edit():
     return render_event('form.html',
         title='Edit Event',
         submit='save',
+        form=form)
+
+
+@event.route('/signup', methods=['GET', 'POST'])
+@login_required
+def signup():
+    """event signup"""
+    form = EventSignupForm()
+    if g.user in g.event:
+        return redirect(url_for('event.home', notif=7))
+    form.event_id.default = g.event.id
+    form.user_id.default = g.user.id
+    form.process()
+    if request.method == 'POST' and form.validate():
+        signup = g.user.signup(g.event, 'participant')
+        return redirect(url_for('event.home'))
+    return render_event('form.html',
+        title='Signup for %s' % event.name,
+        submit='Confirm',
         form=form)

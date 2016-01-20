@@ -56,9 +56,19 @@ class User(Base, flask_login.UserMixin):
 
     def groups(self):
         """All groups for this user"""
-        return [m.group for m in
-            Membership.query.filter_by(user_id=self.id).all()]
+        return Group.query.join(Membership).filter_by(user_id=self.id).all()
 
+    def join(self, group, role):
+        """Join a group"""
+        assert group.id, 'Save group object first'
+        assert isinstance(group, Group), 'Can only join group.'
+        return Membership(user_id=self.id, group_id=group.id, role=role).save()
+
+    def signup(self, event, role):
+        """Signup for an event"""
+        assert event.id, 'Save event object first'
+        assert isinstance(event, Event), 'Can only signup for events.'
+        return Signup(user_id=self.id, event_id=event.id, role=role).save()
 
 class Group(Base):
     """A PIAP group can be any form or sort of organization."""
@@ -72,10 +82,26 @@ class Group(Base):
     def __init__(self, *args, **kwargs):
         super(Group, self).__init__(*args, **kwargs)
 
+    @property
+    def events(self):
+        """List of all events"""
+        return Event.query.filter_by(group_id=self.id).all()
+
+    @property
+    def members(self):
+        """List of all members"""
+        return User.query.join(Membership).filter_by(group_id=self.id).all()
+
     def link(self, user, role):
         """links group to a user"""
         assert self.id, 'Save the object first.'
-        return Membership(user_id=user.id, group_id=self.id, role=role).save()
+        return user.join(self, role)
+
+    def __contains__(self, user):
+        """Tests if user is in group"""
+        return Membership.query.filter_by(
+            user_id=user.id, group_id=self.id
+        ).one_or_none() is not None
 
 
 class Event(Base):
@@ -92,6 +118,17 @@ class Event(Base):
     @property
     def group(self):
         return Group.query.get(self.group_id)
+
+    @property
+    def participants(self):
+        """Returns all participants"""
+        return User.query.join(Signup).filter_by(event_id=self.id).all()
+
+    def __contains__(self, user):
+        """Check if user is in signups"""
+        return Signup.query.filter_by(
+            user_id=user.id, event_id=self.id
+        ).one_or_none() is not None
 
 
 ########################

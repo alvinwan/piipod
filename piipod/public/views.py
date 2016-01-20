@@ -84,4 +84,4 @@ def logout():
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return get_user_home(flask_login.current_user)
+    return redirect(url_for('public.login'))

@@ -12,3 +12,10 @@ class EventForm(ModelForm):
         only = ('name', 'description', 'start', 'end')
 
     group_id = wtf.HiddenField('group_id')
+
+
+class EventSignupForm(wtf.Form):
+    """signup form for events"""
+
+    user_id = wtf.HiddenField('user')
+    event_id = wtf.HiddenField('event')

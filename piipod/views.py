@@ -23,14 +23,15 @@ def anonymous_required(f):
         return f(*args, **kwargs)
     return decorator
 
-# TODO: convert to event-specific requirement?
-def requires(*roles):
+
+def requires(*permissions):
     """Decorator for views, restricting access to the roles listed"""
     def wrap(f):
         @wraps(f)
         def decorator(*args, **kwargs):
-            if getattr(g.user, 'role', None) not in roles:
-                return 'Permission denied.'
+            allowed = [s.strip() for s in g.user.permissions.split(',')]
+            if not all([p in allowed for p in permissions]):
+                return 'Permissions Error'
             return f(*args, **kwargs)
         return decorator
     return wrap

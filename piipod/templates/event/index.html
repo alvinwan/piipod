@@ -7,4 +7,9 @@
 </p>
 <h1>Welcome to {{ event.name }}</h1>
 <a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
+<a href="{{ url_for('event.signup') }}">Signup</a>
+<h2>Participants</h2>
+{% for participant in event.participants %}
+<li>{{ participant.name }}</li>
+{% endfor %}
 {% endblock %}
