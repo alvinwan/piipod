@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, url_for, redirect
 from .forms import *
-from piipod import app, login_manager
+from piipod import app, login_manager, logger
 from piipod.models import User
 from piipod.views import anonymous_required
 import flask_login
@@ -69,12 +69,12 @@ def request_loader(request):
     id = int(request.form.get('id') or 0)
     user = User.query.get(id) if id else None
     if not user:
-        print(' * Anonymous user found.')
+        logger.debug('Anonymous user found.')
         return
     # encryption handled by SQLAlchemy PasswordType field
     user.is_authenticated = user.password == request.form['password']
     if user.is_authenticated:
-        print(' * Reloaded user with id "%s", from request_loader' % id)
+        logger.debug('Reloaded user with id "%s", from request_loader' % id)
     return user
 
 @app.route('/logout')

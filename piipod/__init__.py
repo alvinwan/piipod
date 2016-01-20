@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urlparse
+from .logger import logger
 import functools
 import flask_login
 import os
@@ -43,11 +44,11 @@ debug = config['DEBUG'].lower() == 'true'
 whitelist = config['WHITELIST'].split(',')
 googleclientID = config['GOOGLECLIENTID']
 
-print(' * Running in DEBUG mode.' if debug else
-      ' * Running in PRODUCTION mode.')
+logger.debug('Running in DEBUG mode.' if debug else
+      'Running in PRODUCTION mode.')
 
-print(' * Google Client ID: %s' % googleclientID if googleclientID else
-      ' * No Google Client ID found.')
+logger.debug('Google Client ID: %s' % googleclientID if googleclientID else
+      'No Google Client ID found.')
 
 # Flask app
 app = Flask(__name__)
@@ -70,7 +71,7 @@ from .event.views import event
 
 blueprints = (public, dashboard, group, event)
 for blueprint in blueprints:
-    print(' * Registering blueprint "%s"' % blueprint.name)
+    logger.debug('Registering blueprint "%s"' % blueprint.name)
     app.register_blueprint(blueprint)
 
 

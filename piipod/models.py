@@ -4,8 +4,8 @@ Important: Changes here need to be followed by `make refresh`.
 from piipod import db
 from flask import request, g
 from sqlalchemy import types
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.declarative import AbstractConcreteBase
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
 import arrow
 import flask_login
@@ -39,6 +39,16 @@ class Base(db.Model):
         db.session.commit()
         return self
 
+
+class Setting(Base):
+    """base setting model"""
+
+    __abstract__ = True
+
+    name = db.Column(db.String(50))
+    value = db.Column(db.Text)
+
+
 ############
 # ENTITIES #
 ############
@@ -50,9 +60,10 @@ class User(Base, flask_login.UserMixin):
     __tablename__ = 'user'
 
     name = db.Column(db.String(100))
-    email = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
     username = db.Column(db.String(50), unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
+    settings = relationship("UserSetting", backref="user")
 
     def groups(self):
         """All groups for this user"""
@@ -70,6 +81,15 @@ class User(Base, flask_login.UserMixin):
         assert isinstance(event, Event), 'Can only signup for events.'
         return Signup(user_id=self.id, event_id=event.id, role=role).save()
 
+
+class UserSetting(Setting):
+    """settings for a PIAP user"""
+
+    __tablename__ = 'user_setting'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+
 class Group(Base):
     """A PIAP group can be any form or sort of organization."""
 
@@ -78,6 +98,7 @@ class Group(Base):
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
     events = db.relationship('Event', backref='group', lazy='dynamic')
+    settings = relationship("GroupSetting", backref="group")
 
     def __init__(self, *args, **kwargs):
         super(Group, self).__init__(*args, **kwargs)
@@ -104,6 +125,14 @@ class Group(Base):
         ).one_or_none() is not None
 
 
+class GroupSetting(Setting):
+    """settings for a PIAP group"""
+
+    __tablename__ = 'group_setting'
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
+
 class Event(Base):
     """PIAP event"""
 
@@ -114,6 +143,7 @@ class Event(Base):
     start = db.Column(ArrowType)
     end = db.Column(ArrowType)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    settings = relationship("EventSetting", backref="event")
 
     @property
     def group(self):
@@ -129,6 +159,14 @@ class Event(Base):
         return Signup.query.filter_by(
             user_id=user.id, event_id=self.id
         ).one_or_none() is not None
+
+
+class EventSetting(Setting):
+    """settings for a PIAP event"""
+
+    __tablename__ = 'event_setting'
+
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
 
 
 ########################
