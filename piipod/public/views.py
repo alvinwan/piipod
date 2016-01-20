@@ -27,6 +27,8 @@ def home():
 def login():
     """login to the web application"""
     form, message = LoginForm(request.form), ''
+    form.redirect.default = request.args.get('redirect', None)
+    form.process()
     if request.method == 'POST' and form.validate():
         user = User.query.filter(
             User.username == request.form['username']).one_or_none()
@@ -51,6 +53,8 @@ def login():
 def register():
     """register for the piap network"""
     form = RegisterForm(request.form)
+    form.redirect.default = request.args.get('redirect', None)
+    form.process()
     if request.method == 'POST' and form.validate():
         user = User.from_request().save()
         redirect_url = urlparse(form.pop('redirect', None))
