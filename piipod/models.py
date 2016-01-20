@@ -140,8 +140,8 @@ class Event(Base):
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
-    start = db.Column(ArrowType)
-    end = db.Column(ArrowType)
+    start = db.Column(ArrowType, nullable=True)
+    end = db.Column(ArrowType, nullable=True)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     settings = relationship("EventSetting", backref="event")
 

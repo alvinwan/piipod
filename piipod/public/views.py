@@ -38,7 +38,8 @@ def login():
         title='Login',
         submit='login',
         message=message,
-        form=form)
+        form=form,
+        back=url_for('public.home'))
 
 @public.route('/register', methods=['GET', 'POST'])
 @anonymous_required
@@ -51,7 +52,8 @@ def register():
     return render_template('form.html',
         title='Register',
         submit='register',
-        form=form)
+        form=form,
+        back=url_for('public.home'))
 
 ######################
 # SESSION UTILIITIES #

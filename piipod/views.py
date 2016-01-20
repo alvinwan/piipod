@@ -19,7 +19,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
         if flask_login.current_user.is_authenticated:
-            return url_for('dashboard.home')
+            return redirect(url_for('dashboard.home'))
         return f(*args, **kwargs)
     return decorator
 
