@@ -17,6 +17,7 @@ def db_create():
     """Create database"""
     try:
         db.create_all()
+
     except OperationalError:
         raise UserWarning('It looks like your MySQL server hasn\'t been started yet.')
 

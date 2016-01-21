@@ -3,7 +3,7 @@ Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db
 from flask import request, g
-from sqlalchemy import types
+from sqlalchemy import types, desc
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
@@ -18,16 +18,14 @@ class Base(db.Model):
     __abstract__ = True
 
     __access_token = None
+    __context = CryptContext(schemes=['pbkdf2_sha512'])
 
     id = db.Column(db.Integer, primary_key=True)
     updated_at = db.Column(ArrowType)
     updated_by = db.Column(db.Integer)
     created_at = db.Column(ArrowType, default=arrow.utcnow())
     created_by = db.Column(db.Integer)
-
-    def __init__(self, *args, **kwargs):
-        super(db.Model, self).__init__(*args, **kwargs)
-        self.context = CryptContext(schemes=['pbkdf2_sha512'])
+    is_active = db.Column(db.Boolean, default=True)
 
     @property
     def access_token(self):
@@ -38,7 +36,7 @@ class Base(db.Model):
 
     def random_hash(self):
         """Generates random hash"""
-        return self.context.encrypt(arrow.utcnow())
+        return self.__context.encrypt(str(arrow.utcnow()))
 
     @classmethod
     def from_request(cls):
@@ -61,6 +59,16 @@ class Base(db.Model):
         """Get setting by shortname"""
         return self.__settingclass__.query.filter_by(shortname=shortname).one()
 
+    def deactivate(self):
+        """deactivate"""
+        self.is_active = False
+        return self.save()
+
+    def activate(self):
+        """activate"""
+        self.is_active = True
+        return self.save()
+
 
 class Setting(Base):
     """base setting model"""
@@ -70,6 +78,16 @@ class Setting(Base):
     shortname = db.Column(db.String(50))
     name = db.Column(db.String(100))
     value = db.Column(db.Text)
+
+
+class Role(Base):
+    """base role model (<- hahaha. punny)"""
+
+    __abstract__ = True
+
+    shortname = db.Column(db.String(50))
+    name = db.Column(db.String(100))
+    permissions = db.Column(db.Text)
 
 
 ############
@@ -110,14 +128,39 @@ class User(Base, flask_login.UserMixin):
         """Signup for an event"""
         assert event.id, 'Save event object first'
         assert isinstance(event, Event), 'Can only signup for events.'
+        signup = Signup.query.filter_by(
+            user_id=self.id,
+            event_id=event.id
+        ).one_or_none()
+        if signup:
+            signup.role = role
+            signup.is_active = True
+            return signup.save()
         return Signup(user_id=self.id, event_id=event.id, role=role).save()
+
+    def leave(self, event):
+        """Leave an event"""
+        signup = Signup.query.filter_by(
+            user_id=self.id,
+            event_id=event.id,
+            is_active=True
+        ).one_or_none()
+        if signup:
+            return signup.deactivate()
+
+    def checkin(self, event, authorizer):
+        """Checkin for an event"""
+        return Checkin(
+            authorizer_id=authorizer.id,
+            participant_id=self.id,
+            event_id=event.id).save()
 
     def generate_access_token(self):
         """Generates access token"""
-        return (UserSetting(
+        return (UserSetting.query.filter_by(
             user_id=self.id,
             shortname='access_token'
-        ).one_or_none() or UserSetting(
+        ).order_by(desc(UserSetting.id)).first() or UserSetting(
             user_id=self.id,
             shortname='access_token',
             name='Access Token',
@@ -133,6 +176,14 @@ class GroupSetting(Setting):
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
 
 
+class GroupRole(Role):
+    """roles for group membership"""
+
+    __tablename__ = 'group_role'
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
+
 class Group(Base):
     """A PIAP group can be any form or sort of organization."""
 
@@ -141,6 +192,7 @@ class Group(Base):
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
+    category = db.Column(db.Text)
     events = db.relationship('Event', backref='group', lazy='dynamic')
     settings = relationship("GroupSetting", backref="group")
 
@@ -162,12 +214,15 @@ class Group(Base):
         assert self.id, 'Save the object first.'
         return user.join(self, role)
 
+    def setting_query(self):
+        return GroupSetting.query.filter_by(group_id=self.id)
+
     def generate_access_token(self):
         """Generates access token"""
-        return (GroupSetting(
+        return (GroupSetting.query.filter_by(
             group_id=self.id,
             shortname='access_token'
-        ).one_or_none() or GroupSetting(
+        ).order_by(desc(GroupSetting.id)).first() or GroupSetting(
             group_id=self.id,
             shortname='access_token',
             name='Access Token',
@@ -189,6 +244,14 @@ class EventSetting(Setting):
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
 
 
+class EventRole(Role):
+    """roles for event membership"""
+
+    __tablename__ = 'event_role'
+
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
+
 class Event(Base):
     """PIAP event"""
 
@@ -201,6 +264,7 @@ class Event(Base):
     end = db.Column(ArrowType, nullable=True)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     settings = relationship("EventSetting", backref="event")
+    checkins = relationship("Checkin", backref="event")
 
     @property
     def group(self):
@@ -209,20 +273,24 @@ class Event(Base):
     @property
     def participants(self):
         """Returns all participants"""
-        return User.query.join(Signup).filter_by(event_id=self.id).all()
+        return User.query.join(Signup).filter_by(
+            event_id=self.id,
+            is_active=True).all()
 
     def __contains__(self, user):
         """Check if user is in signups"""
         return Signup.query.filter_by(
-            user_id=user.id, event_id=self.id
+            user_id=user.id,
+            event_id=self.id,
+            is_active=True
         ).one_or_none() is not None
 
     def generate_access_token(self):
         """Generates access token"""
-        return (EventSetting(
+        return (EventSetting.query.filter_by(
             event_id=self.id,
             shortname='access_token'
-        ).one_or_none() or EventSetting(
+        ).order_by(desc(EventSetting.id)).first() or EventSetting(
             event_id=self.id,
             shortname='access_token',
             name='Access Token',
@@ -235,13 +303,29 @@ class Event(Base):
 #######################
 
 
+class Checkin(Base):
+    """checkin for event"""
+
+    __tablename__ = 'checkin'
+
+    authorizer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+
+    @property
+    def authorizer(self):
+        """authorizing user"""
+        return User.query.get(self.authorizer_id)
+
+
 class Signup(Base):
+    """user signup for event"""
 
     __tablename__ = 'signup'
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
-    role = db.Column(db.String(50))
+    role = db.Column(db.Integer, db.ForeignKey('event_role.id'))
 
     @property
     def event(self):
@@ -251,14 +335,21 @@ class Signup(Base):
     def user(self):
         return User.query.get(self.user_id)
 
+    @property
+    def is_checked_in(self):
+        return Checkin.query.filter_by(
+            user_id=self.user_id,
+            event_id=self.event_id).one_or_none() is not None
+
 
 class Membership(Base):
+    """user membership in group"""
 
     __tablename__ = 'membership'
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    role = db.Column(db.String(50))
+    role = db.Column(db.Integer, db.ForeignKey('group_role.id'))
 
     def save(self):
         """save membership"""

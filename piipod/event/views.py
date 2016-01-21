@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, g
 from piipod.views import current_user, login_required
-from .forms import EventForm, EventSignupForm
-from piipod.models import Group, Event
+from .forms import EventForm, EventSignupForm, EventCheckinForm
+from piipod.models import Group, Event, User, UserSetting
 
 
 event = Blueprint('event', __name__,
@@ -73,4 +73,37 @@ def signup():
     return render_event('form.html',
         title='Signup for %s' % event.name,
         submit='Confirm',
+        form=form)
+
+
+@event.route('/leave')
+@login_required
+def leave():
+    """leave event"""
+    g.user.leave(g.event)
+    return redirect(url_for('event.home'))
+
+
+@event.route('/checkin', methods=['GET', 'POST'])
+@login_required
+def checkin():
+    """event checkin"""
+    message = ''
+    form = EventCheckinForm()
+    form.event_id.default = g.event.id
+    form.user_id.default = g.user.id
+    form.process()
+    if request.method == 'POST' and form.validate():
+        authorizer = User.query.join(UserSetting).filter_by(
+            shortname='access_code',
+            value=request.form['code'],
+            is_active=True).one_or_none()
+        if authorizer:
+            checkin = g.user.checkin(g.event, authorizer)
+            return redirect(url_for('event.home', notif=8))
+        message = 'Authorization failed.'
+    return render_event('form.html',
+        title='Checkin for %s' % event.name,
+        message=message,
+        submit='Checkin',
         form=form)

@@ -35,9 +35,9 @@ def login():
         if user and user.password == request.form['password']:
             flask_login.login_user(user)
             print(' * %s (%s) logged in.' % (user.name, user.email))
-            redirect_url = urlparse(form.pop('redirect', None))
-            if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
-                return redirect(redirect_url + '?access-token=%s' % user.access_token)
+            # redirect_url = urlparse(form.pop('redirect', None))
+            # if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
+            #     return redirect(redirect_url + '?access-token=%s' % user.access_token)
             return redirect(url_for('dashboard.home'))
         message = 'Login failed.'
     return render_template('form.html',
@@ -55,8 +55,9 @@ def register():
     form.redirect.default = request.args.get('redirect', None)
     form.process()
     if request.method == 'POST' and form.validate():
-        user = User.from_request().save()
-        redirect_url = urlparse(form.pop('redirect', None))
+        request_data = dict(request.form.items())
+        redirect_url = urlparse(request_data.pop('redirect', None))
+        user = User(**request_data).save()
         if redirect_url.scheme and redirect_url.netloc in ALLOWED_NETLOCS:
             return redirect(redirect_url + '?access-token=%s' %
                 user.generate_access_token())

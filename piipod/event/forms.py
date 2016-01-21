@@ -17,5 +17,13 @@ class EventForm(ModelForm):
 class EventSignupForm(wtf.Form):
     """signup form for events"""
 
-    user_id = wtf.HiddenField('user')
-    event_id = wtf.HiddenField('event')
+    user_id = wtf.HiddenField()
+    event_id = wtf.HiddenField()
+
+
+class EventCheckinForm(wtf.Form):
+    """checkin form for events"""
+
+    event_id = wtf.HiddenField()
+    user_id = wtf.HiddenField()
+    code = wtf.StringField()

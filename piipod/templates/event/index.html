@@ -7,9 +7,13 @@
 </p>
 <h1>Welcome to {{ event.name }}</h1>
 <a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
+{% if current_user in event %}
+<a href="{{ url_for('event.checkin') }}">Checkin</a>
+{% else %}
 <a href="{{ url_for('event.signup') }}">Signup</a>
+{% endif %}
 <h2>Participants</h2>
 {% for participant in event.participants %}
-<li>{{ participant.name }}</li>
+<li>{{ participant.name }} {% if participant.is_checked_in %}(checked in){% endif %} {% if current_user.id == participant.id %}(<a href="{{ url_for('event.leave') }}">leave event</a>){% endif %}</li>
 {% endfor %}
 {% endblock %}
