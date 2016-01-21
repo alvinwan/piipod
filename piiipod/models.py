@@ -313,6 +313,7 @@ class Event(Base):
     __defaultsettings__ = default_event_settings
 
     name = db.Column(db.String(50))
+    url = db.Column(db.String(30))
     description = db.Column(db.Text)
     start = db.Column(ArrowType, nullable=True)
     end = db.Column(ArrowType, nullable=True)

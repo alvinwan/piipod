@@ -6,23 +6,23 @@ from piiipod.models import Event, Group, Membership, GroupRole
 from piiipod.defaults import default_event_roles
 
 
-group = Blueprint('group', __name__, url_prefix='/g/<int:group_id>')
+group = Blueprint('group', __name__, url_prefix='/<string:group_url>')
 
 
 @group.url_defaults
 def add_group_id(endpoint, values):
-    values.setdefault('group_id', getattr(g, 'group_id', None))
+    values.setdefault('group_url', getattr(g, 'group_url', None))
 
 
 @group.url_value_preprocessor
 def pull_group_id(endpoint, values):
-    g.group_id = values.pop('group_id')
-    g.group = Group.query.get(g.group_id)
+    g.group_url = values.pop('group_url')
+    g.group = Group.query.filter_by(url=g.group_url).one()
     g.user = current_user()
     g.event_role = g.signup = None
     if g.user.is_authenticated:
         g.membership = Membership.query.filter_by(
-            group_id=g.group_id,
+            group_id=g.group.id,
             user_id=g.user.id,
             is_active=True).one_or_none()
         if g.membership:
@@ -76,8 +76,9 @@ def create_event():
         event = Event.from_request().save().load_roles(
             default_event_roles[g.group.category]).save()
         return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'Owner').event_id))
-    form.group_id.default = g.group_id
+            event_id=g.user.signup(event, 'Owner').event_id,
+            event_url=event.url))
+    form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',
         title='Create Event',

@@ -9,7 +9,7 @@ class EventForm(ModelForm):
 
     class Meta:
         model = Event
-        only = ('name', 'description', 'start', 'end')
+        only = ('name', 'description', 'start', 'end', 'url')
 
     group_id = wtf.HiddenField('group_id')
 

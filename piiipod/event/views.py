@@ -7,25 +7,27 @@ from piiipod.models import Group, Event, User, UserSetting, Membership, Signup, 
 
 
 event = Blueprint('event', __name__,
-    url_prefix='/g/<int:group_id>/e/<int:event_id>')
+    url_prefix='/<string:group_url>/e/<int:event_id>/<string:event_url>')
 
 
 @event.url_defaults
 def add_ids(endpoint, values):
-    values.setdefault('group_id', getattr(g, 'group_id', None))
+    values.setdefault('group_url', getattr(g, 'group_url', None))
     values.setdefault('event_id', getattr(g, 'event_id', None))
+    values.setdefault('event_url', getattr(g, 'event_url', None))
 
 
 @event.url_value_preprocessor
 def pull_ids(endpoint, values):
-    g.group_id = values.pop('group_id')
-    g.group = Group.query.get(g.group_id)
+    g.group_url = values.pop('group_url')
+    g.group = Group.query.filter_by(url=g.group_url).one()
     g.event_id = values.pop('event_id')
+    g.event_url = values.pop('event_url')
     g.event = Event.query.get(g.event_id)
     g.user = current_user()
     if g.user.is_authenticated:
         g.membership = Membership.query.filter_by(
-            group_id=g.group_id,
+            group_id=g.group.id,
             user_id=g.user.id,
             is_active=True).one_or_none()
         if g.membership:
@@ -33,7 +35,7 @@ def pull_ids(endpoint, values):
         else:
             g.group_role = None
         g.signup = Signup.query.filter_by(
-            event_id=g.event_id,
+            event_id=g.event.id,
             user_id=g.user.id,
             is_active=True).one_or_none()
         if g.signup:

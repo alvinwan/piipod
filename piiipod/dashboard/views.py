@@ -39,8 +39,8 @@ def create_group():
     if request.method == 'POST' and form.validate():
         group = Group.from_request().save().load_roles(
             default_group_roles[request.form['category']]).save()
-        return redirect(url_for('group.home',
-            group_id=g.user.join(group, role='Owner').group_id))
+        g.user.join(group, role='Owner')
+        return redirect(url_for('group.home', group_url=group.url))
     return render_dashboard('form.html',
         title='Create Group',
         submit='create',

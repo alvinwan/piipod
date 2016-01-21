@@ -10,7 +10,7 @@ class GroupForm(ModelForm):
 
     class Meta:
         model = Group
-        only = ('name', 'description')
+        only = ('name', 'description', 'url')
 
     category = wtf.SelectField(
         'Category',

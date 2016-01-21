@@ -4,7 +4,7 @@
 <a href="{{ url_for('dashboard.create_group') }}">Create group</a>
 <ul>
 {% for group in groups %}
-<li><a href="{{ url_for('group.home', group_id=group.id) }}">{{ group.name }}</a></li>
+<li><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}
