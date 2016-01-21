@@ -1,14 +1,14 @@
 """
 Important: Changes here need to be followed by `make refresh`.
 """
-from piipod import db
+from piiipod import db
 from flask import request, g
 from sqlalchemy import types, desc
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
-from piipod.defaults import default_event_settings, default_group_settings, \
+from piiipod.defaults import default_event_settings, default_group_settings, \
     default_user_settings
 import arrow
 import flask_login
@@ -130,6 +130,8 @@ class Setting(Base):
     __abstract__ = True
 
     name = db.Column(db.String(100))
+    label = db.Column(db.String(100))
+    description = db.Column(db.Text)
     value = db.Column(db.Text)
 
 

@@ -1,8 +1,8 @@
 from wtforms_alchemy import ModelForm, ModelFieldList
 import wtforms as wtf
-from piipod.models import Group
-from piipod.defaults import default_group_roles
-from piipod.forms import choicify
+from piiipod.models import Group
+from piiipod.defaults import default_group_roles
+from piiipod.forms import choicify
 
 
 class GroupForm(ModelForm):

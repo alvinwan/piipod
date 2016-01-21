@@ -1,9 +1,9 @@
 from flask import Blueprint, request, redirect, url_for, g
-from piipod.views import current_user, login_required
+from piiipod.views import current_user, login_required
 from .forms import GroupForm, GroupSignupForm
-from piipod.event.forms import EventForm
-from piipod.models import Event, Group, Membership, GroupRole
-from piipod.defaults import default_event_roles
+from piiipod.event.forms import EventForm
+from piiipod.models import Event, Group, Membership, GroupRole
+from piiipod.defaults import default_event_roles
 
 
 group = Blueprint('group', __name__, url_prefix='/g/<int:group_id>')
@@ -34,7 +34,7 @@ def pull_group_id(endpoint, values):
 
 def render_group(f, *args, **kwargs):
     """custom render for groups"""
-    from piipod.views import render
+    from piiipod.views import render
     data = vars(g)
     data.update(kwargs)
     return render(f, *args, **data)

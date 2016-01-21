@@ -1,8 +1,8 @@
 from flask import Blueprint, request, redirect, url_for, g
-from piipod.views import current_user, login_required
-from piipod.group.forms import GroupForm
-from piipod.models import Group
-from piipod.defaults import default_group_roles
+from piiipod.views import current_user, login_required
+from piiipod.group.forms import GroupForm
+from piiipod.models import Group
+from piiipod.defaults import default_group_roles
 
 
 dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
@@ -15,7 +15,7 @@ def load_current_user(_, __):
 
 def render_dashboard(f, *args, **kwargs):
     """custom render for dashboard"""
-    from piipod.views import render
+    from piiipod.views import render
     return render(f, *args, **kwargs)
 
 

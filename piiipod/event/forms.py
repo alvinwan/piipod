@@ -1,7 +1,7 @@
 from flask import g
 from wtforms_alchemy import ModelForm, ModelFieldList
 import wtforms as wtf
-from piipod.models import Event
+from piiipod.models import Event
 
 
 class EventForm(ModelForm):

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, g
-from piipod.views import current_user, login_required
+from piiipod.views import current_user, login_required
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm
-from piipod.models import Group, Event, User, UserSetting, Membership, Signup, \
+from piiipod.models import Group, Event, User, UserSetting, Membership, Signup, \
     GroupRole, EventRole, Base
 
 
@@ -46,7 +46,7 @@ def pull_ids(endpoint, values):
 
 def render_event(f, *args, **kwargs):
     """custom render for events"""
-    from piipod.views import render
+    from piiipod.views import render
     data = vars(g)
     data.update(kwargs)
     return render(f, *args, **data)

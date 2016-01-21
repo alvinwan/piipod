@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, url_for, redirect
 from .forms import *
-from piipod import app, login_manager, logger
-from piipod.models import User
-from piipod.views import anonymous_required
+from piiipod import app, login_manager, logger
+from piiipod.models import User
+from piiipod.views import anonymous_required
 from urllib.parse import urlparse
 import flask_login
 
