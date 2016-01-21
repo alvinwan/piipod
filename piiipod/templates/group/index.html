@@ -8,6 +8,9 @@
 {% if current_user.can('edit_group') %}
 <a href="{{ url_for('group.edit') }}">Edit {{ group.name }}</a>
 {% endif %}
+{% if current_user.can('edit_group_settings') %}
+<a href="{{ url_for('group.settings') }}">Edit settings</a>
+{% endif %}
 {% if current_user.can('create_event') %}
 <a href="{{ url_for('group.create_event') }}">Create Event</a>
 {% endif %}

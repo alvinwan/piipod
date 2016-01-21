@@ -166,3 +166,12 @@ def authorize():
         submit='Regenerate',
         form=form,
         back=url_for('event.home'))
+
+@event.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    """edit settings"""
+    settings = EventSetting.query.filter_by(event_id=g.event.id).all()
+    if request.method == 'POST':
+        pass
+    return render_event('settings.html', settings=settings)

@@ -40,6 +40,7 @@ def create_group():
         group = Group.from_request().save().load_roles(
             default_group_roles[request.form['category']]).save()
         g.user.join(group, role='Owner')
+        group.load_settings('whitelist')
         return redirect(url_for('group.home', group_url=group.url))
     return render_dashboard('form.html',
         title='Create Group',

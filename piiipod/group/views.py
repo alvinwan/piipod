@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, url_for, g
 from piiipod.views import current_user, login_required
 from .forms import GroupForm, GroupSignupForm
 from piiipod.event.forms import EventForm
-from piiipod.models import Event, Group, Membership, GroupRole
+from piiipod.models import Event, Group, Membership, GroupRole, GroupSetting
 from piiipod.defaults import default_event_roles
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -126,3 +126,12 @@ def signup():
         submit='Join',
         form=form,
         back=url_for('group.home'))
+
+@group.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    """edit settings"""
+    settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
+    if request.method == 'POST':
+        pass
+    return render_group('settings.html', settings=settings, back=url_for('group.home'))

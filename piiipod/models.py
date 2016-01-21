@@ -74,14 +74,22 @@ class Base(db.Model):
     def setting(self, name):
         """Get Setting by name"""
         assert name in self.__defaultsettings__, 'Not a valid setting'
-        key = {'%s_id' % self.entity: self.id}
         setting = self.__settingclass__.query.filter_by(name=name).one_or_none()
         if not setting:
-            key.update(self.__defaultsettings__[name])
-            key.setdefault('name', name)
-            setting = self.__settingclass__(
-                **key).save()
+            setting = self.load_setting(name)
         return setting
+
+    def load_setting(self, name):
+        """load a setting"""
+        key = {'%s_id' % self.entity: self.id}
+        key.update(self.__defaultsettings__[name])
+        key.setdefault('name', name)
+        return self.__settingclass__(
+            **key).save()
+
+    def load_settings(self, *names):
+        """load a series of settings"""
+        return [self.load_setting(n) for n in names]
 
     def deactivate(self):
         """deactivate"""
@@ -119,6 +127,8 @@ class Base(db.Model):
         ).order_by(desc(self.__settingclass__.id)).first() or self.__settingclass__(
             name='access_token',
             value=self.random_hash(),
+            label='Access Token',
+            description='for integrating with other services',
             **key
         ).save()).value
 

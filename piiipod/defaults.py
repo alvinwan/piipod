@@ -101,6 +101,11 @@ default_event_settings = {
 }
 
 default_group_settings = {
+    'whitelist': {
+        'label': 'Whitelist',
+        'description': 'whitelist administrators, will be automatically promoted to GSI for classes and Board for clubs',
+        'value': ''
+    },
     'google_login': {
         'label': 'Google Login',
         'type': bool
