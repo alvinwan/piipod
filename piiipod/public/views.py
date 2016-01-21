@@ -129,8 +129,12 @@ def unauthorized_handler():
 # ERROR HANDLERS #
 ##################
 
-@app.errorhandler(500)
+@app.errorhandler(404)
 def not_found(error):
+    return redirect(url_for('dashboard.home'))
+
+@app.errorhandler(500)
+def server_error(error):
     from queue import db
     db.session.rollback()
     return 'Sorry, try again! Sometimes, our server goes to sleep, which causes our application to crash. If this problem persists, file an issue on the <a href="https://github.com/alvinwan/piiipod/issues">Github issues page</a>.'
