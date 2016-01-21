@@ -9,8 +9,10 @@ class EventForm(ModelForm):
 
     class Meta:
         model = Event
-        only = ('name', 'description', 'start', 'end', 'url')
+        only = ('name', 'description', 'url')
 
+    start = wtf.DateTimeField(description='2016-01-13 12:00:00')
+    end = wtf.DateTimeField(description='2016-01-13 12:00:00')
     group_id = wtf.HiddenField('group_id')
 
 

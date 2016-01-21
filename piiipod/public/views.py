@@ -17,8 +17,7 @@ public = Blueprint('public', __name__)
 def home():
     """Home page"""
     return render('index.html',
-        logout=request.args.get('logout', False),
-        redirect=request.args.get('redirect', None))
+        logout=request.args.get('logout', 'false'))
 
 
 ##################
@@ -135,8 +134,6 @@ def not_found(error):
 
 @app.errorhandler(500)
 def server_error(error):
-    from queue import db
-    db.session.rollback()
     return 'Sorry, try again! Sometimes, our server goes to sleep, which causes our application to crash. If this problem persists, file an issue on the <a href="https://github.com/alvinwan/piiipod/issues">Github issues page</a>.'
 
 
