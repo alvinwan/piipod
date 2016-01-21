@@ -131,7 +131,7 @@ def unauthorized_handler():
 
 @app.errorhandler(404)
 def not_found(error):
-    return redirect(url_for('dashboard.home'))
+    return '0.o Page not found!'
 
 @app.errorhandler(500)
 def server_error(error):
