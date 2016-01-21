@@ -91,10 +91,17 @@ def signup():
     form = EventSignupForm(request.form)
     message = ''
     choose_role = g.event.setting('choose_role').is_active
-    whitelisted = [s.strip() for s in
-        g.group.setting('whitelist').value.split(',')]
-    if g.user.email in whitelisted:
-        message = 'You\'ve been identified as a GSI. Hello! Click "Confirm" below, to get started.'
+    whitelisted = []
+    for block in g.group.setting('whitelist').value.split(','):
+        data = block.split('(')
+        if len(data) == 2:
+            whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
+        else:
+            whitelisted.append((data.strip(), ''))
+    emails = [s.strip() for s, _ in whitelisted]
+    if g.user.email in emails:
+        title = [title for email, title in whitelisted if email == g.user.email][0]
+        message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
     if choose_role:
         form.role_id.choices = [(r.id, r.name) for r in EventRole.query.filter_by(
             event_id=g.event.id,
@@ -104,8 +111,8 @@ def signup():
     if g.user in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
-        if g.user.email in whitelisted:
-            role = {'role': 'Authorizer'}
+        if g.user.email in emails:
+            role = {'role': title or 'Authorizer'}
         elif choose_role:
             role = {'role_id': request.form['role_id']}
         else:

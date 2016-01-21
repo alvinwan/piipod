@@ -101,8 +101,20 @@ def events():
 @login_required
 def signup():
     """group signup"""
+    message = ''
     form = GroupSignupForm(request.form)
     choose_role = g.group.setting('choose_role').is_active
+    whitelisted = []
+    for block in g.group.setting('whitelist').value.split(','):
+        data = block.split('(')
+        if len(data) == 2:
+            whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
+        else:
+            whitelisted.append((data.strip(), ''))
+    emails = [s.strip() for s, _ in whitelisted]
+    if g.user.email in emails:
+        title = [title for email, title in whitelisted if email == g.user.email][0]
+        message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
     if choose_role:
         form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
             group_id=g.group.id,
@@ -112,7 +124,9 @@ def signup():
     if g.user in g.group:
         return redirect(url_for('group.home', notif=5))
     if request.method == 'POST' and form.validate():
-        if choose_role:
+        if g.user.email in emails:
+            role = {'role': title or 'Authorizer'}
+        elif choose_role:
             role = {'role_id': request.form['role_id']}
         else:
             role = {'role': g.group.setting('role').value}
@@ -125,6 +139,7 @@ def signup():
         title='Signup %s' % group.name,
         submit='Join',
         form=form,
+        message=message,
         back=url_for('group.home'))
 
 @group.route('/settings', methods=['GET', 'POST'])

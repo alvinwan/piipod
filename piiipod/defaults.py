@@ -103,7 +103,7 @@ default_event_settings = {
 default_group_settings = {
     'whitelist': {
         'label': 'Whitelist',
-        'description': 'whitelist administrators, will be automatically promoted to GSI when logging in to your events. Comma-separated list.',
+        'description': 'Whitelist staff members as user1@berkeley.edu(Position), user2@berkeley.edu(Position2),...',
         'value': ''
     },
     'google_login': {
