@@ -29,8 +29,7 @@ def requires(*permissions):
     def wrap(f):
         @wraps(f)
         def decorator(*args, **kwargs):
-            allowed = [s.strip() for s in g.user.permissions.split(',')]
-            if not all([p in allowed for p in permissions]):
+            if not all(u.can(p) for p in permissions):
                 return 'Permissions Error'
             return f(*args, **kwargs)
         return decorator

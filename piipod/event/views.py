@@ -97,7 +97,8 @@ def signup():
     return render_event('form.html',
         title='Signup for %s' % event.name,
         submit='Confirm',
-        form=form)
+        form=form,
+        back=url_for('event.home'))
 
 
 @event.route('/leave')
@@ -115,12 +116,12 @@ def checkin():
     message = ''
     form = EventCheckinForm(request.form)
     if request.method == 'POST' and form.validate():
-        authorizer = User.query.join(UserSetting).filter_by(
-            name='access_code',
-            value=request.form['code'],
+        setting = UserSetting.query.filter_by(
+            name='authorize_code',
+            value=request.form['code'].strip(),
             is_active=True).one_or_none()
-        if authorizer:
-            checkin = g.user.checkin(g.event, authorizer)
+        if setting:
+            checkin = g.user.checkin(g.event, setting.user)
             return redirect(url_for('event.home', notif=8))
         message = 'Authorization failed.'
     form.event_id.default = g.event.id

@@ -31,7 +31,11 @@ class Base(db.Model):
 
     def __init__(self, *args, **kwargs):
         super(Base, self).__init__(*args, **kwargs)
-        self.entity = self.__class__.__name__.lower()
+
+    @property
+    def entity(self):
+        """Returns entity name"""
+        return self.__class__.__name__.lower()
 
     @property
     def access_token(self):
@@ -70,12 +74,14 @@ class Base(db.Model):
     def setting(self, name):
         """Get Setting by name"""
         assert name in self.__defaultsettings__, 'Not a valid setting'
+        key = {'%s_id' % self.entity: self.id}
         setting = self.__settingclass__.query.filter_by(name=name).one_or_none()
         if not setting:
             default = self.__defaultsettings__[name]
             setting = self.__settingclass__(
                 name=name,
-                value=default['value']).save()
+                value=default['value'],
+                **key).save()
         return setting
 
     def deactivate(self):
@@ -166,18 +172,18 @@ class User(Base, flask_login.UserMixin):
         """All groups for this user"""
         return Group.query.join(Membership).filter_by(user_id=self.id).all()
 
-    def join(self, group, role):
+    def join(self, group, role=None, role_id=None):
         """Join a group"""
         assert group.id, 'Save group object first'
         assert isinstance(group, Group), 'Can only join group.'
-        role = GroupRole.query.filter_by(
+        role_id = role_id or GroupRole.query.filter_by(
             name=role,
             group_id=self.id
-        ).one()
+        ).one().id
         return Membership(
             user_id=self.id,
             group_id=group.id,
-            role_id=role.id).save()
+            role_id=role_id).save()
 
     def signup(self, event, role=None, role_id=None):
         """Signup for an event"""
@@ -214,7 +220,7 @@ class User(Base, flask_login.UserMixin):
         """Checkin for an event"""
         return Checkin(
             authorizer_id=authorizer.id,
-            participant_id=self.id,
+            user_id=self.id,
             event_id=event.id).save()
 
     def permissions(self, include=('event', 'group')):

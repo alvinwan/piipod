@@ -96,10 +96,13 @@ def events():
 def signup():
     """group signup"""
     form = GroupSignupForm(request.form)
+    form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
+        group_id=g.group.id,
+        is_active=True).all()]
     if g.user in g.group:
         return redirect(url_for('group.home', notif=5))
     if request.method == 'POST' and form.validate():
-        membership = g.user.join(g.group, 'member')
+        membership = g.user.join(g.group, role_id=request.form['role_id'])
         return redirect(url_for('group.home'))
     form.group_id.default = g.group.id
     form.user_id.default = g.user.id
@@ -107,4 +110,5 @@ def signup():
     return render_group('form.html',
         title='Signup %s' % group.name,
         submit='Join',
-        form=form)
+        form=form,
+        back=url_for('group.home'))
