@@ -74,7 +74,10 @@ class Base(db.Model):
     def setting(self, name):
         """Get Setting by name"""
         assert name in self.__defaultsettings__, 'Not a valid setting'
-        setting = self.__settingclass__.query.filter_by(name=name).one_or_none()
+        key = {'%s_id' % self.entity: self.id}
+        setting = self.__settingclass__.query.filter_by(
+            name=name,
+            **key).one_or_none()
         if not setting:
             setting = self.load_setting(name)
         return setting

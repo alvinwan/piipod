@@ -10,7 +10,7 @@
 <a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
 {% endif %}
 {% if current_user in event %}
-  {% if current_user.can('generate_code') %}
+  {% if current_user.can('authorize') %}
   <a href="{{ url_for('event.authorize') }}">Authorize</a>
   {% elif signup.num_check_ins < event.setting('max_check_ins').value | int %}
   <a href="{{ url_for('event.checkin') }}">Checkin</a>

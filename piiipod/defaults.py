@@ -15,7 +15,7 @@ default_group_roles = {
         },
         {
             'name': 'GSI',
-            'permissions': 'edit_settings, create_event'
+            'permissions': 'edit_settings, create_event, authorize'
         },
         {
             'name': 'Reader',
@@ -103,7 +103,7 @@ default_event_settings = {
 default_group_settings = {
     'whitelist': {
         'label': 'Whitelist',
-        'description': 'whitelist administrators, will be automatically promoted to GSI for classes and Board for clubs',
+        'description': 'whitelist administrators, will be automatically promoted to GSI when logging in to your events. Comma-separated list.',
         'value': ''
     },
     'google_login': {

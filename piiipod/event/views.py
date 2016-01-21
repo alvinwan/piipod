@@ -89,7 +89,12 @@ def edit():
 def signup():
     """event signup"""
     form = EventSignupForm(request.form)
+    message = ''
     choose_role = g.event.setting('choose_role').is_active
+    whitelisted = [s.strip() for s in
+        g.group.setting('whitelist').value.split(',')]
+    if g.user.email in whitelisted:
+        message = 'You\'ve been identified as a GSI. Hello! Click "Confirm" below, to get started.'
     if choose_role:
         form.role_id.choices = [(r.id, r.name) for r in EventRole.query.filter_by(
             event_id=g.event.id,
@@ -99,7 +104,9 @@ def signup():
     if g.user in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
-        if choose_role:
+        if g.user.email in whitelisted:
+            role = {'role': 'Authorizer'}
+        elif choose_role:
             role = {'role_id': request.form['role_id']}
         else:
             role = {'role': g.event.setting('role').value }
@@ -112,6 +119,7 @@ def signup():
         title='Signup for %s' % event.name,
         submit='Confirm',
         form=form,
+        message=message,
         back=url_for('event.home'))
 
 

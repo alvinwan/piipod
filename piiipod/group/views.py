@@ -131,7 +131,11 @@ def signup():
 @login_required
 def settings():
     """edit settings"""
-    settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
+    g.group.setting('whitelist')
     if request.method == 'POST':
-        pass
+        id, value = request.form['id'], request.form['value']
+        setting = GroupSetting.query.get(id)
+        setting.value = value
+        setting.save()
+    settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
     return render_group('settings.html', settings=settings, back=url_for('group.home'))
