@@ -1,4 +1,4 @@
-# piiipod.
+# Piiipod
 staff and event management, with Google calendar sync
 
 ## Features

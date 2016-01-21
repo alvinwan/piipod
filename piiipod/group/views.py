@@ -19,6 +19,7 @@ def pull_group_id(endpoint, values):
     g.group_id = values.pop('group_id')
     g.group = Group.query.get(g.group_id)
     g.user = current_user()
+    g.event_role = g.signup = None
     if g.user.is_authenticated:
         g.membership = Membership.query.filter_by(
             group_id=g.group_id,
@@ -96,13 +97,21 @@ def events():
 def signup():
     """group signup"""
     form = GroupSignupForm(request.form)
-    form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
-        group_id=g.group.id,
-        is_active=True).all()]
+    choose_role = g.group.setting('choose_role').is_active
+    if choose_role:
+        form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
+            group_id=g.group.id,
+            is_active=True).all()]
+    else:
+        del form.role_id
     if g.user in g.group:
         return redirect(url_for('group.home', notif=5))
     if request.method == 'POST' and form.validate():
-        membership = g.user.join(g.group, role_id=request.form['role_id'])
+        if choose_role:
+            role = {'role_id': request.form['role_id']}
+        else:
+            role = {'role': g.group.setting('role').value}
+        membership = g.user.join(g.group, **role)
         return redirect(url_for('group.home'))
     form.group_id.default = g.group.id
     form.user_id.default = g.user.id

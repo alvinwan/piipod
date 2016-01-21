@@ -5,8 +5,12 @@
   {{ group.name }}
 </p>
 <h1>Welcome to {{ group.name }}</h1>
+{% if current_user.can('edit_group') %}
 <a href="{{ url_for('group.edit') }}">Edit {{ group.name }}</a>
+{% endif %}
+{% if current_user.can('create_event') %}
 <a href="{{ url_for('group.create_event') }}">Create Event</a>
+{% endif %}
 {% if current_user not in group %}
 <a href="{{ url_for('group.signup') }}">Join</a>
 {% endif %}
@@ -17,6 +21,6 @@
 {% endfor %}
 <h2>Members</h2>
 {% for member in group.members %}
-<li>{{ member.name }}</li>
+<li>{{ member.user.name }} ({{ member.role.name }})</li>
 {% endfor %}
 {% endblock %}

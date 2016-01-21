@@ -1,8 +1,7 @@
 
 
-#################
-# DEFAULT ROLES #
-#################
+GROUP_PERMISSIONS = ['edit_settings', 'create_event']
+EVENT_PERMISSIONS = ['authorize']
 
 default_group_roles = {
     'class': [
@@ -16,10 +15,18 @@ default_group_roles = {
         },
         {
             'name': 'GSI',
-            'permissions': ''
+            'permissions': 'edit_settings, create_event'
         },
         {
             'name': 'Reader',
+            'permissions': ''
+        },
+        {
+            'name': 'Lab Assistant',
+            'permissions': ''
+        },
+        {
+            'name': 'Member',
             'permissions': ''
         }],
     'nonprofit': [
@@ -33,10 +40,14 @@ default_group_roles = {
         },
         {
             'name': 'Board',
-            'permissions': ''
+            'permissions': 'edit_settings, create_event'
         },
         {
             'name': 'Volunteer',
+            'permissions': ''
+        },
+        {
+            'name': 'Member',
             'permissions': ''
         }]
 }
@@ -49,10 +60,10 @@ default_event_roles = {
         },
         {
             'name': 'Authorizer',
-            'permissions': 'generate_code'
+            'permissions': 'authorize'
         },
         {
-            'name': 'Participant',
+            'name': 'Volunteer',
             'permissions': ''
         }
     ],
@@ -63,7 +74,7 @@ default_event_roles = {
         },
         {
             'name': 'Chairperson',
-            'permissions': 'generate_code'
+            'permissions': 'authorize'
         },
         {
             'name': 'Volunteer',
@@ -74,12 +85,39 @@ default_event_roles = {
 
 default_event_settings = {
     'max_check_ins': {
+        'label': 'Maximum Number of Checkins',
+        'description': 'This is typically one. Disable this setting for no limit.',
         'value': 1
+    },
+    'choose_role': {
+        'label': 'Users Pick Roles',
+        'description': 'Specify roles that new signups can select to be. Disable to auto-assign the default role to new signups.',
+        'is_active': False,
+    },
+    'role': {
+        'value': 'Volunteer',
+        'type': 'select'
     }
 }
 
 default_group_settings = {
-
+    'google_login': {
+        'label': 'Google Login',
+        'type': bool
+    },
+    'builtin_login': {
+        'label': 'Built-in Login',
+        'type': bool
+    },
+    'choose_role': {
+        'label': 'Users Pick Roles',
+        'description': 'Specify roles that new signups can select to be. Disable to auto-assign the default role to new signups.',
+        'is_active': False,
+    },
+    'role': {
+        'value': 'Member',
+        'type': 'select'
+    }
 }
 
 dgs = default_group_settings

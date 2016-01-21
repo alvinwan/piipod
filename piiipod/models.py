@@ -77,10 +77,9 @@ class Base(db.Model):
         key = {'%s_id' % self.entity: self.id}
         setting = self.__settingclass__.query.filter_by(name=name).one_or_none()
         if not setting:
-            default = self.__defaultsettings__[name]
+            key.update(self.__defaultsettings__[name])
+            key.setdefault('name', name)
             setting = self.__settingclass__(
-                name=name,
-                value=default['value'],
                 **key).save()
         return setting
 
@@ -133,6 +132,7 @@ class Setting(Base):
     label = db.Column(db.String(100))
     description = db.Column(db.Text)
     value = db.Column(db.Text)
+    type = db.Column(db.String(50))
 
 
 class Role(Base):
@@ -180,7 +180,7 @@ class User(Base, flask_login.UserMixin):
         assert isinstance(group, Group), 'Can only join group.'
         role_id = role_id or GroupRole.query.filter_by(
             name=role,
-            group_id=self.id
+            group_id=group.id
         ).one().id
         return Membership(
             user_id=self.id,
@@ -195,14 +195,14 @@ class User(Base, flask_login.UserMixin):
             user_id=self.id,
             event_id=event.id
         ).one_or_none()
-        if signup:
-            signup.role = role
-            signup.is_active = True
-            return signup.save()
         role_id = role_id or EventRole.query.filter_by(
             name=role,
             event_id=event.id
         ).one().id
+        if signup:
+            signup.role_id = role_id
+            signup.is_active = True
+            return signup.save()
         return Signup(
             user_id=self.id,
             event_id=event.id,
@@ -276,7 +276,7 @@ class Group(Base):
     @property
     def members(self):
         """List of all members"""
-        return User.query.join(Membership).filter_by(group_id=self.id).all()
+        return Membership.query.filter_by(group_id=self.id).all()
 
     def setting_query(self):
         return GroupSetting.query.filter_by(group_id=self.id)
@@ -326,7 +326,7 @@ class Event(Base):
     @property
     def participants(self):
         """Returns all participants"""
-        return User.query.join(Signup).filter_by(
+        return Signup.query.filter_by(
             event_id=self.id,
             is_active=True).all()
 
@@ -377,6 +377,10 @@ class Signup(Base):
         return User.query.get(self.user_id)
 
     @property
+    def role(self):
+        return EventRole.query.get(self.role_id)
+
+    @property
     def is_checked_in(self):
         return Checkin.query.filter_by(
             user_id=self.user_id,
@@ -414,3 +418,7 @@ class Membership(Base):
     @property
     def user(self):
         return User.query.get(self.user_id)
+
+    @property
+    def role(self):
+        return GroupRole.query.get(self.role_id)

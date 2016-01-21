@@ -83,13 +83,21 @@ def edit():
 def signup():
     """event signup"""
     form = EventSignupForm(request.form)
-    form.role_id.choices = [(r.id, r.name) for r in EventRole.query.filter_by(
-        event_id=g.event.id,
-        is_active=True).all()]
+    choose_role = g.event.setting('choose_role').is_active
+    if choose_role:
+        form.role_id.choices = [(r.id, r.name) for r in EventRole.query.filter_by(
+            event_id=g.event.id,
+            is_active=True).all()]
+    else:
+        del form.role_id
     if g.user in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
-        signup = g.user.signup(g.event, role_id=request.form['role_id'])
+        if choose_role:
+            role = {'role_id': request.form['role_id']}
+        else:
+            role = {'role': g.event.setting('role').value }
+        signup = g.user.signup(g.event, **role)
         return redirect(url_for('event.home'))
     form.event_id.default = g.event.id
     form.user_id.default = g.user.id
