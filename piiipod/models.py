@@ -263,6 +263,7 @@ class Group(Base):
     __defaultsettings__ = default_group_settings
 
     name = db.Column(db.String(50))
+    url = db.Column(db.String(30), unique=True)
     description = db.Column(db.Text)
     category = db.Column(db.String(50))
     events = db.relationship('Event', backref='group', lazy='dynamic')
