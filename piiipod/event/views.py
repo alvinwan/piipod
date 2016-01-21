@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, g
 from piiipod.views import current_user, login_required
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm
-from piiipod.models import Group, Event, User, UserSetting, Membership, Signup, \
+from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base
+from sqlalchemy.orm.exc import NoResultFound
 
 
 event = Blueprint('event', __name__,
@@ -19,31 +20,34 @@ def add_ids(endpoint, values):
 
 @event.url_value_preprocessor
 def pull_ids(endpoint, values):
-    g.group_url = values.pop('group_url')
-    g.group = Group.query.filter_by(url=g.group_url).one()
-    g.event_id = values.pop('event_id')
-    g.event_url = values.pop('event_url')
-    g.event = Event.query.get(g.event_id)
-    g.user = current_user()
-    if g.user.is_authenticated:
-        g.membership = Membership.query.filter_by(
-            group_id=g.group.id,
-            user_id=g.user.id,
-            is_active=True).one_or_none()
-        if g.membership:
-            g.group_role = GroupRole.query.get(g.membership.role_id)
+    try:
+        g.group_url = values.pop('group_url')
+        g.group = Group.query.filter_by(url=g.group_url).one()
+        g.event_id = values.pop('event_id')
+        g.event_url = values.pop('event_url')
+        g.event = Event.query.get(g.event_id)
+        g.user = current_user()
+        if g.user.is_authenticated:
+            g.membership = Membership.query.filter_by(
+                group_id=g.group.id,
+                user_id=g.user.id,
+                is_active=True).one_or_none()
+            if g.membership:
+                g.group_role = GroupRole.query.get(g.membership.role_id)
+            else:
+                g.group_role = None
+            g.signup = Signup.query.filter_by(
+                event_id=g.event.id,
+                user_id=g.user.id,
+                is_active=True).one_or_none()
+            if g.signup:
+                g.event_role = EventRole.query.get(g.signup.role_id)
+            else:
+                g.event_role = None
         else:
-            g.group_role = None
-        g.signup = Signup.query.filter_by(
-            event_id=g.event.id,
-            user_id=g.user.id,
-            is_active=True).one_or_none()
-        if g.signup:
-            g.event_role = EventRole.query.get(g.signup.role_id)
-        else:
-            g.event_role = None
-    else:
-        g.membership = g.signup = g.group_role = g.event_role = None
+            g.membership = g.signup = g.group_role = g.event_role = None
+    except NoResultFound:
+        return 'No such event.'
 
 
 def render_event(f, *args, **kwargs):

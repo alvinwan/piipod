@@ -169,6 +169,7 @@ class User(Base, flask_login.UserMixin):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
     settings = relationship("UserSetting", backref="user")
+    google_id = db.Column(db.String(30), unique=True)
 
     def groups(self):
         """All groups for this user"""

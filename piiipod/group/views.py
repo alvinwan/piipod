@@ -4,6 +4,7 @@ from .forms import GroupForm, GroupSignupForm
 from piiipod.event.forms import EventForm
 from piiipod.models import Event, Group, Membership, GroupRole
 from piiipod.defaults import default_event_roles
+from sqlalchemy.orm.exc import NoResultFound
 
 
 group = Blueprint('group', __name__, url_prefix='/<string:group_url>')
@@ -16,21 +17,24 @@ def add_group_id(endpoint, values):
 
 @group.url_value_preprocessor
 def pull_group_id(endpoint, values):
-    g.group_url = values.pop('group_url')
-    g.group = Group.query.filter_by(url=g.group_url).one()
-    g.user = current_user()
-    g.event_role = g.signup = None
-    if g.user.is_authenticated:
-        g.membership = Membership.query.filter_by(
-            group_id=g.group.id,
-            user_id=g.user.id,
-            is_active=True).one_or_none()
-        if g.membership:
-            g.group_role = GroupRole.query.get(g.membership.role_id)
+    try:
+        g.group_url = values.pop('group_url')
+        g.group = Group.query.filter_by(url=g.group_url).one()
+        g.user = current_user()
+        g.event_role = g.signup = None
+        if g.user.is_authenticated:
+            g.membership = Membership.query.filter_by(
+                group_id=g.group.id,
+                user_id=g.user.id,
+                is_active=True).one_or_none()
+            if g.membership:
+                g.group_role = GroupRole.query.get(g.membership.role_id)
+            else:
+                g.group_role = None
         else:
-            g.group_role = None
-    else:
-        g.membership = g.group_role = None
+            g.membership = g.group_role = None
+    except NoResultFound:
+        return 'No such group.'
 
 
 def render_group(f, *args, **kwargs):

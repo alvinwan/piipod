@@ -1,13 +1,47 @@
 <html>
   <head>
     <title>{{ title }}</title>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="{{ cfg_GOOGLECLIENTID }}">
+    <script>
+    /*
+     * Google Authentication
+     * Signin or signout on data load
+     */
+    function onSignIn(googleUser) {
+      if ({{ logout or 'false' }}) {
+        signOut();
+      } else {
+        signIn(googleUser);
+      }
+    }
+
+    function signIn(googleUser) {
+      var id_token = googleUser.getAuthResponse().id_token;
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', "{{ url_for('public.token_login') }}");
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.send('token=' + id_token);
+      xhr.onload = function() {
+        window.location.replace(xhr.responseText);
+      };
+    }
+
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        window.location.replace('/');
+      });
+    }
+    </script>
   </head>
   <body>
     <header>
       {% if current_user.is_authenticated %}
       <p>Hi, {{ current_user.name }} - <a href="{{ url_for('logout') }}">logout</a></p>
       {% else %}
-      <p><a href="{{ url_for('public.login')}}">sign in</a> or <a href="{{ url_for('public.register') }}">sign up</a></p>
+      <div class="g-signin2" data-onsuccess="onSignIn"></div>
+      <!--<p><a href="{{ url_for('public.login')}}">sign in</a> or <a href="{{ url_for('public.register') }}">sign up</a></p>-->
       {% endif %}
     </header>
     <main>

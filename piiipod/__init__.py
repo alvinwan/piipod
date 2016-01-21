@@ -9,7 +9,7 @@ from .config import config, secret_key, debug, whitelist, googleclientID
 logger.debug('Running in DEBUG mode.' if debug else
       'Running in PRODUCTION mode.')
 
-logger.debug('Google Client ID: %s' % googleclientID if googleclientID else
+print('Google Client ID: %s' % googleclientID if googleclientID else
       'No Google Client ID found.')
 
 # Flask app

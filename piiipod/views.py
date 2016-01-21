@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import url_for, redirect, render_template, g
 from flask_login import login_required
+from piiipod import config
 import flask_login
 
 
@@ -11,6 +12,8 @@ def current_user():
 
 def render(f, *args, **kwargs):
     """Render templates with defaults"""
+    for k, v in config.items():
+        kwargs.setdefault('cfg_%s' % k, v)
     return render_template(f, *args, **kwargs)
 
 
