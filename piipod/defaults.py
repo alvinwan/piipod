@@ -7,12 +7,15 @@
 default_group_roles = {
     'class': [
         {
+            'name': 'Owner',
+            'permissions': '*'
+        },
+        {
             'name': 'Professor',
             'permissions': '*'
         },
         {
-            'shortname': 'GSI',
-            'name': 'Graduate Student Instructor',
+            'name': 'GSI',
             'permissions': ''
         },
         {
@@ -20,6 +23,10 @@ default_group_roles = {
             'permissions': ''
         }],
     'nonprofit': [
+        {
+            'name': 'Owner',
+            'permissions': '*'
+        },
         {
             'name': 'Chair',
             'permissions': '*'
@@ -37,6 +44,10 @@ default_group_roles = {
 default_event_roles = {
     'class': [
         {
+            'name': 'Owner',
+            'permissions': '*'
+        },
+        {
             'name': 'Authorizer',
             'permissions': 'generate_code'
         },
@@ -47,6 +58,10 @@ default_event_roles = {
     ],
     'nonprofit': [
         {
+            'name': 'Owner',
+            'permissions': '*'
+        },
+        {
             'name': 'Chairperson',
             'permissions': 'generate_code'
         },
@@ -54,4 +69,5 @@ default_event_roles = {
             'name': 'Volunteer',
             'permissions': ''
         }
+    ]
 }

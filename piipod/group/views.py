@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, url_for, g
 from piipod.views import current_user, login_required
 from .forms import GroupForm, GroupSignupForm
 from piipod.event.forms import EventForm
-from piipod.models import Event, Group
+from piipod.models import Event, Group, Membership, GroupRole
 
 
 group = Blueprint('group', __name__, url_prefix='/g/<int:group_id>')
@@ -18,6 +18,17 @@ def pull_group_id(endpoint, values):
     g.group_id = values.pop('group_id')
     g.group = Group.query.get(g.group_id)
     g.user = current_user()
+    if g.user.is_authenticated:
+        g.membership = Membership.query.filter_by(
+            group_id=g.group_id,
+            user_id=g.user.id,
+            is_active=True).one_or_none()
+        if g.membership:
+            g.group_role = GroupRole.query.get(g.membership.role_id)
+        else:
+            g.group_role = None
+    else:
+        g.membership = g.group_role = None
 
 
 def render_group(f, *args, **kwargs):
@@ -61,8 +72,9 @@ def create_event():
     form.group_id.default = g.group_id
     form.process()
     if request.method == 'POST' and form.validate():
+        event = Event.from_request().save()
         return redirect(url_for('event.home',
-            event_id=Event.from_request().save().id))
+            event_id=g.user.signup(event, 'owner')))
     return render_group('form.html',
         title='Create Event',
         submit='Create',

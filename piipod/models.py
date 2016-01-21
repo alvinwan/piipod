@@ -27,6 +27,10 @@ class Base(db.Model):
     created_by = db.Column(db.Integer)
     is_active = db.Column(db.Boolean, default=True)
 
+    def __init__(self, *args, **kwargs):
+        super(Base, self).__init__(*args, **kwargs)
+        self.entity = self.__class__.__name__.lower()
+
     @property
     def access_token(self):
         """Generate token"""
@@ -69,6 +73,34 @@ class Base(db.Model):
         self.is_active = True
         return self.save()
 
+    def load_roles(self, roles):
+        """load role settings"""
+        RoleClass = {
+            'event': EventRole,
+            'group': GroupRole
+        }[self.entity]
+        for role in roles:
+            filt = {
+                'name': role['name'],
+                '%s_id' % self.entity: self.id
+            }
+            if not RoleClass.query.filter_by(**filt).one_or_none():
+                role = role.copy()
+                role.setdefault('%s_id' % self.entity, self.id)
+                RoleClass(**role).save()
+        return self
+
+    @property
+    def permissions(self):
+        """get all permissions"""
+        ps = sum([role.permissions.split(',') for role in (g.group_role, g.event_role) if role], [])
+        return [s.strip() for s in ps]
+
+    def can(self, permission):
+        """Check if user has the given permission"""
+        if permission in self.permissions:
+            return True
+        return False
 
 class Setting(Base):
     """base setting model"""
@@ -85,7 +117,6 @@ class Role(Base):
 
     __abstract__ = True
 
-    shortname = db.Column(db.String(50))
     name = db.Column(db.String(100))
     permissions = db.Column(db.Text)
 
@@ -122,7 +153,14 @@ class User(Base, flask_login.UserMixin):
         """Join a group"""
         assert group.id, 'Save group object first'
         assert isinstance(group, Group), 'Can only join group.'
-        return Membership(user_id=self.id, group_id=group.id, role=role).save()
+        role = GroupRole.query.filter_by(
+            name=role,
+            group_id=self.id
+        ).one()
+        return Membership(
+            user_id=self.id,
+            group_id=group.id,
+            role_id=role.id).save()
 
     def signup(self, event, role):
         """Signup for an event"""
@@ -136,7 +174,14 @@ class User(Base, flask_login.UserMixin):
             signup.role = role
             signup.is_active = True
             return signup.save()
-        return Signup(user_id=self.id, event_id=event.id, role=role).save()
+        role = EventRole.query.filter_by(
+            name=role,
+            event_id=self.id
+        ).one()
+        return Signup(
+            user_id=self.id,
+            event_id=event.id,
+            role_id=role.id).save()
 
     def leave(self, event):
         """Leave an event"""
@@ -192,12 +237,9 @@ class Group(Base):
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
-    category = db.Column(db.Text)
+    category = db.Column(db.String(50))
     events = db.relationship('Event', backref='group', lazy='dynamic')
     settings = relationship("GroupSetting", backref="group")
-
-    def __init__(self, *args, **kwargs):
-        super(Group, self).__init__(*args, **kwargs)
 
     @property
     def events(self):
@@ -249,7 +291,7 @@ class EventRole(Role):
 
     __tablename__ = 'event_role'
 
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
 
 
 class Event(Base):
@@ -325,7 +367,7 @@ class Signup(Base):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
-    role = db.Column(db.Integer, db.ForeignKey('event_role.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('event_role.id'))
 
     @property
     def event(self):
@@ -349,7 +391,7 @@ class Membership(Base):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    role = db.Column(db.Integer, db.ForeignKey('group_role.id'))
+    role_id = db.Column(db.Integer, db.ForeignKey('group_role.id'))
 
     def save(self):
         """save membership"""

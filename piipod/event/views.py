@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, g
 from piipod.views import current_user, login_required
 from .forms import EventForm, EventSignupForm, EventCheckinForm
-from piipod.models import Group, Event, User, UserSetting
+from piipod.models import Group, Event, User, UserSetting, Membership, Signup, \
+    GroupRole, EventRole
 
 
 event = Blueprint('event', __name__,
@@ -21,6 +22,25 @@ def pull_ids(endpoint, values):
     g.event_id = values.pop('event_id')
     g.event = Event.query.get(g.event_id)
     g.user = current_user()
+    if g.user.is_authenticated:
+        g.membership = Membership.query.filter_by(
+            group_id=g.group_id,
+            user_id=g.user.id,
+            is_active=True).one_or_none()
+        if g.membership:
+            g.group_role = GroupRole.query.get(g.membership.role_id)
+        else:
+            g.group_role = None
+        g.signup = Signup.query.filter_by(
+            event_id=g.event_id,
+            user_id=g.user.id,
+            is_active=True).one_or_none()
+        if g.signup:
+            g.event_role = EventRole.query.get(g.signup.role_id)
+        else:
+            g.event_role = None
+    else:
+        g.membership = g.signup = g.group_role = g.event_role = None
 
 
 def render_event(f, *args, **kwargs):
