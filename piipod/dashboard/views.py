@@ -37,12 +37,10 @@ def create_group():
     """create group form"""
     form = GroupForm(request.form)
     if request.method == 'POST' and form.validate():
-        data = dict(request.form.items())
-        category = data.pop('category', 'class')
-        group = Group(**data).save().load_roles(
-            default_group_roles[category]).save()
+        group = Group.from_request().save().load_roles(
+            default_group_roles[request.form['category']]).save()
         return redirect(url_for('group.home',
-            group_id=group.link(g.user, role='owner').group_id))
+            group_id=g.user.join(group, role='Owner').group_id))
     return render_dashboard('form.html',
         title='Create Group',
         submit='create',

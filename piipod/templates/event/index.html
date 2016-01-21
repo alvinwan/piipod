@@ -8,7 +8,11 @@
 <h1>Welcome to {{ event.name }}</h1>
 <a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
 {% if current_user in event %}
-<a href="{{ url_for('event.checkin') }}">Checkin</a>
+  {% if current_user.can('generate_code') %}
+  <a href="{{ url_for('event.authorize') }}">Authorize</a>
+  {% elif signup.num_check_ins < event.setting('max_check_ins').value | int %}
+  <a href="{{ url_for('event.checkin') }}">Checkin</a>
+  {% endif %}
 {% else %}
 <a href="{{ url_for('event.signup') }}">Signup</a>
 {% endif %}

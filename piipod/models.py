@@ -8,6 +8,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
+from piipod.defaults import default_event_settings, default_group_settings, \
+    default_user_settings
 import arrow
 import flask_login
 
@@ -38,9 +40,15 @@ class Base(db.Model):
             self.__access_token = self.generate_access_token()
         return self.__access_token
 
-    def random_hash(self):
+    @staticmethod
+    def random_hash():
         """Generates random hash"""
-        return self.__context.encrypt(str(arrow.utcnow()))
+        return Base.hash(str(arrow.utcnow()))
+
+    @staticmethod
+    def hash(value):
+        """Hashes value"""
+        return Base.__context.encrypt(value)
 
     @classmethod
     def from_request(cls):
@@ -59,9 +67,16 @@ class Base(db.Model):
         db.session.commit()
         return self
 
-    def setting(self, shortname):
-        """Get setting by shortname"""
-        return self.__settingclass__.query.filter_by(shortname=shortname).one()
+    def setting(self, name):
+        """Get Setting by name"""
+        assert name in self.__defaultsettings__, 'Not a valid setting'
+        setting = self.__settingclass__.query.filter_by(name=name).one_or_none()
+        if not setting:
+            default = self.__defaultsettings__[name]
+            setting = self.__settingclass__(
+                name=name,
+                value=default['value']).save()
+        return setting
 
     def deactivate(self):
         """deactivate"""
@@ -90,24 +105,24 @@ class Base(db.Model):
                 RoleClass(**role).save()
         return self
 
-    @property
-    def permissions(self):
-        """get all permissions"""
-        ps = sum([role.permissions.split(',') for role in (g.group_role, g.event_role) if role], [])
-        return [s.strip() for s in ps]
+    def generate_access_token(self):
+        """Generates access token"""
+        key = {'%s_id' % self.entity: self.id}
+        return (self.__settingclass__.query.filter_by(
+            name='access_token',
+            **key
+        ).order_by(desc(self.__settingclass__.id)).first() or self.__settingclass__(
+            name='access_token',
+            value=self.random_hash(),
+            **key
+        ).save()).value
 
-    def can(self, permission):
-        """Check if user has the given permission"""
-        if permission in self.permissions:
-            return True
-        return False
 
 class Setting(Base):
     """base setting model"""
 
     __abstract__ = True
 
-    shortname = db.Column(db.String(50))
     name = db.Column(db.String(100))
     value = db.Column(db.Text)
 
@@ -138,6 +153,8 @@ class User(Base, flask_login.UserMixin):
     """PIAP system user"""
 
     __tablename__ = 'user'
+    __settingclass__ = UserSetting
+    __defaultsettings__ = default_user_settings
 
     name = db.Column(db.String(100))
     email = db.Column(db.String(100), unique=True)
@@ -162,7 +179,7 @@ class User(Base, flask_login.UserMixin):
             group_id=group.id,
             role_id=role.id).save()
 
-    def signup(self, event, role):
+    def signup(self, event, role=None, role_id=None):
         """Signup for an event"""
         assert event.id, 'Save event object first'
         assert isinstance(event, Event), 'Can only signup for events.'
@@ -174,14 +191,14 @@ class User(Base, flask_login.UserMixin):
             signup.role = role
             signup.is_active = True
             return signup.save()
-        role = EventRole.query.filter_by(
+        role_id = role_id or EventRole.query.filter_by(
             name=role,
-            event_id=self.id
-        ).one()
+            event_id=event.id
+        ).one().id
         return Signup(
             user_id=self.id,
             event_id=event.id,
-            role_id=role.id).save()
+            role_id=role_id).save()
 
     def leave(self, event):
         """Leave an event"""
@@ -200,17 +217,18 @@ class User(Base, flask_login.UserMixin):
             participant_id=self.id,
             event_id=event.id).save()
 
-    def generate_access_token(self):
-        """Generates access token"""
-        return (UserSetting.query.filter_by(
-            user_id=self.id,
-            shortname='access_token'
-        ).order_by(desc(UserSetting.id)).first() or UserSetting(
-            user_id=self.id,
-            shortname='access_token',
-            name='Access Token',
-            value=self.random_hash()
-        ).save()).value
+    def permissions(self, include=('event', 'group')):
+        """get all permissions"""
+        ps = sum([role.permissions.split(',') for role in
+            (getattr(g, '%s_role' % r) for r in include) if role], [])
+        return [s.strip() for s in ps]
+
+    def can(self, permission, include=('event', 'group')):
+        """Check if user has the given permission"""
+        permissions = self.permissions(include)
+        if '*' in permissions or permission in permissions:
+            return True
+        return False
 
 
 class GroupSetting(Setting):
@@ -234,6 +252,7 @@ class Group(Base):
 
     __tablename__ = 'group'
     __settingclass__ = GroupSetting
+    __defaultsettings__ = default_group_settings
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
@@ -251,25 +270,8 @@ class Group(Base):
         """List of all members"""
         return User.query.join(Membership).filter_by(group_id=self.id).all()
 
-    def link(self, user, role):
-        """links group to a user"""
-        assert self.id, 'Save the object first.'
-        return user.join(self, role)
-
     def setting_query(self):
         return GroupSetting.query.filter_by(group_id=self.id)
-
-    def generate_access_token(self):
-        """Generates access token"""
-        return (GroupSetting.query.filter_by(
-            group_id=self.id,
-            shortname='access_token'
-        ).order_by(desc(GroupSetting.id)).first() or GroupSetting(
-            group_id=self.id,
-            shortname='access_token',
-            name='Access Token',
-            value=self.random_hash()
-        ).save()).value
 
     def __contains__(self, user):
         """Tests if user is in group"""
@@ -299,6 +301,7 @@ class Event(Base):
 
     __tablename__ = 'event'
     __settingclass__ = EventSetting
+    __defaultsettings__ = default_event_settings
 
     name = db.Column(db.String(50))
     description = db.Column(db.Text)
@@ -326,18 +329,6 @@ class Event(Base):
             event_id=self.id,
             is_active=True
         ).one_or_none() is not None
-
-    def generate_access_token(self):
-        """Generates access token"""
-        return (EventSetting.query.filter_by(
-            event_id=self.id,
-            shortname='access_token'
-        ).order_by(desc(EventSetting.id)).first() or EventSetting(
-            event_id=self.id,
-            shortname='access_token',
-            name='Access Token',
-            value=self.random_hash()
-        ).save()).value
 
 
 ########################
@@ -382,6 +373,12 @@ class Signup(Base):
         return Checkin.query.filter_by(
             user_id=self.user_id,
             event_id=self.event_id).one_or_none() is not None
+
+    @property
+    def num_check_ins(self):
+        return Checkin.query.filter_by(
+            user_id=self.user_id,
+            event_id=self.event_id).count()
 
 
 class Membership(Base):

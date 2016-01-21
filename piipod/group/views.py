@@ -3,6 +3,7 @@ from piipod.views import current_user, login_required
 from .forms import GroupForm, GroupSignupForm
 from piipod.event.forms import EventForm
 from piipod.models import Event, Group, Membership, GroupRole
+from piipod.defaults import default_event_roles
 
 
 group = Blueprint('group', __name__, url_prefix='/g/<int:group_id>')
@@ -34,8 +35,9 @@ def pull_group_id(endpoint, values):
 def render_group(f, *args, **kwargs):
     """custom render for groups"""
     from piipod.views import render
-    kwargs.setdefault('group', g.group)
-    return render(f, *args, **kwargs)
+    data = vars(g)
+    data.update(kwargs)
+    return render(f, *args, **data)
 
 
 #########
@@ -68,13 +70,14 @@ def edit():
 @login_required
 def create_event():
     """create event"""
-    form = EventForm()
+    form = EventForm(request.form)
+    if request.method == 'POST' and form.validate():
+        event = Event.from_request().save().load_roles(
+            default_event_roles[g.group.category]).save()
+        return redirect(url_for('event.home',
+            event_id=g.user.signup(event, 'Owner').event_id))
     form.group_id.default = g.group_id
     form.process()
-    if request.method == 'POST' and form.validate():
-        event = Event.from_request().save()
-        return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'owner')))
     return render_group('form.html',
         title='Create Event',
         submit='Create',
@@ -92,15 +95,15 @@ def events():
 @login_required
 def signup():
     """group signup"""
-    form = GroupSignupForm()
+    form = GroupSignupForm(request.form)
     if g.user in g.group:
         return redirect(url_for('group.home', notif=5))
-    form.group_id.default = g.group.id
-    form.user_id.default = g.user.id
-    form.process()
     if request.method == 'POST' and form.validate():
         membership = g.user.join(g.group, 'member')
         return redirect(url_for('group.home'))
+    form.group_id.default = g.group.id
+    form.user_id.default = g.user.id
+    form.process()
     return render_group('form.html',
         title='Signup %s' % group.name,
         submit='Join',

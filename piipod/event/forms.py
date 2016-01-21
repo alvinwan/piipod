@@ -19,6 +19,7 @@ class EventSignupForm(wtf.Form):
 
     user_id = wtf.HiddenField()
     event_id = wtf.HiddenField()
+    role_id = wtf.SelectField(coerce=int)
 
 
 class EventCheckinForm(wtf.Form):
@@ -27,3 +28,10 @@ class EventCheckinForm(wtf.Form):
     event_id = wtf.HiddenField()
     user_id = wtf.HiddenField()
     code = wtf.StringField()
+
+
+class EventGenerateCodeForm(wtf.Form):
+    """form to generate codes"""
+
+    length = wtf.IntegerField(default=5)
+    value = wtf.StringField()

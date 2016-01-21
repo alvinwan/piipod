@@ -71,3 +71,19 @@ default_event_roles = {
         }
     ]
 }
+
+default_event_settings = {
+    'max_check_ins': {
+        'value': 1
+    }
+}
+
+default_group_settings = {
+
+}
+
+default_user_settings = {
+    'authorize_code': {
+        'value': '$i1lY'
+    }
+}
