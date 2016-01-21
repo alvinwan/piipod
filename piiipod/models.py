@@ -67,9 +67,13 @@ class Base(db.Model):
 
     def save(self):
         """Save object"""
-        db.session.add(self)
-        db.session.commit()
-        return self
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except:
+            db.session.rollback()
+            return self.save()
 
     def setting(self, name):
         """Get Setting by name"""
