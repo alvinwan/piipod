@@ -5,7 +5,6 @@ from piiipod import db
 from flask import request, g
 from sqlalchemy import types, desc
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base, AbstractConcreteBase
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
 from piiipod.defaults import default_event_settings, default_group_settings, \
