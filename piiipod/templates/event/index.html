@@ -3,13 +3,15 @@
 <div class="queue">
 <p class="subnav">
   <a href="{{ url_for('group.home') }}">{{ group.name }}</a> &raquo;
+  <a href="{{ url_for('group.events') }}">Events</a> &raquo;
   {{ event.name }}
 </p>
-<h1>Welcome to {{ event.name }}</h1>
-{% if current_user.can('edit_event') %}
-<a href="{{ url_for('event.edit') }}">Edit {{ event.name }}</a>
-{% endif %}
+<h1>{{ event.name }}</h1>
 {% if current_user in event %}
+<p>
+  {% if current_user.can('edit_event') %}
+  <a href="{{ url_for('event.edit') }}">Edit Event</a> .
+  {% endif %}
   {% if current_user.can('authorize') %}
   <a href="{{ url_for('event.authorize') }}">Authorize</a>
   {% elif signup.num_check_ins < event.setting('max_check_ins').value | int %}
@@ -17,7 +19,7 @@
   {% else %}
   Checked in!
   {% endif %}
-  <p><a href="{{ url_for('event.leave') }}">Leave event</a></p>
+</p>
 {% else %}
 <a href="{{ url_for('event.signup') }}">Signup</a>
 {% endif %}
@@ -25,5 +27,6 @@
 {% for participant in event.participants %}
 <li>{{ participant.user.name }} {% if participant.is_checked_in %}(checked in){% endif %}</li>
 {% endfor %}
+<a href="{{ url_for('event.leave') }}" class="button color sm">Leave event</a>
 </div>
 {% endblock %}
