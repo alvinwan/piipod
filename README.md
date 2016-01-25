@@ -1,6 +1,8 @@
 # Piiipod
 staff and event management, with Google calendar sync
 
+programmed by [Alvin Wan](http://alvinwan.com)
+
 ## Features
 
 

@@ -94,7 +94,14 @@ def create_event():
 @login_required
 def events():
     """group events"""
-    return 'events'
+    return render_group('group/events.html')
+
+
+@group.route('/members')
+@login_required
+def members():
+    """group members"""
+    return render_group('group/members.html')
 
 
 @group.route('/signup', methods=['GET', 'POST'])
@@ -104,13 +111,14 @@ def signup():
     message = ''
     form = GroupSignupForm(request.form)
     choose_role = g.group.setting('choose_role').is_active
+    message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
     whitelisted = []
     for block in g.group.setting('whitelist').value.split(','):
         data = block.split('(')
         if len(data) == 2:
             whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
         else:
-            whitelisted.append((data.strip(), ''))
+            whitelisted.append((data[0].strip(), ''))
     emails = [s.strip() for s, _ in whitelisted]
     if g.user.email in emails:
         title = [title for email, title in whitelisted if email == g.user.email][0]
@@ -136,7 +144,7 @@ def signup():
     form.user_id.default = g.user.id
     form.process()
     return render_group('form.html',
-        title='Signup %s' % group.name,
+        title='Signup for %s' % g.group.name,
         submit='Join',
         form=form,
         message=message,
@@ -153,4 +161,4 @@ def settings():
         setting.value = value
         setting.save()
     settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
-    return render_group('settings.html', settings=settings, back=url_for('group.home'))
+    return render_group('group/settings.html', settings=settings, back=url_for('group.home'))

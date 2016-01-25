@@ -1,13 +1,15 @@
-{% extends "base.html" %}
-{% block main %}
-<a href="{{ back }}">back</a>
+{% extends "group/group.html" %}
+{% set panel='Settings' %}
+{% block panel %}
+<div class="queue">
 {% for setting in settings %}
-<form method="post">
+<form method="post" class="col-md-12">
   <h3>{{ setting.label }}</h3>
   <p>{{ setting.description }}</p>
   <input type="hidden" name="id" value="{{ setting.id }}">
   <input type="text" name="value" value="{{ setting.value}} ">
-  <input type="submit" class="save">
+  <input type="submit" class="button sm color" value="save">
 </form>
 {% endfor %}
+</div>
 {% endblock %}

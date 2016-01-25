@@ -28,13 +28,29 @@
     {% block main %}
     {% endblock %}
   </main>
-  {% if current_user.is_authenticated %}
-  <a href="{{ url_for('dashboard.create_group') }}">
-    <div class="mobile-action">
-      <span class="ma-add"><i class="fa fa-plus"></i></span>
-      <p>Create Group</p>
-    </div>
-  </a>
+  {% if not no_mobile_action %}
+    {% if not g.group %}
+    <a href="{{ url_for('dashboard.create_group') }}">
+      <div class="mobile-action">
+        <span class="ma-add"><i class="fa fa-plus"></i></span>
+        <p>Create Group</p>
+      </div>
+    </a>
+    {% elif current_user.can('create_event') %}
+    <a href="{{ url_for('group.create_event') }}">
+      <div class="mobile-action">
+        <span class="ma-add"><i class="fa fa-calendar"></i></span>
+        <p>Create Event</p>
+      </div>
+    </a>
+    {% elif current_user not in g.group %}
+    <a href="{{ url_for('group.signup') }}">
+      <div class="mobile-action">
+        <span class="ma-add"><i class="fa fa-plus"></i></span>
+        <p>Join {{ g.group.name }}</p>
+      </div>
+    </a>
+    {% endif %}
   {% endif %}
   {% include "footer.html" %}
 </body>

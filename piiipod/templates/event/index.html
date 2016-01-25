@@ -1,7 +1,7 @@
-{% extends "internal.html" %}
-{% block main %}
-<p>
-  <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
+{% extends "event/event.html" %}
+{% block event %}
+<div class="queue">
+<p class="subnav">
   <a href="{{ url_for('group.home') }}">{{ group.name }}</a> &raquo;
   {{ event.name }}
 </p>
@@ -25,4 +25,5 @@
 {% for participant in event.participants %}
 <li>{{ participant.user.name }} {% if participant.is_checked_in %}(checked in){% endif %}</li>
 {% endfor %}
+</div>
 {% endblock %}

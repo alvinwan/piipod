@@ -553,3 +553,12 @@ header div.abcRioButton {
     font-weight:700;
     box-shadow:none;
   }
+
+.queue .subnav {
+  margin:1em 0;
+  padding:1em 1.5em;
+  background-color:#FFF;
+  border-radius:2em;
+  font-size:0.9em;
+  font-weight:400;
+}

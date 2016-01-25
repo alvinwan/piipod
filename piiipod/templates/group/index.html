@@ -1,31 +1,11 @@
-{% extends "internal.html" %}
-{% block main %}
+{% extends "group/group.html" %}
+{% set panel='Home' %}
+{% block panel %}
 <div class="queue">
-<p>
+<!-- <p class="subnav">
   <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
   {{ group.name }}
-</p>
-<h1>Welcome to {{ group.name }}</h1>
-{% if current_user.can('edit_group') %}
-<a href="{{ url_for('group.edit') }}">Edit {{ group.name }}</a>
-{% endif %}
-{% if current_user.can('edit_group_settings') %}
-<a href="{{ url_for('group.settings') }}">Edit settings</a>
-{% endif %}
-{% if current_user.can('create_event') %}
-<a href="{{ url_for('group.create_event') }}">Create Event</a>
-{% endif %}
-{% if current_user not in group %}
-<a href="{{ url_for('group.signup') }}">Join</a>
-{% endif %}
-<p>Access Token: {{ group.access_token }}</p>
-<h2>Events</h2>
-{% for event in group.events %}
-<li><a href="{{ url_for('event.home', event_id=event.id, event_url=event.url) }}">{{ event.name }}</a> {{ event.start.humanize() }} ({{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }})</li>
-{% endfor %}
-<h2>Members</h2>
-{% for member in group.members %}
-<li>{{ member.user.name }} ({{ member.role.name }})</li>
-</div>
-{% endfor %}
+</p> -->
+<h1>{{ group.name }}</h1>
+<p>{{ group.description }}</p>
 {% endblock %}
