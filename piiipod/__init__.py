@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 from .logger import logger
 import functools
 import flask_login
-from .config import config, secret_key, debug, whitelist, googleclientID
+from .config import config, secret_key, debug, whitelist, googleclientID, port
 
 logger.debug('Running in DEBUG mode.' if debug else
       'Running in PRODUCTION mode.')

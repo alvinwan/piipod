@@ -1,7 +1,7 @@
 from piiipod.logger import logger
 logger.setLevel(0)
 
-from piiipod import app, db, debug
+from piiipod import app, db, debug, port
 from sqlalchemy.exc import OperationalError
 import argparse
 import os
@@ -25,7 +25,6 @@ def db_create():
 def run(app):
     db_create()
     logger.info('[OK] Database creation complete.')
-    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=debug)
 
 
