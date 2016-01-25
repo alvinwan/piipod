@@ -51,7 +51,6 @@ def render_group(f, *args, **kwargs):
 
 
 @group.route('/')
-@login_required
 def home():
     """group homepage"""
     return render_group('group/index.html')
@@ -91,14 +90,12 @@ def create_event():
 
 
 @group.route('/events')
-@login_required
 def events():
     """group events"""
     return render_group('group/events.html')
 
 
 @group.route('/members')
-@login_required
 def members():
     """group members"""
     return render_group('group/members.html')

@@ -31,6 +31,7 @@ def login():
     form, message = LoginForm(request.form), ''
     form.redirect.default = request.args.get('redirect', None)
     form.process()
+    message = 'The built-in login system has been disabled. Please login using the Google "Sign In" button in the top right.'
     if request.method == 'POST' and form.validate():
         user = User.query.filter(
             User.username == request.form['username']).one_or_none()
@@ -46,7 +47,7 @@ def login():
         title='Login',
         submit='login',
         message=message,
-        form=form,
+        # form=form,
         back=url_for('public.home'))
 
 @public.route('/register', methods=['GET', 'POST'])

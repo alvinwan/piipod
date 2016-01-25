@@ -9,11 +9,11 @@
           (url_for('group.members'), 'Members'),
           (url_for('group.settings'), 'Settings', 'edit_group_settings'),
           (url_for('group.edit'), 'Edit', 'edit_group')) %}
-      {% if link | length == 2 or g.user.can(link[2]) %}
+      {% if link | length == 2 or (current_user.is_authenticated and g.user.can(link[2])) %}
       <li><a class="{% if link[1] == panel %}s{% endif %}" href="{% if link[1] != panel %}{{ link[0] }}{% else %}#{% endif %}">{{ link[1] }}</a></li>
       {% endif %}
       {% endfor %}
-      {% if current_user not in group %}
+      {% if not current_user.is_authenticated or current_user not in group %}
       <li><a href="{{ url_for('group.signup') }}">Join</a></li>
       {% endif %}
       <p class="right nav-text hidden-xs">{% block subnav %}{% endblock %}</p>

@@ -64,7 +64,6 @@ def render_event(f, *args, **kwargs):
 
 
 @event.route('/')
-@login_required
 def home():
     """event homepage"""
     return render_event('event/index.html')

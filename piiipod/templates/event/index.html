@@ -7,7 +7,7 @@
   {{ event.name }}
 </p>
 <h1>{{ event.name }}</h1>
-{% if current_user in event %}
+{% if current_user.is_authenticated and current_user in event %}
 <p>
   {% if current_user.can('edit_event') %}
   <a href="{{ url_for('event.edit') }}">Edit Event</a> .

@@ -28,7 +28,7 @@
     {% block main %}
     {% endblock %}
   </main>
-  {% if not no_mobile_action %}
+  {% if not no_mobile_action and current_user.is_authenticated %}
     {% if not g.group %}
     <a href="{{ url_for('dashboard.create_group') }}">
       <div class="mobile-action">
