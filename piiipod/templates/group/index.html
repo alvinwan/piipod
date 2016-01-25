@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{% extends "internal.html" %}
 {% block main %}
+<div class="queue">
 <p>
   <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
   {{ group.name }}
@@ -25,5 +26,6 @@
 <h2>Members</h2>
 {% for member in group.members %}
 <li>{{ member.user.name }} ({{ member.role.name }})</li>
+</div>
 {% endfor %}
 {% endblock %}

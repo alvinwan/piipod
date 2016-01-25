@@ -1,10 +1,16 @@
-{% extends "base.html" %}
+{% extends "internal.html" %}
 {% block main %}
-<h1>dashboard</h1>
-<a href="{{ url_for('dashboard.create_group') }}">Create group</a>
-<ul>
+<div class="queue">
+<h1>Dashboard</h1>
+<p>Hello! Here is a list of "pods" you're associated with.</p>
+<table>
+  <tr><th>Name</th></tr>
 {% for group in groups %}
-<li><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></li>
+  <tr><td><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></td></tr>
 {% endfor %}
-</ul>
+{% if groups | length == 0 %}
+<div class="queue-note">Looks like you've just joined! You can <a href="{{ url_for('dashboard.create_group') }}">create a group</a> to get started.</div>
+{% endif %}
+</table>
+</div>
 {% endblock %}
