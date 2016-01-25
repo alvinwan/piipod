@@ -11,7 +11,7 @@ config = {
     'USERNAME': url.username,
     'PASSWORD': url.password,
     'HOST': url.hostname,
-    'PORT': port = int(os.environ.get('PORT', url.port or 5001)),
+    'PORT': int(os.environ.get('PORT', url.port or 5001)),
     'DATABASE': database_url.split('/')[3].split('?')[0],
     'SECRET_KEY': get('SECRET_KEY', 'dEf@u1t$eCRE+KEY'),
     'DEBUG': get('DEBUG', 'False'),
