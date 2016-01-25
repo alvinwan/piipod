@@ -46,7 +46,7 @@ class Base(db.Model):
     @staticmethod
     def random_hash():
         """Generates random hash"""
-        return Base.hash(str(arrow.utcnow()))
+        return Base.hash(str(arrow.now()))
 
     @staticmethod
     def hash(value):
@@ -72,7 +72,7 @@ class Base(db.Model):
             return self
         except:
             db.session.rollback()
-            return self.save()
+            raise UserWarning('DB rollback issue.')
 
     def setting(self, name):
         """Get Setting by name"""
@@ -305,6 +305,14 @@ class Group(Base):
             user_id=user.id, group_id=self.id
         ).one_or_none() is not None
 
+    # TODO: Fix timezone issue
+    def current_events(self):
+        """Fetch all events happening right now."""
+        return Event.query.filter(
+            Event.start <= arrow.now().replace(hours=-6),
+            Event.end >= arrow.now().replace(hours=-10)
+        ).all()
+
 
 class EventSetting(Setting):
     """settings for a PIAP event"""
@@ -335,6 +343,7 @@ class Event(Base):
     start = db.Column(ArrowType, nullable=True)
     end = db.Column(ArrowType, nullable=True)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     settings = relationship("EventSetting", backref="event")
     checkins = relationship("Checkin", backref="event")
 

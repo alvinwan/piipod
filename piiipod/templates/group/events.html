@@ -13,5 +13,8 @@
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
 </tr>
 {% endfor %}
+{% if g.group.events | length == 0 %}
+<p class="queue-note">Looks like you've just created your group! Click to <a href="{{ url_for('group.create_event') }}">create an event</a>.</p>
+{% endif %}
 </table>
 {% endblock %}

@@ -8,4 +8,20 @@
 </p> -->
 <h1>{{ group.name }}</h1>
 <p>{{ group.description }}</p>
+<h2>Current Events</h2>
+{% if g.group.current_events() | length == 0 %}
+<div class="queue-note">Looks like there aren't any events happening right now!</div>
+{% else %}
+<table>
+  <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden=xs">Time Until Start</th></tr>
+  {% for event in g.group.current_events() %}
+  <tr>
+    <td><a href="{{ url_for('event.home', event_id=event.id, event_url=event.url) }}">{{ event.name }}</a></td>
+    <td>{{ event.start.format('h:mm a') }}</td>
+    <td>{{ event.end.format('h:mm a') }}</td>
+    <td class="hidden-xs">{{ event.start.humanize() }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
 {% endblock %}
