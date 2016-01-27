@@ -48,7 +48,7 @@ def requires(*permissions):
 
 def strip_subdomain(string):
     """Strip subdomain prefix if applicable"""
-    if '/subdomain/' not in request.path or not g.group:
+    if '/subdomain/' not in request.path or not getattr(g, 'group', None):
         return string
     parts = string.replace('subdomain', '').split('/');
     if not parts:
