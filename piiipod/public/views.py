@@ -118,7 +118,8 @@ def request_loader(request):
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return redirect(url_for('public.home', logout='true'))
+    return redirect(request.args.get('redirect',
+        url_for('public.home')) + '?logout=true')
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
