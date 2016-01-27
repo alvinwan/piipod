@@ -51,14 +51,13 @@ def strip_subdomain(string):
     if '/subdomain/' not in request.path:
         return string
     parts = string.replace('subdomain', '').split('/');
-    print(parts)
     if not parts:
         pass
     if parts[1] == g.group.url:
         parts = parts[2:]
     elif parts[2] == g.group.url:
         parts = parts[3:]
-    url = '/' + '/'.join(filter(bool, parts))
+    url = '/' + '/'.join(parts)
     # hack fix TODO: more legit fix
     if url.endswith('admin'):
         return url + '/'
