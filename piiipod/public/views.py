@@ -143,8 +143,6 @@ def not_found(error):
 
 @app.errorhandler(500)
 def not_found(error):
-    from quupod import db
-    db.session.rollback()
     return render_template('error.html',
         title='500. Hurr.',
         code=500,
