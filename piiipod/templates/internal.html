@@ -2,10 +2,10 @@
 {% block body %}
 <body class="{{ color or 'blue' }}">
   <header>
-    <div class="col-md-2 col-xs-6 left">
+    <div class="col-md-2 col-xs-5 left">
       <a href="{% if g.group %}{{ the_url('group.home') }}{% else %}{{ the_url('public.home') }}{% endif %}"><h1 class="name">{% if g.group %}{{ g.group.name }}{% else %}Pii{% endif %}<span>Pod</span><i class="hidden-xs refresh fa fa-refresh fa-spin"></i></h1></a>
     </div>
-    <div class="col-md-10 right">
+    <div class="col-md-10 col-xs-7 right">
       {% if current_user.is_authenticated %}
       <p class="header-text hidden-xs">Hi, {{ current_user.name }}
         <span class="user-profile">
