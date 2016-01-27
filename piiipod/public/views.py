@@ -88,7 +88,7 @@ def token_login():
             ).save()
         flask_login.login_user(user)
         print(' * %s (%s) logged in.' % (user.name, user.email))
-        return url_for('dashboard.home')
+        return request.args.get('return', url_for('dashboard.home'))
     return 'Google token verification failed.'
 
 ######################
