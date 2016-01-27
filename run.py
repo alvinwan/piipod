@@ -43,6 +43,8 @@ parser = argparse.ArgumentParser(description='Small manager for this queue appli
 parser.add_argument('-db', '--database', type=str,
                    help='The database script to run',
                    choices=('create', 'refresh'))
+parser.add_argument('-t', '--tornado', action='store_const', const=True,
+                    default=False, help='launch with tornado')
 
 
 if __name__ == "__main__":
@@ -61,5 +63,7 @@ Use 'make run' to launch server.
 [OK] Database refresh complete.
 Use 'make run' to launch server.
     """)
+    elif args.tornado:
+        run(app, with_tornado=True)
     else:
         run(app)
