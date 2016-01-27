@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, g
-from piiipod.views import current_user, login_required
+from flask import Blueprint, render_template, request, redirect, g
+from piiipod.views import current_user, login_required, url_for
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm
 from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\

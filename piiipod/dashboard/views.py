@@ -1,5 +1,5 @@
-from flask import Blueprint, request, redirect, url_for, g
-from piiipod.views import current_user, login_required
+from flask import Blueprint, request, redirect, g
+from piiipod.views import current_user, login_required, url_for
 from piiipod.group.forms import GroupForm
 from piiipod.models import Group
 from piiipod.defaults import default_group_roles

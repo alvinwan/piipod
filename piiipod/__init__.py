@@ -3,8 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urlparse
 from .logger import logger
 import functools
+from flask_login import AnonymousUserMixin
 import flask_login
-from .config import config, secret_key, debug, whitelist, googleclientID, port
+from .config import config, secret_key, debug, whitelist, googleclientID, port, domain
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
@@ -58,8 +59,9 @@ def hook(f):
     return wrap
 
 # subdomain routes with special urls
-app.register_blueprint(admin, url_prefix='/subdomain/<string:queue_url>/admin')
-app.register_blueprint(queue, url_prefix='/subdomain/<string:queue_url>')
+app.register_blueprint(group, url_prefix='/subdomain/<string:group_url>')
+app.register_blueprint(event,
+    url_prefix='/subdomain/<string:group_url>/e/<int:event_id>/<string:event_url>')
 
 # Anonymous User definition
 class Anonymous(AnonymousUserMixin):

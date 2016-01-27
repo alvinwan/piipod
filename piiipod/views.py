@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import url_for as flask_url_for, redirect, render_template, request, g
 from flask_login import login_required
-from piiipod import config
+from piiipod import config, debug, domain
 import flask_login
 
 
@@ -14,12 +14,8 @@ def render(f, *args, **kwargs):
     """Render templates with defaults"""
     for k, v in config.items():
         kwargs.setdefault('cfg_%s' % k, v)
-    if not debug: # if on production
-        kwargs.setdefault('domain', domain)
     return render_template(f, *args,
-        googleclientID=googleclientID,
-        banner_message=notifications.get(
-            int(request.args.get('notification', None) or -1), None),
+        domain=domain,
         request=request,
         g=g,
         logout=request.args.get('logout', False),

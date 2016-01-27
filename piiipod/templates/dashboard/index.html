@@ -6,10 +6,10 @@
 <table>
   <tr><th>Name</th></tr>
 {% for group in groups %}
-  <tr><td><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></td></tr>
+  <tr><td><a href="{{ the_url('group.home', group_url=group.url) }}">{{ group.name }}</a></td></tr>
 {% endfor %}
 {% if groups | length == 0 %}
-<div class="queue-note">Looks like you've just joined! You can <a href="{{ url_for('dashboard.create_group') }}">create a group</a> to get started.</div>
+<div class="queue-note">Looks like you've just joined! You can <a href="{{ the_url('dashboard.create_group') }}">create a group</a> to get started.</div>
 {% endif %}
 </table>
 </div>

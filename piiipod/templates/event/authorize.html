@@ -1,8 +1,8 @@
 {% extends "internal.html" %}
 {% block main %}
 <p>
-  <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
-  <a href="{{ url_for('group.home') }}">{{ group.name }}</a> &raquo;
-  <a href="{{ url_for('event.home') }}">{{ event.name }}</a> &raquo;
+  <a href="{{ the_url('dashboard.home') }}">Groups</a> &raquo;
+  <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
+  <a href="{{ the_url('event.home') }}">{{ event.name }}</a> &raquo;
   Authorize
 </p>

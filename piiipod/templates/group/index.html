@@ -3,7 +3,7 @@
 {% block panel %}
 <div class="queue">
 <!-- <p class="subnav">
-  <a href="{{ url_for('dashboard.home') }}">Groups</a> &raquo;
+  <a href="{{ the_url('dashboard.home') }}">Groups</a> &raquo;
   {{ group.name }}
 </p> -->
 <h1>{{ group.name }}</h1>
@@ -16,7 +16,7 @@
   <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden=xs">Time Until Start</th></tr>
   {% for event in g.group.current_events() %}
   <tr>
-    <td><a href="{{ url_for('event.home', event_id=event.id, event_url=event.url) }}">{{ event.name }}</a></td>
+    <td><a href="{{ the_url('event.home', event_id=event.id, event_url=event.url) }}">{{ event.name }}</a></td>
     <td>{{ event.start.format('h:mm a') }}</td>
     <td>{{ event.end.format('h:mm a') }}</td>
     <td class="hidden-xs">{{ event.start.humanize() }}</td>

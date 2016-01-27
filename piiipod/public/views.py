@@ -1,8 +1,8 @@
-from flask import Blueprint, request, url_for, redirect
+from flask import Blueprint, request, redirect
 from .forms import *
 from piiipod import app, login_manager, logger, googleclientID
 from piiipod.models import User
-from piiipod.views import anonymous_required, render
+from piiipod.views import anonymous_required, render, url_for
 from urllib.parse import urlparse
 import flask_login
 from oauth2client import client, crypt
@@ -16,8 +16,7 @@ public = Blueprint('public', __name__)
 @public.route('/')
 def home():
     """Home page"""
-    return render('index.html',
-        logout=request.args.get('logout', 'false'))
+    return render('index.html')
 
 
 ##################
