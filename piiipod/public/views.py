@@ -89,7 +89,7 @@ def token_login():
         flask_login.login_user(user)
         print(' * %s (%s) logged in.' % (user.name, user.email))
         if redirect:
-            return redirect + '?notification=%s' % notification
+            return redirect
         return url_for('dashboard.home')
     return 'Google token verification failed.'
 
