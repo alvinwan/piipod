@@ -133,7 +133,7 @@ def unauthorized_handler():
 
 @app.errorhandler(404)
 def not_found(error):
-    return render_template('error.html',
+    return render('error.html',
         title='404. Oops.',
         code=404,
         message='Oops. This page doesn\'t exist!',
@@ -143,7 +143,7 @@ def not_found(error):
 
 @app.errorhandler(500)
 def not_found(error):
-    return render_template('error.html',
+    return render('error.html',
         title='500. Hurr.',
         code=500,
         message='Sorry. Here is the error: <br><code>%s</code><br> Please file an issue on the <a href="https://github.com/CS70/ohquu/issues">Github issues page</a>, with the above code if it has not already been submitted.' % str(error),
