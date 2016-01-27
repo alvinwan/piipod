@@ -17,8 +17,8 @@ config = {
     'DEBUG': get('DEBUG', 'False'),
     'WHITELIST': get('WHITELIST', ''),
     'GOOGLECLIENTID': get('GOOGLECLIENTID', None),
-    'ALLOWED_NETLOCS': get('ALLOWED_NETLOCS', 'quupod.com'),
-    'DOMAIN': get('DOMAIN', 'quupod.com')
+    'ALLOWED_NETLOCS': get('ALLOWED_NETLOCS', 'piipod.com'),
+    'DOMAIN': get('DOMAIN', 'piipod.com')
 }
 try:
     lines = filter(bool, open('config.cfg').read().splitlines())
