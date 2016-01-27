@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import url_for as flask_url_for, redirect, render_template, request, g
+from flask import url_for as flask_url_for, redirect, render_template, request, g, abort
 from flask_login import login_required
 from piiipod import config, debug, domain
 import flask_login
@@ -51,6 +51,8 @@ def strip_subdomain(string):
     if '/subdomain/' not in request.path:
         return string
     parts = string.replace('subdomain', '').split('/');
+    if not g.group:
+        abort(404)
     if not parts:
         pass
     if parts[1] == g.group.url:
@@ -58,9 +60,6 @@ def strip_subdomain(string):
     elif parts[2] == g.group.url:
         parts = parts[3:]
     url = '/' + '/'.join(parts)
-    # hack fix TODO: more legit fix
-    if url.endswith('admin'):
-        return url + '/'
     return url
 
 
