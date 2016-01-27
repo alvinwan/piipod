@@ -560,5 +560,17 @@ header div.abcRioButton {
 }
 
 .queue .button:last-child {
-  margin-top:2em;
+  margin-top:1em;
+}
+
+.queue > *:not(a) {
+  float:left;
+  width:100%;
+}
+  .queue .button {
+    float:left;
+    clear:both;
+  }
+.action-cont {
+  padding:0;
 }

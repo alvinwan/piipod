@@ -98,7 +98,7 @@ def signup():
         if len(data) == 2:
             whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
         else:
-            whitelisted.append((data.strip(), ''))
+            whitelisted.append((data[0].strip(), ''))
     emails = [s.strip() for s, _ in whitelisted]
     if g.user.email in emails:
         title = [title for email, title in whitelisted if email == g.user.email][0]

@@ -7,22 +7,25 @@
   {{ event.name }}
 </p>
 <h1>{{ event.name }}</h1>
+<div class="action-cont col-md-12">
 {% if current_user.is_authenticated and current_user in event %}
 <p>
   {% if current_user.can('edit_event') %}
   <a href="{{ the_url('event.edit') }}">Edit Event</a> .
   {% endif %}
-  {% if current_user.can('authorize') %}
-  <a href="{{ the_url('event.authorize') }}">Authorize</a>
-  {% elif signup.num_check_ins < event.setting('max_check_ins').value | int %}
+  {% if not current_user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
   <a href="{{ the_url('event.checkin') }}">Checkin</a>
   {% else %}
   Checked in!
   {% endif %}
 </p>
 {% else %}
-<a href="{{ the_url('event.signup') }}">Signup</a>
+  <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
 {% endif %}
+{% if current_user.can('authorize') %}
+  <a class="button color sm" href="{{ the_url('event.authorize') }}">Authorize</a>
+{% endif %}
+</div>
 <h2>Participants</h2>
 {% for participant in event.participants %}
 <li>{{ participant.user.name }} {% if participant.is_checked_in %}(checked in){% endif %}</li>
