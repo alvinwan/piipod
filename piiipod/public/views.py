@@ -137,7 +137,7 @@ def not_found(error):
         title='404. Oops.',
         code=404,
         message='Oops. This page doesn\'t exist!',
-        url=url_for('public.home'),
+        url='/',
         action='Return to homepage?'), 404
 
 
