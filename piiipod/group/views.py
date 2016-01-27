@@ -159,3 +159,18 @@ def settings():
         setting.save()
     settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
     return render_group('group/settings.html', settings=settings, back=url_for('group.home'))
+
+################
+# LOGIN/LOGOUT #
+################
+
+@queue.route('/logout')
+def logout():
+    from piipod.public.views import logout
+    return logout()
+
+
+@queue.route('/tokenlogin', methods=['POST'])
+def token_login():
+    from piipod.public.views import token_login
+    return token_login()
