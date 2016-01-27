@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect
 from .forms import *
 from piiipod import app, login_manager, logger, googleclientID
 from piiipod.models import User
-from piiipod.views import anonymous_required, render, url_for
+from piiipod.views import anonymous_required, render, url_for, current_url
 from urllib.parse import urlparse
 import flask_login
 from oauth2client import client, crypt
