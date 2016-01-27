@@ -13,7 +13,9 @@
         </span>
       </p>
       <a class="header-action" href="/logout?redirect={{ current_url() }}">logout<span class="header-subtext hidden-md hidden-lg hidden-sm">{{ current_user.name }}</span></a>
+      {% if not domain %}
       <a class="header-action" href="{{ the_url('dashboard.home') }}">Dashboard</a>
+      {% endif %}
       {% else %}
       <div class="g-signin2" data-onsuccess="onSignIn"></div>
       {% endif %}
