@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, g
+from flask import Blueprint, request, redirect, g, abort
 from piiipod.views import current_user, login_required, url_for
 from .forms import GroupForm, GroupSignupForm
 from piiipod.event.forms import EventForm
@@ -19,7 +19,9 @@ def add_group_id(endpoint, values):
 def pull_group_id(endpoint, values):
     try:
         g.group_url = values.pop('group_url')
-        g.group = Group.query.filter_by(url=g.group_url).one()
+        g.group = Group.query.filter_by(url=g.group_url).one_or_none()
+        if not g.group:
+            abort(404)
         g.user = current_user()
         g.event_role = g.signup = None
         if g.user.is_authenticated:

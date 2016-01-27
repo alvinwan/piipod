@@ -22,10 +22,12 @@ def add_ids(endpoint, values):
 def pull_ids(endpoint, values):
     try:
         g.group_url = values.pop('group_url')
-        g.group = Group.query.filter_by(url=g.group_url).one()
+        g.group = Group.query.filter_by(url=g.group_url).one_or_none()
         g.event_id = values.pop('event_id')
         g.event_url = values.pop('event_url')
         g.event = Event.query.get(g.event_id)
+        if not g.group or not g.event:
+            abort(404)
         g.user = current_user()
         if g.user.is_authenticated:
             g.membership = Membership.query.filter_by(
