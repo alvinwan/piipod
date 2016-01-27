@@ -11,12 +11,14 @@
 {% if current_user.is_authenticated and current_user in event %}
 <p>
   {% if current_user.can('edit_event') %}
-  <a href="{{ the_url('event.edit') }}">Edit Event</a> .
+  <a href="{{ the_url('event.edit') }}">Edit Event</a>
   {% endif %}
-  {% if not current_user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
-  <a href="{{ the_url('event.checkin') }}">Checkin</a>
-  {% else %}
-  Checked in!
+  {% if not current_user.can('authorize') %}
+    {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
+  . <a href="{{ the_url('event.checkin') }}">Checkin</a>
+    {% else %}
+  . Checked in!
+    {% endif %}
   {% endif %}
 </p>
 {% else %}
