@@ -74,6 +74,7 @@ def register():
 @anonymous_required
 def token_login():
     """Login via Google token"""
+    redirect = request.form.get('return', None)
     google_info = verify_google_token(request.form['token'])
     if google_info:
         print(' * Google Token verified!')
@@ -88,7 +89,9 @@ def token_login():
             ).save()
         flask_login.login_user(user)
         print(' * %s (%s) logged in.' % (user.name, user.email))
-        return request.args.get('return', url_for('dashboard.home'))
+        if redirect:
+            return redirect + '?notification=%s' % notification
+        return url_for('dashboard.home')
     return 'Google token verification failed.'
 
 ######################
