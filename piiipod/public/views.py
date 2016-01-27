@@ -133,11 +133,24 @@ def unauthorized_handler():
 
 @app.errorhandler(404)
 def not_found(error):
-    return '0.o Page not found!'
+    return render_template('error.html',
+        title='404. Oops.',
+        code=404,
+        message='Oops. This page doesn\'t exist!',
+        url=url_for('public.home'),
+        action='Return to homepage?'), 404
+
 
 @app.errorhandler(500)
-def server_error(error):
-    return 'Sorry, try again! Sometimes, our server goes to sleep, which causes our application to crash. If this problem persists, file an issue on the <a href="https://github.com/alvinwan/piiipod/issues">Github issues page</a>.'
+def not_found(error):
+    from quupod import db
+    db.session.rollback()
+    return render_template('error.html',
+        title='500. Hurr.',
+        code=500,
+        message='Sorry. Here is the error: <br><code>%s</code><br> Please file an issue on the <a href="https://github.com/CS70/ohquu/issues">Github issues page</a>, with the above code if it has not already been submitted.' % str(error),
+        url=current_url(),
+        action='Reload'), 500
 
 
 #########################
