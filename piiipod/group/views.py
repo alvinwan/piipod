@@ -166,11 +166,11 @@ def settings():
 
 @group.route('/logout')
 def logout():
-    from piipod.public.views import logout
+    from piiipod.public.views import logout
     return logout()
 
 
 @group.route('/tokenlogin', methods=['POST'])
 def token_login():
-    from piipod.public.views import token_login
+    from piiipod.public.views import token_login
     return token_login()
