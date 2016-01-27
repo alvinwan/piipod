@@ -5,8 +5,10 @@ from .logger import logger
 import functools
 import flask_login
 from .config import config, secret_key, debug, whitelist, googleclientID, port
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
-logger.debug('Running in DEBUG mode.' if debug else
+print('Running in DEBUG mode.' if debug else
       'Running in PRODUCTION mode.')
 
 print('Google Client ID: %s' % googleclientID if googleclientID else
@@ -24,6 +26,10 @@ db = SQLAlchemy(app)
 app.secret_key = secret_key
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+# Database migration management
+migrate = Migrate(app, db)
+migration_manager = Manager(app)
 
 # Configuration for app views
 from .public.views import public
@@ -50,3 +56,15 @@ def hook(f):
             postf(self, *args, **kwargs)
         return rv
     return wrap
+
+# subdomain routes with special urls
+app.register_blueprint(admin, url_prefix='/subdomain/<string:queue_url>/admin')
+app.register_blueprint(queue, url_prefix='/subdomain/<string:queue_url>')
+
+# Anonymous User definition
+class Anonymous(AnonymousUserMixin):
+
+    def can(self, permission):
+        return False
+
+login_manager.anonymous_user = Anonymous
