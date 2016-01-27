@@ -63,7 +63,11 @@
       xhr.send('token=' + id_token + '&return=/');
       xhr.onload = function() {
         if (xhr.status == 200) {
-          window.location.replace(xhr.responseText + '#refresh');
+          url = xhr.responseText;
+          if (url == '{{ current_url() }}' || url == '{{ request.path }}') {
+            window.location.reload();
+          }
+          window.location.replace(url);
         } else {
           alert('Login failed.');
         }
