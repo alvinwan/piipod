@@ -11,17 +11,21 @@ config = {
     'USERNAME': url.username,
     'PASSWORD': url.password,
     'HOST': url.hostname,
-    'PORT': int(os.environ.get('PORT', url.port or 5001)),
+    'PORT': int(os.environ.get('PORT', url.port or 5000)),
     'DATABASE': database_url.split('/')[3].split('?')[0],
     'SECRET_KEY': get('SECRET_KEY', 'dEf@u1t$eCRE+KEY'),
     'DEBUG': get('DEBUG', 'False'),
     'WHITELIST': get('WHITELIST', ''),
     'GOOGLECLIENTID': get('GOOGLECLIENTID', None),
-    'ALLOWED_NETLOCS': get('ALLOWED_NETLOCS', 'ohquu.herokuapp.com')
+    'ALLOWED_NETLOCS': get('ALLOWED_NETLOCS', 'quupod.com'),
+    'DOMAIN': get('DOMAIN', 'quupod.com')
 }
 try:
     lines = filter(bool, open('config.cfg').read().splitlines())
-    for k, v in (map(lambda s: s.strip(), d.split(':')) for d in lines):
+    for k in (tuple(d.split(':')) for d in lines):
+        v = ':'.join(k[1:]).strip()
+        k = k[0].strip()
+        print(' * Loading config:', k, v)
         if v:
             config[k.upper()] = v
 except FileNotFoundError:
@@ -40,3 +44,4 @@ debug = config['DEBUG'].lower() == 'true'
 whitelist = config['WHITELIST'].split(',')
 googleclientID = config['GOOGLECLIENTID']
 port = config['PORT']
+domain = config['DOMAIN']

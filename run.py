@@ -1,5 +1,5 @@
 from piiipod.logger import logger
-logger.setLevel(0)
+logger.setLevel(5)
 
 from piiipod import app, db, debug, port
 from sqlalchemy.exc import OperationalError
@@ -22,16 +22,24 @@ def db_create():
         raise UserWarning('It looks like your MySQL server hasn\'t been started yet.')
 
 
-def run(app):
-    db_create()
-    logger.info('[OK] Database creation complete.')
-    app.run(host='0.0.0.0', port=port, debug=debug)
+def run(app, with_tornado=False):
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+
+    # create database
+    db.create_all()
+    print('[OK] Database creation complete.')
+
+    if with_tornado:
+        http_server = HTTPServer(WSGIContainer(app))
+        http_server.listen(port)
+        IOLoop.instance().start()
+    else:
+        app.run(host='0.0.0.0', port=port, debug=debug)
 
 
 parser = argparse.ArgumentParser(description='Small manager for this queue application.')
-parser.add_argument('-s', '--settings', type=str,
-                   help='Whether or not to override default settings',
-                   choices=('default', 'override'))
 parser.add_argument('-db', '--database', type=str,
                    help='The database script to run',
                    choices=('create', 'refresh'))
