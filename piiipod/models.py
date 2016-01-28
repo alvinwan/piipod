@@ -329,12 +329,11 @@ class Group(Base):
             user_id=user.id, group_id=self.id
         ).one_or_none() is not None
 
-    # TODO: Fix timezone issue
     def current_events(self):
         """Fetch all events happening right now."""
         return Event.query.filter(
-            Event.start <= arrow.now().replace(hours=-6),
-            Event.end >= arrow.now().replace(hours=-10)
+            Event.start <= arrow.now(tz or 'local').replace(hours=-2),
+            Event.end >= arrow.now(tz or 'local').replace(hours=2)
         ).all()
 
 
