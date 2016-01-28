@@ -78,7 +78,10 @@ def create_event():
     """create event"""
     form = EventForm(request.form)
     if request.method == 'POST' and form.validate():
-        event = Event.from_request().save().load_roles(
+        event = Event.from_request()
+        if not event.url:
+            event.url = event.name.replace(' ','-')
+        event.save().load_roles(
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',

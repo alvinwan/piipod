@@ -9,8 +9,9 @@ class EventForm(ModelForm):
 
     class Meta:
         model = Event
-        only = ('name', 'description', 'url')
+        only = ('name', 'description')
 
+    url = wtf.StringField('slug', description='slug for your event <code>/e/[event_id]/[slug]</code>')
     start = wtf.DateTimeField(description='2016-01-13 12:00:00')
     end = wtf.DateTimeField(description='2016-01-13 12:00:00')
     group_id = wtf.HiddenField('group_id')
