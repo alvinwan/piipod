@@ -332,8 +332,8 @@ class Group(Base):
     def current_events(self):
         """Fetch all events happening right now."""
         return Event.query.filter(
-            Event.start <= arrow.now(tz or 'local').replace(hours=-2),
-            Event.end >= arrow.now(tz or 'local').replace(hours=2)
+            Event.start <= arrow.now(tz or 'local').replace(hours=2),
+            Event.end >= arrow.now(tz or 'local').replace(hours=-2)
         ).all()
 
 
