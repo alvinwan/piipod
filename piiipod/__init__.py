@@ -5,7 +5,7 @@ from .logger import logger
 import functools
 from flask_login import AnonymousUserMixin
 import flask_login
-from .config import config, secret_key, debug, whitelist, googleclientID, port, domain
+from .config import config, secret_key, debug, whitelist, googleclientID, port, domain, tz
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 

@@ -1,7 +1,7 @@
 """
 Important: Changes here need to be followed by `make refresh`.
 """
-from piiipod import db
+from piiipod import db, tz
 from flask import request, g
 from sqlalchemy import types, desc
 from sqlalchemy.orm import relationship
@@ -72,7 +72,7 @@ class Base(db.Model):
 
     def to_local(self, *fields):
         """Convert all to local times"""
-        return self.modify_time(*fields, act=lambda t: t.to('local'))
+        return self.modify_time(*fields, act=lambda t: t.to(tz or 'local'))
 
     def to_utc(self, *fields):
         """Convert all to UTC times"""
