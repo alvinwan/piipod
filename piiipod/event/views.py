@@ -103,16 +103,19 @@ def signup():
     if g.user.email in emails:
         title = [title for email, title in whitelisted if email == g.user.email][0]
         message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
+    roles = EventRole.query.filter_by(
+        event_id=g.event.id,
+        is_active=True).all()
     if choose_role:
-        form.role_id.choices = [(r.id, r.name) for r in EventRole.query.filter_by(
-            event_id=g.event.id,
-            is_active=True).all()]
+        form.role_id.choices = [(r.id, r.name) for r in roles]
     else:
         del form.role_id
     if g.user in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
         if g.user.email in emails:
+            if title not in [r.name for r in roles]:
+                title = 'Authorizer'
             role = {'role': title or 'Authorizer'}
         elif choose_role:
             role = {'role_id': request.form['role_id']}
