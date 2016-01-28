@@ -78,7 +78,7 @@ def edit():
     """event edit"""
     form = EventForm(request.form, obj=g.event)
     if request.method == 'POST' and form.validate():
-        g.event.update(**request.form).set_local('start', 'end').save()
+        g.event.update(**request.form).save().set_local('start', 'end').save()
         return redirect(url_for('event.home'))
     return render_event('form.html',
         title='Edit Event',
