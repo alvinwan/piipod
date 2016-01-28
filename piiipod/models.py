@@ -360,11 +360,11 @@ class Event(Base):
     __settingclass__ = EventSetting
     __defaultsettings__ = default_event_settings
 
-    name = db.Column(db.String(50))
-    url = db.Column(db.String(30))
+    name = db.Column(db.String(50), nullable=False)
+    url = db.Column(db.String(30), nullable=False)
     description = db.Column(db.Text)
-    start = db.Column(ArrowType, nullable=True)
-    end = db.Column(ArrowType, nullable=True)
+    start = db.Column(ArrowType)
+    end = db.Column(ArrowType)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     parent_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     settings = relationship("EventSetting", backref="event")
