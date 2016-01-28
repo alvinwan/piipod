@@ -5,6 +5,8 @@ from .forms import EventForm, EventSignupForm, EventCheckinForm, \
 from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base
 from sqlalchemy.orm.exc import NoResultFound
+from piiipod.defaults import default_user_settings
+import arrow
 
 
 event = Blueprint('event', __name__,
@@ -174,10 +176,10 @@ def authorize():
     """event authorization (for checkin)"""
     form = EventGenerateCodeForm(request.form)
     setting = g.user.setting('authorize_code')
-    if request.method == 'POST' and form.validate():
-        n = 25
-        setting.value = Base.hash(request.form['value']
-            )[n:n+int(request.form['length'])]
+    n = 25
+    if (request.method == 'POST' and form.validate()) or setting.value == default_user_settings['authorize_code']['value'] or UserSetting.query.filter_by(value=setting.value).count() > 1:
+        setting.value = Base.hash(request.form.get('value', str(arrow.now()))
+            )[n:n+int(request.form.get('length', 5))]
         setting.save()
     message = 'Current code: %s' % setting.value
     return render_event('form.html',
