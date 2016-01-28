@@ -79,7 +79,8 @@ def create_event():
     form = EventForm(request.form)
     if request.method == 'POST' and form.validate():
         event = Event.from_request().save().load_roles(
-            default_event_roles[g.group.category]).save()
+            default_event_roles[g.group.category]
+        ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
             event_id=g.user.signup(event, 'Owner').event_id,
             event_url=event.url))

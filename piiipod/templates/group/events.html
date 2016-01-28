@@ -7,7 +7,7 @@
 <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th></tr>
 {% for event in g.group.events %}
 <tr>
-  <td><a href="{{ the_url('event.home', event_id=event.id, event_url=event.url) }}">{{ event.name }}</a></td>
+  <td><a href="{{ the_url('event.home', event_id=event.id, event_url=event.url) }}">{{ event.to_local('start', 'end').name }}</a></td>
   <td>{{ event.start.format('h:mm a') }}</td>
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>

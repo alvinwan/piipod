@@ -24,7 +24,7 @@ class Base(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     updated_at = db.Column(ArrowType)
     updated_by = db.Column(db.Integer)
-    created_at = db.Column(ArrowType, default=arrow.utcnow())
+    created_at = db.Column(ArrowType, default=arrow.now('US/Pacific'))
     created_by = db.Column(db.Integer)
     is_active = db.Column(db.Boolean, default=True)
 
@@ -63,6 +63,29 @@ class Base(db.Model):
         for k, v in kwargs.items():
             setattr(self, k, v)
         return self
+
+    def modify_time(self, *fields, act=lambda t: t):
+        """Modify times"""
+        for field in fields:
+            setattr(self, field, act(getattr(self, field)))
+        return self
+
+    def to_local(self, *fields):
+        """Convert all to local times"""
+        return self.modify_time(*fields, act=lambda t: t.to('local'))
+
+    def to_utc(self, *fields):
+        """Convert all to UTC times"""
+        return self.modify_time(*fields, act=lambda t: t.to('utc'))
+
+    def set_tz(self, *fields, tz):
+        """Set timezones of current times to be a specific tz"""
+        return self.modify_time(*fields,
+            act=lambda t: t.replace(tzinfo=tz))
+
+    def set_local(self, *fields):
+        """Set timezones of current times to be local time"""
+        return self.set_tz(*fields, tz=tz.tzlocal())
 
     def save(self):
         """Save object"""

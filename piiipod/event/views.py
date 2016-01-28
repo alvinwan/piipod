@@ -28,6 +28,7 @@ def pull_ids(endpoint, values):
         g.event = Event.query.get(g.event_id)
         if not g.group or not g.event:
             abort(404)
+        g.event.to_local('start', 'end')
         g.user = current_user()
         if g.user.is_authenticated:
             g.membership = Membership.query.filter_by(
@@ -75,9 +76,10 @@ def home():
 @login_required
 def edit():
     """event edit"""
+    from dateutil import tz
     form = EventForm(request.form, obj=g.event)
     if request.method == 'POST' and form.validate():
-        g.event.update(**request.form).save()
+        g.event.update(**request.form).set_local('start', 'end').save()
         return redirect(url_for('event.home'))
     return render_event('form.html',
         title='Edit Event',
