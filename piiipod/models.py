@@ -85,6 +85,7 @@ class Base(db.Model):
 
     def set_local(self, *fields):
         """Set timezones of current times to be local time"""
+        from dateutil import tz
         return self.set_tz(*fields, tz=tz.tzlocal())
 
     def save(self):

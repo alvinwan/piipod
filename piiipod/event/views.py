@@ -76,7 +76,6 @@ def home():
 @login_required
 def edit():
     """event edit"""
-    from dateutil import tz
     form = EventForm(request.form, obj=g.event)
     if request.method == 'POST' and form.validate():
         g.event.update(**request.form).set_local('start', 'end').save()
