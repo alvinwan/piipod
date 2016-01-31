@@ -96,6 +96,7 @@ def signup():
     message = ''
     choose_role = g.event.setting('choose_role').is_active
     whitelisted = []
+    raise UserWarning(form.role_id.choices)
     for block in g.group.setting('whitelist').value.split(','):
         data = block.split('(')
         if len(data) == 2:

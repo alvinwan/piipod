@@ -1,8 +1,10 @@
 check:
-	source manage.sh activate check
+	source manage.sh && \
+		gs_check
 
 install: requirements.txt manage.sh
-	source manage.sh install
+	source manage.sh && \
+		gs_install
 
 run:
 	source manage.sh activate && \

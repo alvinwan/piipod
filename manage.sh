@@ -13,7 +13,7 @@ function gs_install {
   [ $? != 0 ] && sudo pip3 install virtualenv
 
   # check for virtualenv
-  python3 -m venv env
+  virtualenv -p python3 env
 
   # activate virtualenv
   source env/bin/activate
@@ -23,7 +23,9 @@ function gs_install {
   pip3 install -r requirements.txt
 
   # add configuration file if does not exist
-  [ ! -f "queue.cfg" ] && cp default-config.cfg config.cfg
+  if [ ! -f "queue.cfg" ];
+    then cp default-config.cfg config.cfg
+  fi
 
   echo "---
 
@@ -37,17 +39,24 @@ function gs_check {
   echo '2 checks:'
 
   exit=`python3 --version`
-  [ $? != 0 ] && echo '[Error] Python3 not found' || echo '[OK] Python3 found'
+  if [ $? != 0 ];
+    then echo '[Error] Python3 not found';
+    else echo '[OK] Python3 found'
+  fi
 
   exit=`mysql --version`
-  [ $? != 0 ] && echo '[Error] MySQL not found' || echo '[OK] MySQL found'
+  if [ $? != 0 ];
+    then echo '[Error] MySQL not found';
+    else echo '[OK] MySQL found'
+  fi
 }
 
 function gs_activate {
-  #!/usr/bin/env bash
 
   # check for virtualenv
-  [ -d "env" ] && python3 -m venv env
+  if [ -d "env" ];
+    then python3 -m venv env
+  fi
 
   # activate virtualenv
   source env/bin/activate
@@ -63,6 +72,14 @@ function gs_activate {
 # source manage.sh [command]
 ###
 
-[ $1 = "activate" ] && gs_activate
-[ $1 = "check" ] && gs_check
-[ $1 = "install" ] && gs_install
+if [[ $1 == "activate" ]];
+  then gs_activate
+fi
+
+if [[ $1 == "check" ]];
+  then gs_check
+fi
+
+if [[ $1 == "install" ]];
+  then gs_install
+fi
