@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, g, abort
-from piiipod.views import current_user, login_required, url_for
+from piiipod.views import current_user, login_required, url_for, requires
 from .forms import GroupForm, GroupSignupForm
 from piiipod.event.forms import EventForm
 from piiipod.models import Event, Group, Membership, GroupRole, GroupSetting
@@ -73,6 +73,7 @@ def edit():
 
 
 @group.route('/e/', methods=['GET', 'POST'])
+@requires('create_event')
 @login_required
 def create_event():
     """create event"""
