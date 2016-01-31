@@ -20,9 +20,10 @@ function gs_install {
       # activate virtualenv
       source env/bin/activate
     else
-      # create and activate env
-      check=`source activate piipod`
-      [ $? != 0 ] && conda create -n piipod python=3.4
+      # check for env
+      conda create -n piipod python=3.4
+
+      # activate env
       source activate piipod;
   fi
 
@@ -77,8 +78,7 @@ function gs_activate {
       # activate virtualenv
       source env/bin/activate
     else
-      # create and activate env
-      conda create -n piipod python=3.4
+      # activate env
       source activate piipod;
     fi
 
