@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, g, abort
+from flask import Blueprint, request, redirect, g, abort, jsonify
 from piiipod.views import current_user, login_required, url_for, requires
 from .forms import GroupForm, GroupSignupForm
 from piiipod.event.forms import EventForm
@@ -160,6 +160,7 @@ def signup():
 def settings():
     """edit settings"""
     g.group.setting('whitelist')
+    g.group.access_token
     if request.method == 'POST':
         id, value = request.form['id'], request.form['value']
         setting = GroupSetting.query.get(id)
@@ -182,3 +183,21 @@ def logout():
 def token_login():
     from piiipod.public.views import token_login
     return token_login()
+
+@group.route('/whitelist/<string:access_token>')
+@group.route('/whitelist/<string:group>/<string:access_token>')
+def whitelist(access_token, group=None):
+    """Endpoint for group whitelist of emails"""
+    if access_token == g.group.access_token:
+        terms = []
+        for term in g.group.setting('whitelist').value.split(','):
+            pieces = term.split('(')
+            if len(pieces) == 2:
+                terms.append({'email': pieces[0], 'position': pieces[1][:-1]})
+            elif len(pieces) == 1 and pieces[0]:
+                default_role = default_group_roles[g.group.category][-1]['name']
+                terms.append({'email': pieces[0], 'position': default_role})
+            else:
+                continue
+        return jsonify({'data': terms})
+    abort(404)
