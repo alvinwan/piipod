@@ -21,23 +21,54 @@ class SignupCSP(object):
     - per-user signup maximum and minimum
     """
 
-    def __init__(user_ids, event_ids):
+    def __init__(self, user_ids, event_ids):
         """Accepts iterables of user ids and event ids"""
+        self.problem = Problem()
 
+        for uid in user_ids:
+            self.addVariable(uid, list(range(len(event_ids)+1)))
+            signups = ['%s__%s' % (str(uid), str(eid)) for eid in event_ids]
+            for signup in signups:
+                self.addVariable(signup, [0, 1])
+            self.addConstraint(
+                lambda *args: args[-1] == sum(args[:-1]), signups + [uid])
 
-    @staticmethod
-    def random_variable(length=5):
-        """
-        >>> f = SignupCSP.random_variable
-        >>> len(f(3)) == 3
-        True
-        >>> f(3) != f(3)
-        True
-        """
-        string = ''
-        for _ in range(length):
-            string += chr(int(random()*27))
-        return string
+        for event_id in event_ids:
+            self.addVariable(event_id, list(range(len(user_ids)+1)))
+
+    def addVariable(self, variable, domain):
+        """Add a variable to the problem"""
+        self.problem.addVariable(variable, domain)
+        return self
+
+    def changeVariable(self, variable, domain):
+        """Change domain for a variable"""
+        self.problem._variables[variable] = Domain(domain)
+        return self
+
+    def addConstraint(self, constraint, variables):
+        """Add a constraint function applied to a set of variables"""
+        self.problem.addConstraint(constraint, variables)
+        return self
+
+    def setEventSignupMax(self, event_id, n):
+        """Set maximum number of signups for an event"""
+        self.changeVariable(event_id, list(range(n+1)))
+
+    def setUserSignupMax(self, user_id, n):
+        """Set maximum number of signups for a user"""
+        self.changeVariable(user_id, list(range(n+1)))
+
+    def getSolutions(self):
+        """grabs solutions from constraint problem"""
+        return self.problem.getSolutions()
+
+    def getSolutionIter(self):
+        """Return iterator of solutions"""
+        return self.problem.getSolutionIter()
+
+    def __iter__(self):
+        return getSolutionIter()
 
 
 if __name__ == '__main__':

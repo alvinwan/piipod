@@ -16,3 +16,4 @@ tornado==4.3
 Flask-Migrate==1.7.0
 flask_script==2.0.5
 pycosat==0.6.1
+pytest==2.8.7

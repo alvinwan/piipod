@@ -30,6 +30,7 @@ function gs_install {
   # install
   pip install --upgrade pip
   pip install -r requirements.txt
+  pip install git+https://github.com/python-constraint/python-constraint.git
 
   # add configuration file if does not exist
   if [ ! -f "config.cfg" ];
