@@ -94,9 +94,22 @@ class Base(db.Model):
             db.session.add(self)
             db.session.commit()
             return self
-        except:
+        except Exception as e:
             db.session.rollback()
-            raise UserWarning('DB rollback issue.')
+            raise UserWarning(str(e))
+
+    def delete(self):
+        """
+        Delete object
+        Use deactivate where possible.
+        """
+        try:
+            db.session.delete(self)
+            db.session.commit()
+            return self
+        except Exception as e:
+            db.session.rollback()
+            raise UserWarning(str(e))
 
     def setting(self, name):
         """Get Setting by name"""
@@ -123,13 +136,11 @@ class Base(db.Model):
 
     def deactivate(self):
         """deactivate"""
-        self.is_active = False
-        return self.save()
+        return self.update(is_active=False).save()
 
     def activate(self):
         """activate"""
-        self.is_active = True
-        return self.save()
+        return self.update(is_active=True).save()
 
     def load_roles(self, roles):
         """load role settings"""
@@ -313,7 +324,7 @@ class Group(Base):
     @property
     def events(self):
         """List of all events"""
-        return Event.query.filter_by(group_id=self.id).all()
+        return Event.query.filter_by(group_id=self.id, is_active=True).all()
 
     @property
     def members(self):

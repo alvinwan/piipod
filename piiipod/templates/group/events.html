@@ -4,13 +4,14 @@
 <div class="queue">
 <h1>Events</h1>
 <table>
-<tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th></tr>
+<tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th>{% if g.user.can('create_event') %}<th></th>{% endif %}</tr>
 {% for event in g.group.events %}
 <tr>
   <td><a href="{{ the_url('event.home', event_id=event.id, event_url=event.url) }}">{{ event.to_local('start', 'end').name }}</a></td>
   <td>{{ event.start.format('h:mm a') }}</td>
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
+  {% if g.user.can('create_event') %}<td><a href="{{ url_for('event.delete', event_id=event.id, event_url=event.url) }}" class="button xs color">Delete</a></td>{% endif %}
 </tr>
 {% endfor %}
 {% if g.group.events | length == 0 %}

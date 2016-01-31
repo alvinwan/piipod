@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, g
-from piiipod.views import current_user, login_required, url_for
+from piiipod.views import current_user, login_required, url_for, requires
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm
 from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\
@@ -143,6 +143,15 @@ def leave():
     """leave event"""
     g.user.leave(g.event)
     return redirect(url_for('event.home'))
+
+
+@event.route('/delete')
+@requires('create_event')
+@login_required
+def delete():
+    """delete event"""
+    g.event.deactivate()
+    return redirect(url_for('group.events'))
 
 
 @event.route('/checkin', methods=['GET', 'POST'])
