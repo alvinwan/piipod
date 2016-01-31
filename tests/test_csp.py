@@ -8,7 +8,7 @@ def events():
 
 @pytest.fixture
 def users():
-    return list(range(10))
+    return list(map(str, range(10)))
 
 
 def test_signupModel(users, events):
@@ -35,7 +35,8 @@ def test_userSignupMax(users, events):
     for sol in csp.getSolutionIter():
         for user in users:
             assert sol[user] <= 1
-            assert sum(sol['%d__%s' % (user, event)] for event in events) <= 1
+            assert sum(sol['%s__%s' % (user, event)] for event in events) <= 1
+        break
 
 def test_eventSignupMax(users, events):
     """test that signups per event are enforced"""
