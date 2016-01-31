@@ -1,27 +1,27 @@
 check:
-	bash check.sh
+	source manage.sh activate check
 
-install: requirements.txt install.sh
-	bash install.sh
+install: requirements.txt manage.sh
+	source manage.sh install
 
 run:
-	source activate.sh && \
+	source manage.sh activate && \
 		python3 run.py
 
 db:
-	source activate.sh && \
+	source manage.sh activate && \
 		python3 run.py -db create && \
 		python migrate.py db init
 
-refresh: piap/*/models.py
-	source activate.sh && \
+refresh:
+	source manage.sh activate && \
 		python3 run.py -db refresh
 
 migrate:
-	source activate.sh && \
+	source manage.sh activate && \
 		python migrate.py db migrate && \
 		python migrate.py db upgrade
 
 tornado:
-	source activate.sh && \
+	source manage.sh activate && \
 		python3 run.py --tornado
