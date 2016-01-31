@@ -32,6 +32,8 @@
 {% for participant in event.participants %}
 <li>{{ participant.user.name }} {% if participant.is_checked_in %}(checked in){% endif %}</li>
 {% endfor %}
+{% if g.user in g.event %}
 <a href="{{ the_url('event.leave') }}" class="button color sm">Leave event</a>
+{% endif %}
 </div>
 {% endblock %}
