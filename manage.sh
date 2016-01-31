@@ -8,22 +8,30 @@
 
 function gs_install {
 
-  # install virtualenv
-  check=`virtualenv --version`
-  [ $? != 0 ] && sudo pip3 install virtualenv
+  if [[ $CONDA == "false" ]];
+    then
+      # install virtualenv
+      check=`virtualenv --version`
+      [ $? != 0 ] && sudo pip3 install virtualenv
 
-  # check for virtualenv
-  virtualenv -p python3 env
+      # create env
+      virtualenv -p python3 env;
 
-  # activate virtualenv
-  source env/bin/activate
+      # activate virtualenv
+      source env/bin/activate
+    else
+      # create and activate env
+      check=`source activate piipod`
+      [ $? != 0 ] && conda create -n piipod python=3.4
+      source activate piipod;
+  fi
 
   # install
-  pip3 install --upgrade pip
-  pip3 install -r requirements.txt
+  pip install --upgrade pip
+  pip install -r requirements.txt
 
   # add configuration file if does not exist
-  if [ ! -f "queue.cfg" ];
+  if [ ! -f "config.cfg" ];
     then cp default-config.cfg config.cfg
   fi
 
@@ -36,7 +44,7 @@ function gs_install {
 }
 
 function gs_check {
-  echo '2 checks:'
+  echo '3 checks:'
 
   exit=`python3 --version`
   if [ $? != 0 ];
@@ -49,17 +57,30 @@ function gs_check {
     then echo '[Error] MySQL not found';
     else echo '[OK] MySQL found'
   fi
+
+  exit=`conda --version`
+  if [ $? != 0 ];
+    then echo '[Error] (Optional) Anaconda not found';
+    else echo '[OK] Anaconda found'
+  fi
 }
 
 function gs_activate {
 
-  # check for virtualenv
-  if [ -d "env" ];
-    then python3 -m venv env
-  fi
+  if [[ $CONDA == "true" ]];
+    then
+      # check for virtualenv
+      if [ -d "env" ];
+        then python3 -m venv env
+      fi
 
-  # activate virtualenv
-  source env/bin/activate
+      # activate virtualenv
+      source env/bin/activate
+    else
+      # create and activate env
+      conda create -n piipod python=3.4
+      source activate piipod;
+    fi
 
   echo "---
 

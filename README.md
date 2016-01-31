@@ -18,6 +18,7 @@ Check that Python3 and MySQL are installed using `make check`.
 ### Getting Started
 
 1. Run the installation using `make install`.
+  - Optionally, use `make install CONDA=false` instead, to use `virtualenv`.
 1. Add valid mysql user credentials to `config.cfg`.
 1. Create the database using `make db`.
 
@@ -26,7 +27,7 @@ of what each script does.
 
 During development, you may additionally want to remember the following:
 
-- In the future, use `source manage.sh activate` to activate the virtual environment.
+- In the future, use `source manage.sh activate` to activate the virtual environment. If installed without Anaconda, use `source manage.sh activate CONDA=false`
 - Any model modifications, in the **development** environment, should be
 followed by `make refresh`, which will **delete** the old database and replace
 it with a new one.
@@ -36,11 +37,11 @@ it with a new one.
 In case the installation script fails, you may execute the contents of the
 installation bash script line by line:
 
-1. Setup a new virtual environment: `python3 -m virtualenv env`.
-1. Start the virtual environment: `source env/bin/activate`.
+1. Setup a new virtual environment: `conda create -n piipod python=3.4`.
+1. Start the virtual environment: `source activate piipod`.
 1. Install all requirements: `pip install -r requirements.txt`.
 1. Make a new configuration file: `cp default-config.cfg config.cfg`.
-1. Add valid MySQL user credentials to `queue.cfg`.
+1. Add valid MySQL user credentials to `config.cfg`.
 1. Create the database: `python3 run.py -db create'`.
 
 Any model modifications should be followed by the following, which will
