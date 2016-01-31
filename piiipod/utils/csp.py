@@ -33,8 +33,11 @@ class SignupCSP(object):
             self.addConstraint(
                 lambda *args: args[-1] == sum(args[:-1]), signups + [uid])
 
-        for event_id in event_ids:
-            self.addVariable(event_id, list(range(len(user_ids)+1)))
+        for eid in event_ids:
+            self.addVariable(eid, list(range(len(user_ids)+1)))
+            signups = ['%s__%s' % (str(uid), str(eid)) for uid in user_ids]
+            self.addConstraint(
+                lambda *args: args[-1] == sum(args[:-1]), signups + [eid])
 
     def addVariable(self, variable, domain):
         """Add a variable to the problem"""
@@ -53,11 +56,19 @@ class SignupCSP(object):
 
     def setEventSignupMax(self, event_id, n):
         """Set maximum number of signups for an event"""
-        self.changeVariable(event_id, list(range(n+1)))
+        self.addConstraint(lambda count: count <= n, [event_id])
 
     def setUserSignupMax(self, user_id, n):
         """Set maximum number of signups for a user"""
-        self.changeVariable(user_id, list(range(n+1)))
+        self.addConstraint(lambda count: count <= n, [user_id])
+
+    def setEventSignupMin(self, event_id, n):
+        """Set minimum number of signups for an event"""
+        self.addConstraint(lambda count: count >= n, [event_id])
+
+    def setUserSignupMin(self, user_id, n):
+        """Set minimum number of signups for a user"""
+        self.addConstraint(lambda count: count >= n, [user_id])
 
     def getSolutions(self):
         """grabs solutions from constraint problem"""
@@ -66,6 +77,10 @@ class SignupCSP(object):
     def getSolutionIter(self):
         """Return iterator of solutions"""
         return self.problem.getSolutionIter()
+
+    def getSolution(self):
+        """Return first solution"""
+        return next(self.getSolutionIter())
 
     def __iter__(self):
         return getSolutionIter()
