@@ -19,25 +19,44 @@ class SignupCSP(object):
     Currently supports the following constraints:
     - per-event signup maximum and minimum
     - per-user signup maximum and minimum
+
+    Model:
+    - All event variables are mapped to a per-event signup count.
+    - All user variables are mapped to a per-user signup count.
+    - All signups are modeled using a variable with [0, 1], where 0 is signed up
+        and 1 is not.
     """
 
     def __init__(self, user_ids, event_ids):
         """Accepts iterables of user ids and event ids"""
         self.problem = Problem()
+        check = lambda *args: args[-1] == sum(args[:-1])
 
         for uid in user_ids:
+
+            # add user to problem
             self.addVariable(uid, list(range(len(event_ids)+1)))
+
+            # add signups to problem
             signups = ['%s__%s' % (str(uid), str(eid)) for eid in event_ids]
             for signup in signups:
                 self.addVariable(signup, [0, 1])
-            self.addConstraint(
-                lambda *args: args[-1] == sum(args[:-1]), signups + [uid])
+
+            # ensure user count is actually equal to sum of all signups
+            self.addConstraint(check, signups + [uid])
 
         for eid in event_ids:
+
+            # add event to problem
             self.addVariable(eid, list(range(len(user_ids)+1)))
+
+            # ensure event count is actually equal to sum of all signups
             signups = ['%s__%s' % (str(uid), str(eid)) for uid in user_ids]
-            self.addConstraint(
-                lambda *args: args[-1] == sum(args[:-1]), signups + [eid])
+            self.addConstraint(check, signups + [eid])
+
+    #################
+    # CSP UTILITIES #
+    #################
 
     def addVariable(self, variable, domain):
         """Add a variable to the problem"""
@@ -54,6 +73,25 @@ class SignupCSP(object):
         self.problem.addConstraint(constraint, variables)
         return self
 
+    def getSolutions(self):
+        """grabs solutions from constraint problem"""
+        return self.problem.getSolutions()
+
+    def getSolutionIter(self):
+        """Return iterator of solutions"""
+        return self.problem.getSolutionIter()
+
+    def getSolution(self):
+        """Return first solution"""
+        return next(self.getSolutionIter())
+
+    def __iter__(self):
+        return getSolutionIter()
+
+    ####################
+    # SIGNUP CSP MODEL #
+    ####################
+
     def setEventSignupMax(self, event_id, n):
         """Set maximum number of signups for an event"""
         self.addConstraint(lambda count: count <= n, [event_id])
@@ -69,21 +107,6 @@ class SignupCSP(object):
     def setUserSignupMin(self, user_id, n):
         """Set minimum number of signups for a user"""
         self.addConstraint(lambda count: count >= n, [user_id])
-
-    def getSolutions(self):
-        """grabs solutions from constraint problem"""
-        return self.problem.getSolutions()
-
-    def getSolutionIter(self):
-        """Return iterator of solutions"""
-        return self.problem.getSolutionIter()
-
-    def getSolution(self):
-        """Return first solution"""
-        return next(self.getSolutionIter())
-
-    def __iter__(self):
-        return getSolutionIter()
 
 
 if __name__ == '__main__':
