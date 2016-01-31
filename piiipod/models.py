@@ -328,7 +328,7 @@ class Group(Base):
 
     def events(self, page=1, per_page=10, paginated=True):
         """Pagination for all events"""
-        pagination = Event.query.filter_by(group_id=self.id, is_active=True).paginate(page, per_page)
+        pagination = Event.query.filter_by(group_id=self.id, is_active=True).order_by(desc(Event.start)).paginate(page, per_page)
         return pagination if paginated else pagination.items
 
     @property
