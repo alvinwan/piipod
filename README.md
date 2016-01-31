@@ -5,7 +5,7 @@ programmed by [Alvin Wan](http://alvinwan.com)
 
 ## Features
 
-
+- **CSP Assignment Resolution** 
 
 ## Installation
 

@@ -1,11 +1,11 @@
-flask
-sqlalchemy
-flask-sqlalchemy
-pymysql
-sqlalchemy-utils
-cryptography
+flask==0.10.1
+sqlalchemy==1.0.11
+flask-sqlalchemy==2.1
+pymysql==0.7.1
+sqlalchemy-utils==0.31.6
+cryptography==1.2.2
 wtforms==2.1
-wtforms-alchemy==0.13.3
+wtforms-alchemy==0.15.0
 passlib==1.6.5
 flask_login==0.3.2
 arrow==0.7.0
@@ -14,4 +14,5 @@ google-api-python-client==1.4.2
 pycrypto==2.6.1
 tornado==4.3
 Flask-Migrate==1.7.0
-flask_script
+flask_script==2.0.5
+pycosat==0.6.1
