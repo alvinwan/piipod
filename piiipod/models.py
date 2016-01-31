@@ -350,8 +350,8 @@ class Group(Base):
         return Event.query.filter(
             Event.start <= arrow.now(tz or 'local').replace(hours=2),
             Event.end >= arrow.now(tz or 'local').replace(hours=-2),
-            group_id=self.id,
-            is_active=True
+            Event.group_id==self.id,
+            Event.is_active==True
         ).all()
 
 
