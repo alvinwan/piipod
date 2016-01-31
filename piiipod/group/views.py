@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
 from piiipod.views import current_user, login_required, url_for, requires
-from .forms import GroupForm, GroupSignupForm
+from .forms import GroupForm, GroupSignupForm, AssignmentForm
 from piiipod.event.forms import EventForm
 from piiipod.models import Event, Group, Membership, GroupRole, GroupSetting
 from piiipod.defaults import default_event_roles
@@ -46,54 +46,14 @@ def render_group(f, *args, **kwargs):
     data.update(kwargs)
     return render(f, *args, **data)
 
-
-#########
-# GROUP #
-#########
-
+################
+# PUBLIC PAGES #
+################
 
 @group.route('/')
 def home():
     """group homepage"""
     return render_group('group/index.html')
-
-
-@group.route('/edit', methods=['GET', 'POST'])
-@login_required
-def edit():
-    """group edit"""
-    form = GroupForm(request.form, obj=g.group)
-    if request.method == 'POST' and form.validate():
-        g.group.update(**request.form).save()
-        return redirect(url_for('group.home'))
-    return render_group('form.html',
-        title='Edit Group',
-        submit='Save',
-        form=form)
-
-
-@group.route('/e/', methods=['GET', 'POST'])
-@requires('create_event')
-@login_required
-def create_event():
-    """create event"""
-    form = EventForm(request.form)
-    if request.method == 'POST' and form.validate():
-        event = Event.from_request()
-        if not event.url:
-            event.url = event.name.replace(' ','-')
-        event.save().load_roles(
-            default_event_roles[g.group.category]
-        ).set_local('start', 'end').save()
-        return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'Owner').event_id,
-            event_url=event.url))
-    form.group_id.default = g.group.id
-    form.process()
-    return render_group('form.html',
-        title='Create Event',
-        submit='Create',
-        form=form)
 
 
 @group.route('/events')
@@ -155,6 +115,23 @@ def signup():
         message=message,
         back=url_for('group.home'))
 
+##############
+# MANAGEMENT #
+##############
+
+@group.route('/edit', methods=['GET', 'POST'])
+@login_required
+def edit():
+    """group edit"""
+    form = GroupForm(request.form, obj=g.group)
+    if request.method == 'POST' and form.validate():
+        g.group.update(**request.form).save()
+        return redirect(url_for('group.home'))
+    return render_group('form.html',
+        title='Edit Group',
+        submit='Save',
+        form=form)
+
 @group.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -168,6 +145,46 @@ def settings():
         setting.save()
     settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
     return render_group('group/settings.html', settings=settings, back=url_for('group.home'))
+
+##########
+# EVENTS #
+##########
+
+@group.route('/e/', methods=['GET', 'POST'])
+@requires('create_event')
+@login_required
+def create_event():
+    """create event"""
+    form = EventForm(request.form)
+    if request.method == 'POST' and form.validate():
+        event = Event.from_request()
+        if not event.url:
+            event.url = event.name.replace(' ','-')
+        event.save().load_roles(
+            default_event_roles[g.group.category]
+        ).set_local('start', 'end').save()
+        return redirect(url_for('event.home',
+            event_id=g.user.signup(event, 'Owner').event_id,
+            event_url=event.url))
+    form.group_id.default = g.group.id
+    form.process()
+    return render_group('form.html',
+        title='Create Event',
+        submit='Create',
+        form=form)
+
+@group.route('/e/', methods=['GET', 'POST'])
+@requires('create_event')
+@login_required
+def assign():
+    """make assignments"""
+    form = AssignmentForm(request.form)
+    if request.method == 'POST' and form.validate():
+        pass
+    return render_group('form.html',
+        title='Make Assignments',
+        submit='Assign',
+        form=form)
 
 ################
 # LOGIN/LOGOUT #

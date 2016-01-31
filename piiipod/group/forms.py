@@ -24,3 +24,7 @@ class GroupSignupForm(wtf.Form):
     user_id = wtf.HiddenField('user')
     group_id = wtf.HiddenField('group')
     role_id = wtf.SelectField(coerce=int)
+
+
+class AssignmentForm(wtf.Form):
+    """assignment form"""
