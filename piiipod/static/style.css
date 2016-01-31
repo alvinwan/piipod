@@ -243,6 +243,13 @@ main {
       .blue .button.color:hover {
         background-color:#1e7896;
       }
+    *.button.warning {
+      background-color:#c65f4c;
+      color:#FFF;
+    }
+      *.button.warning:hover {
+        background-color: #a5402e;
+      }
     .module .button {
       width:100%;
       text-align:center;
@@ -253,6 +260,9 @@ main {
     }
     .button.xs {
       font-size:0.6em;
+    }
+    .button.compact {
+      padding:1em 1.5em;
     }
   .queue {
     width:100%;
@@ -308,6 +318,11 @@ main {
       padding:0;
       color:#999;
       font-weight:700;
+    }
+    .queue td .button {
+      float:left;
+      clear:none;
+      margin:0.25em;
     }
   .sidebar {
     background-color:#C90;
@@ -557,10 +572,6 @@ header div.abcRioButton {
 .queue .subnav {
   margin:1em 0;
   font-weight:400;
-}
-
-.queue .button:last-child {
-  margin-top:1em;
 }
 
 .queue > *:not(a) {
