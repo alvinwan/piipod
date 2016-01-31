@@ -574,3 +574,22 @@ header div.abcRioButton {
 .action-cont {
   padding:0;
 }
+.page-item {
+  display:block;
+  float:left;
+  padding:1em;
+  background-color:rgba(255,255,255,0.5);
+  border-radius:2px;
+  color:#999;
+}
+  .page-item + .page-item {
+    margin-left:0.5em;
+  }
+  a.page-item:hover {
+    background-color:#999;
+    color:#FFF;
+  }
+  div.page-item {
+    background-color:#1e7896;
+    color:#FFF;
+  }

@@ -98,7 +98,8 @@ def create_event():
 @group.route('/events')
 def events():
     """group events"""
-    return render_group('group/events.html')
+    return render_group('group/events.html',
+        page=int(request.args.get('page', 1)))
 
 
 @group.route('/members')

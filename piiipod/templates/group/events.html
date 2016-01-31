@@ -5,7 +5,8 @@
 <h1>Events</h1>
 <table>
 <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th>{% if g.user.can('create_event') %}<th></th>{% endif %}</tr>
-{% for event in g.group.events %}
+{% set pagination=g.group.events(page=page, per_page=5) %}
+{% for event in pagination.items %}
 <tr>
   <td><a href="{{ the_url('event.home', event_id=event.id, event_url=event.url) }}">{{ event.to_local('start', 'end').name }}</a></td>
   <td>{{ event.start.format('h:mm a') }}</td>
@@ -14,8 +15,21 @@
   {% if g.user.can('create_event') %}<td><a href="{{ url_for('event.delete', event_id=event.id, event_url=event.url) }}" class="button xs color">Delete</a></td>{% endif %}
 </tr>
 {% endfor %}
-{% if g.group.events | length == 0 %}
+{% if g.group.num_events == 0 %}
 <p class="queue-note">Looks like you've just created your group! Click to <a href="{{ the_url('group.create_event') }}">create an event</a>.</p>
 {% endif %}
 </table>
+<div class=pagination>
+  {% for page in pagination.iter_pages() %}
+    {% if page %}
+      {% if page != pagination.page %}
+        <a class="page-item" href="{{ url_for('group.events', page=page) }}"><span>{{ page }}</span></a>
+      {% else %}
+        <div class="page-item"><span>{{ page }}</span></div>
+      {% endif %}
+    {% else %}
+      <span class=ellipsis>...</span>
+    {% endif %}
+  {% endfor %}
+  </div>
 {% endblock %}

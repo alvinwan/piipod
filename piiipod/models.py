@@ -322,9 +322,14 @@ class Group(Base):
     settings = relationship("GroupSetting", backref="group")
 
     @property
-    def events(self):
-        """List of all events"""
-        return Event.query.filter_by(group_id=self.id, is_active=True).all()
+    def num_events(self):
+        """Number of events"""
+        return Event.query.filter_by(group_id=self.id, is_active=True).count()
+
+    def events(self, page=1, per_page=10, paginated=True):
+        """Pagination for all events"""
+        pagination = Event.query.filter_by(group_id=self.id, is_active=True).paginate(page, per_page)
+        return pagination if paginated else pagination.items
 
     @property
     def members(self):
