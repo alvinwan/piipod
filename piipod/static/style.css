@@ -616,3 +616,6 @@ header div.abcRioButton {
     background-color:#1e7896;
     color:#FFF;
   }
+div.detail li {
+  clear:both;
+}

@@ -9,9 +9,11 @@ from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
 from piipod.defaults import default_event_settings, default_group_settings, \
     default_user_settings
+import sqlalchemy
 import arrow
 import csv
 import flask_login
+import pymysql
 
 
 class Base(db.Model):
@@ -97,7 +99,7 @@ class Base(db.Model):
             return self
         except Exception as e:
             db.session.rollback()
-            raise UserWarning(str(e))
+            raise e
 
     def delete(self):
         """
@@ -179,8 +181,10 @@ class Base(db.Model):
         """Get or create user by email"""
         obj = cls.query.filter_by(**filter_by).one_or_none()
         if override and obj:
+            data = {k: v for k,v in data.items() if not k.endswith('_id')}
             return obj.update(**data).save()
-        return obj or cls(**data).save()
+        filter_by.update(data)
+        return obj or cls(**filter_by).save()
 
 
 class Setting(Base):
@@ -478,12 +482,28 @@ class Signup(Base):
     @classmethod
     def from_csv_string(cls, string, override=False):
         """Import signups from csv"""
-        reader = csv.reader(string.splitlines(), delimiter=',')
-        headers = [s.strip() for s in next(reader)]
-        for row in reader:
-            data = dict(zip(headers, [s.strip() for s in row]))
-            user = User.get_or_create(email=data.pop('user_email'))
-            yield Signup.get_or_create(user_id=user.id, event_id=data.pop('event_id'), override=override, data=data)
+        try:
+            reader = csv.reader(string.splitlines(), delimiter=',')
+            headers = [s.strip() for s in next(reader)]
+            for row in reader:
+                data = dict(zip(headers, [s.strip() for s in row]))
+                user_data = {}
+                for k in list(data.keys()):
+                    if k.startswith('user_'):
+                        user_data[k[5:]] = data.pop(k)
+                user = User.get_or_create(email=user_data['email'], data=user_data)
+                event_id = data.pop('event_id', None)
+                event_ids = data.pop('event_ids', None)
+                if event_ids:
+                    event_ids = [int(s.strip()) for s in event_ids[1:-1].split('|') if s]
+                elif event_id:
+                    event_ids = [event_id]
+                else:
+                    raise UserWarning('Must specify an event_id or event_ids col.')
+                for event_id in event_ids:
+                    yield Signup.get_or_create(user_id=user.id, event_id=event_id, override=override, data=data)
+        except sqlalchemy.exc.IntegrityError:
+            raise UserWarning('Invalid event_id found. Check that all event_ids are associated with valid events.')
 
 
 class Membership(Base):

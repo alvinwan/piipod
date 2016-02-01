@@ -41,5 +41,5 @@ class ProcessWaitlistsForm(wtf.Form):
 class ImportSignupsForm(wtf.Form):
     """import signups"""
 
-    csv = wtf.TextAreaField('csv', description='Comma-separated text with <i>at least</i> the headers <code>user_email, event_id, category</code>. You may additionally specify <code>status, preference, comment</code>')
+    csv = wtf.TextAreaField('csv', description='Comma-separated text with <i>at least</i> the headers <code>user_email, category, event_id</code>. You may additionally specify <code>status, preference, comment, user_name, event_ids</code>, where <code>event_ids</code> is a tuple of bar-delimited event IDs. i.e., <code>(25|234|3)</code>')
     override = wtf.BooleanField(description='Check to override signup details if a corresponding signup with the same user and event id is found.')
