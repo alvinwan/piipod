@@ -110,6 +110,11 @@ default_event_settings = {
         'description': 'New signups are put on the waitlist.',
         'type': 'boolean',
         'is_active': False
+    },
+    'role': {
+        'label': 'Default Role',
+        'description': 'Specify a default role for this event',
+        'value': 'Volunteer'
     }
 }
 
