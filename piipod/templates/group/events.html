@@ -3,10 +3,12 @@
 {% block panel %}
 <div class="queue events">
 <h1 class="col-md-6">Events</h1>
+{% if g.user.can('create_event') %}
 <div class="col-md-6">
   <a href="{{ the_url('group.import_signups') }}" class="tr-action right button sm compact color">Import Signups</a>
   <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
 </div>
+{% endif %}
 <table>
 <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th>{% if g.user.can('create_event') %}<th>Actions</th>{% endif %}</tr>
 {% set pagination=g.group.events(page=page, per_page=10) %}

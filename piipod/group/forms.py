@@ -29,6 +29,14 @@ class GroupSignupForm(wtf.Form):
 class ProcessWaitlistsForm(wtf.Form):
     """process form"""
 
+    identifiers = wtf.StringField('Identifiers', description='comma-separated list of tags or event IDs to include in the resolver')
+    algorithms = wtf.SelectField('Resolver Algorithm',
+        description='Algorithm to apply, to process waitlists for the specified events',
+        choices=(
+            ('SMA', 'Stable Marriage Algorithm'),
+            ('CSP', 'Constraint Satisfaction Problem')),
+        coerce=str)
+
 
 class ImportSignupsForm(wtf.Form):
     """import signups"""

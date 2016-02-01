@@ -174,7 +174,8 @@ def create_event():
     return render_group('form.html',
         title='Create Event',
         submit='Create',
-        form=form)
+        form=form,
+        back=url_for('group.events'))
 
 @group.route('/process', methods=['GET', 'POST'])
 @requires('create_event')
@@ -187,7 +188,8 @@ def process():
     return render_group('form.html',
         title='Process Waitlists',
         submit='Process',
-        form=form)
+        form=form,
+        back=url_for('group.events'))
 
 @group.route('/import/signups', methods=['GET', 'POST'])
 @requires('create_event')
@@ -206,7 +208,8 @@ def import_signups():
     return render_group('form.html',
         title='Import Signups',
         submit='Import',
-        form=form)
+        form=form,
+        back=url_for('group.events'))
 
 ################
 # LOGIN/LOGOUT #

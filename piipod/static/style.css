@@ -594,6 +594,9 @@ header div.abcRioButton {
   .tr-action {
     margin:2em 0 0 0;
   }
+  .tr-action + .tr-action {
+    margin-right:0.5em;
+  }
 .page-item {
   display:block;
   float:left;
