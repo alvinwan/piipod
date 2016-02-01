@@ -223,3 +223,12 @@ def delete():
     """delete event"""
     g.event.deactivate()
     return redirect(url_for('group.events'))
+
+
+@event.route('/restore')
+@requires('create_event')
+@login_required
+def delete():
+    """restore deleted event"""
+    g.event.activate()
+    return redirect(url_for('group.events'))
