@@ -19,7 +19,7 @@
   {% for signup in membership.signups() %}
     {% if signup.event_id %}
     <tr>
-      <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.to_local().name }}</a></td>
+      <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.to_local('start', 'end').name }}</a></td>
       <td>{{ signup.event.start.format('h:mm a') }}</td>
       <td>{{ signup.event.end.format('h:mm a') }}</td>
       <td></td>
