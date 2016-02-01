@@ -1,38 +1,43 @@
 {% extends "event/event.html" %}
 {% block event %}
 <div class="queue detail">
-  <div class="col-md-6">
-    <p class="subnav">
-      <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
-      <a href="{{ the_url('group.events') }}">Events</a> &raquo;
-      {{ event.name }}
-    </p>
-    <h1>{{ event.name }}</h1>
-    <p>{{ event.description }}</p>
-    <div class="action-cont col-md-12">
-    {% if current_user.is_authenticated and current_user in event %}
-      {% if current_user.can('edit_event') %}
-      <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
-      {% endif %}
-      {% if not current_user.can('authorize') %}
-        {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
-      <a href="{{ the_url('event.checkin') }}" class="button color sm">Checkin</a>
-        {% else %}
-      <p>Checked in!</p>
-        {% endif %}
-      {% endif %}
-      {% if g.user in g.event %}
-      <a href="{{ the_url('event.leave') }}" class="button warning sm">Leave event</a>
-      {% endif %}
-    {% else %}
-      <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
+  <p class="subnav">
+    <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
+    <a href="{{ the_url('group.events') }}">Events</a> &raquo;
+    {{ event.name }}
+  </p>
+  <h1>{{ event.name }}</h1>
+  <p>{{ event.description }}</p>
+  <div class="action-cont col-md-12">
+  {% if current_user.is_authenticated and current_user in event %}
+    {% if current_user.can('edit_event') %}
+    <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
     {% endif %}
-    </div>
+    {% if not current_user.can('authorize') %}
+      {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
+    <a href="{{ the_url('event.checkin') }}" class="button color sm">Checkin</a>
+      {% else %}
+    <p>Checked in!</p>
+      {% endif %}
+    {% endif %}
+    {% if g.user in g.event %}
+    <a href="{{ the_url('event.leave') }}" class="button warning sm">Leave event</a>
+    {% endif %}
+  {% else %}
+    <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
+  {% endif %}
   </div>
-  <div class="col-md-6">
-    <h2>Participants</h2>
-    {% for participant in event.participants %}
-    <li>{{ participant.user.name }} {% if participant.is_checked_in %}(checked in){% endif %}</li>
-    {% endfor %}
-  </div>
+  <h2>Participants</h2>
+  <table>
+    <tr>
+      <td>Name</td>
+      <td>Checkin</td>
+    </tr>
+  {% for participant in event.participants %}
+    <tr>
+      <td><a href="{{ the_url('group.member', user_id=participant.user.id) }}">{{ participant.user.name }}</a></td>
+      <td>{% if participant.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </table>
 {% endblock %}

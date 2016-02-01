@@ -71,53 +71,6 @@ def members():
     """group members"""
     return render_group('group/members.html')
 
-
-@group.route('/signup', methods=['GET', 'POST'])
-@login_required
-def signup():
-    """group signup"""
-    message = ''
-    form = GroupSignupForm(request.form)
-    choose_role = g.group.setting('choose_role').is_active
-    message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
-    whitelisted = []
-    for block in g.group.setting('whitelist').value.split(','):
-        data = block.split('(')
-        if len(data) == 2:
-            whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
-        else:
-            whitelisted.append((data[0].strip(), ''))
-    emails = [s.strip() for s, _ in whitelisted]
-    if g.user.email in emails:
-        title = [title for email, title in whitelisted if email == g.user.email][0]
-        message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
-    if choose_role:
-        form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
-            group_id=g.group.id,
-            is_active=True).all()]
-    else:
-        del form.role_id
-    if g.user in g.group:
-        return redirect(url_for('group.home', notif=5))
-    if request.method == 'POST' and form.validate():
-        if g.user.email in emails:
-            role = {'role': title or 'Authorizer'}
-        elif choose_role:
-            role = {'role_id': request.form['role_id']}
-        else:
-            role = {'role': g.group.setting('role').value}
-        membership = g.user.join(g.group, **role)
-        return redirect(url_for('group.home'))
-    form.group_id.default = g.group.id
-    form.user_id.default = g.user.id
-    form.process()
-    return render_group('form.html',
-        title='Signup for %s' % g.group.name,
-        submit='Join',
-        form=form,
-        message=message,
-        back=url_for('group.home'))
-
 ##############
 # MANAGEMENT #
 ##############
@@ -196,6 +149,10 @@ def import_signups():
     if request.method == 'POST' and form.validate():
         signups = list(Signup.from_csv_string(
             request.form['csv'], request.form['override'] == 'y'))
+        for signup in signups:
+            Membership(group_id=g.group.id, user_id=signup.user_id,
+                role_id=GroupRole.query.filter_by(name='Member').one().id
+                ).save()
         return render_group('group/import_signups.html',
             message='All %d signups created.' % len(signups),
             url=url_for('group.events'),
@@ -206,6 +163,61 @@ def import_signups():
         submit='Import',
         form=form,
         back=url_for('group.events'))
+
+##############
+# MEMBERSHIP #
+##############
+
+@group.route('/signup', methods=['GET', 'POST'])
+@login_required
+def signup():
+    """group signup"""
+    message = ''
+    form = GroupSignupForm(request.form)
+    choose_role = g.group.setting('choose_role').is_active
+    message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
+    whitelisted = []
+    for block in g.group.setting('whitelist').value.split(','):
+        data = block.split('(')
+        if len(data) == 2:
+            whitelisted.append((data[0].strip(), data[1].strip()[:-1]))
+        else:
+            whitelisted.append((data[0].strip(), ''))
+    emails = [s.strip() for s, _ in whitelisted]
+    if g.user.email in emails:
+        title = [title for email, title in whitelisted if email == g.user.email][0]
+        message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
+    if choose_role:
+        form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
+            group_id=g.group.id,
+            is_active=True).all()]
+    else:
+        del form.role_id
+    if g.user in g.group:
+        return redirect(url_for('group.home', notif=5))
+    if request.method == 'POST' and form.validate():
+        if g.user.email in emails:
+            role = {'role': title or 'Authorizer'}
+        elif choose_role:
+            role = {'role_id': request.form['role_id']}
+        else:
+            role = {'role': g.group.setting('role').value}
+        membership = g.user.join(g.group, **role)
+        return redirect(url_for('group.home'))
+    form.group_id.default = g.group.id
+    form.user_id.default = g.user.id
+    form.process()
+    return render_group('form.html',
+        title='Signup for %s' % g.group.name,
+        submit='Join',
+        form=form,
+        message=message,
+        back=url_for('group.home'))
+
+@group.route('/u/<int:user_id>')
+def member():
+    """Displays information about member"""
+    
 
 ################
 # LOGIN/LOGOUT #
