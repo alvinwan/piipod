@@ -388,7 +388,6 @@ class Event(Base):
     __defaultsettings__ = default_event_settings
 
     name = db.Column(db.String(50), nullable=False)
-    slug = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text)
     start = db.Column(ArrowType)
     end = db.Column(ArrowType)

@@ -61,7 +61,7 @@ def hook(f):
 # subdomain routes with special urls
 app.register_blueprint(group, url_prefix='/subdomain/<string:group_url>')
 app.register_blueprint(event,
-    url_prefix='/subdomain/<string:group_url>/e/<int:event_id>/<string:event_slug>')
+    url_prefix='/subdomain/<string:group_url>/e/<int:event_id>')
 
 # Anonymous User definition
 class Anonymous(AnonymousUserMixin):

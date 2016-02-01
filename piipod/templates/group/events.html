@@ -14,14 +14,14 @@
 {% set pagination=g.group.events(page=page, per_page=10) %}
 {% for event in pagination.items %}
 <tr>
-  <td><a href="{{ the_url('event.home', event_id=event.id, event_slug=event.slug) }}">{{ event.to_local('start', 'end').name }}</a></td>
+  <td><a href="{{ the_url('event.home', event_id=event.id) }}">{{ event.to_local('start', 'end').name }}</a></td>
   <td>{{ event.start.format('h:mm a') }}</td>
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
   {% if g.user.can('create_event') %}<td>
-    <a href="{{ the_url('event.delete', event_id=event.id, event_slug=event.slug) }}" class="button xs compact warning">Delete</a>
-    <a href="{{ the_url('event.edit', event_id=event.id, event_slug=event.slug) }}" class="button xs compact color">Edit</a>
-    <a href="{{ the_url('event.process', event_id=event.id, event_slug=event.slug) }}" class="button xs compact color">Process</a>
+    <a href="{{ the_url('event.delete', event_id=event.id) }}" class="button xs compact warning">Delete</a>
+    <a href="{{ the_url('event.edit', event_id=event.id) }}" class="button xs compact color">Edit</a>
+    <a href="{{ the_url('event.process', event_id=event.id) }}" class="button xs compact color">Process</a>
   </td>{% endif %}
 </tr>
 {% endfor %}

@@ -160,15 +160,11 @@ def create_event():
     """create event"""
     form = EventForm(request.form)
     if request.method == 'POST' and form.validate():
-        event = Event.from_request()
-        event.update(
-            slug=event.name.replace(' ','-')
-        ).save().load_roles(
+        event = Event.from_request().save().load_roles(
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'Owner').event_id,
-            event_slug=event.slug))
+            event_id=g.user.signup(event, 'Owner').event_id)
     form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',
