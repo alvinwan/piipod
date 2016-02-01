@@ -47,10 +47,9 @@ def pull_ids(endpoint, values):
                 if g.signup.role_id:
                     g.event_role = EventRole.query.get(g.signup.role_id)
                 else:
-                    # role = EventRole.query.filter_by(event_id=g.event.id, name=g.event.setting('role').value).one()
-                    # g.signup.update(role_id=role.id).save()
-                    # g.event_role = role
-                    raise UserWarning('no')
+                    role = EventRole.query.filter_by(event_id=g.event.id, name=g.event.setting('role').value).one()
+                    g.signup.update(role_id=role.id).save()
+                    g.event_role = role
             else:
                 g.event_role = None
         else:

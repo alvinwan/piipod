@@ -293,9 +293,12 @@ class User(Base, flask_login.UserMixin):
 
     def permissions(self, include=('event', 'group')):
         """get all permissions"""
-        ps = sum([role.permissions.split(',') for role in
-            (getattr(g, '%s_role' % r) for r in include) if role], [])
-        return [s.strip() for s in ps]
+        try:
+            ps = sum([role.permissions.split(',') for role in
+                (getattr(g, '%s_role' % r) for r in include) if role], [])
+            return [s.strip() for s in ps]
+        except AttributeError:
+            return []
 
     def can(self, permission, include=('event', 'group')):
         """Check if user has the given permission"""
