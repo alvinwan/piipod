@@ -1,9 +1,9 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
-from piiipod.views import current_user, login_required, url_for, requires
+from piipod.views import current_user, login_required, url_for, requires
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm
-from piiipod.event.forms import EventForm
-from piiipod.models import Event, Group, Membership, GroupRole, GroupSetting
-from piiipod.defaults import default_event_roles
+from piipod.event.forms import EventForm
+from piipod.models import Event, Group, Membership, GroupRole, GroupSetting
+from piipod.defaults import default_event_roles
 from sqlalchemy.orm.exc import NoResultFound
 
 
@@ -41,7 +41,7 @@ def pull_group_id(endpoint, values):
 
 def render_group(f, *args, **kwargs):
     """custom render for groups"""
-    from piiipod.views import render
+    from piipod.views import render
     data = vars(g)
     data.update(kwargs)
     return render(f, *args, **data)
@@ -192,13 +192,13 @@ def process():
 
 @group.route('/logout')
 def logout():
-    from piiipod.public.views import logout
+    from piipod.public.views import logout
     return logout()
 
 
 @group.route('/tokenlogin', methods=['POST'])
 def token_login():
-    from piiipod.public.views import token_login
+    from piipod.public.views import token_login
     return token_login()
 
 @group.route('/whitelist/<string:access_token>')

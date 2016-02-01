@@ -1,7 +1,7 @@
 from wtforms_alchemy import ModelForm, ModelFieldList
 from wtforms.fields import FormField
 import wtforms as wtf
-from piiipod.models import User
+from piipod.models import User
 
 
 class LoginForm(wtf.Form):

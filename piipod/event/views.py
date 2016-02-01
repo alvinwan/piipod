@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, g
-from piiipod.views import current_user, login_required, url_for, requires
+from piipod.views import current_user, login_required, url_for, requires
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm, ProcessWaitlistForm
-from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\
+from piipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base
 from sqlalchemy.orm.exc import NoResultFound
-from piiipod.defaults import default_user_settings
+from piipod.defaults import default_user_settings
 import arrow
 
 
@@ -57,7 +57,7 @@ def pull_ids(endpoint, values):
 
 def render_event(f, *args, **kwargs):
     """custom render for events"""
-    from piiipod.views import render
+    from piipod.views import render
     data = vars(g)
     data.update(kwargs)
     return render(f, *args, **data)

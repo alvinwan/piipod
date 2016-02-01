@@ -1,8 +1,8 @@
 from flask import Blueprint, request, redirect
 from .forms import *
-from piiipod import app, login_manager, logger, googleclientID
-from piiipod.models import User
-from piiipod.views import anonymous_required, render, url_for, current_url
+from piipod import app, login_manager, logger, googleclientID
+from piipod.models import User
+from piipod.views import anonymous_required, render, url_for, current_url
 from urllib.parse import urlparse
 import flask_login
 from oauth2client import client, crypt

@@ -1,7 +1,7 @@
-from piiipod.logger import logger
+from piipod.logger import logger
 logger.setLevel(5)
 
-from piiipod import app, db, debug, port
+from piipod import app, db, debug, port
 from sqlalchemy.exc import OperationalError
 import argparse
 import os

@@ -1,13 +1,13 @@
 """
 Important: Changes here need to be followed by `make refresh`.
 """
-from piiipod import db, tz
+from piipod import db, tz
 from flask import request, g
 from sqlalchemy import types, desc
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
-from piiipod.defaults import default_event_settings, default_group_settings, \
+from piipod.defaults import default_event_settings, default_group_settings, \
     default_user_settings
 import arrow
 import flask_login

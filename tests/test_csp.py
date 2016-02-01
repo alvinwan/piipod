@@ -1,4 +1,4 @@
-from piiipod.utils.csp import *
+from piipod.utils.csp import *
 import pytest
 
 

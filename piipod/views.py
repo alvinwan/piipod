@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import url_for as flask_url_for, redirect, render_template, request, g, abort
 from flask_login import login_required
-from piiipod import config, debug, domain
+from piipod import config, debug, domain
 import flask_login
 
 

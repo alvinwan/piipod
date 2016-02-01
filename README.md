@@ -1,4 +1,4 @@
-# Piiipod
+# Piipod
 staff and event management, with Google calendar sync
 
 programmed by [Alvin Wan](http://alvinwan.com)
@@ -6,7 +6,7 @@ programmed by [Alvin Wan](http://alvinwan.com)
 ## Features
 
 - Automatic Waitlist Resolution:
-  - **Constraint Satisifaction Problem Model** allows staff to setup event signup minimum or maximum, per-user signups maximum or minimum for a group of events. 
+  - **Constraint Satisifaction Problem Model** allows staff to setup event signup minimum or maximum, per-user signups maximum or minimum for a group of events.
   - **Stable Marriage Algorithm** allows staff to accept waitlisted users based on user preferences.
 
 ## Installation

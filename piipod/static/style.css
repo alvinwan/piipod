@@ -577,6 +577,9 @@ header div.abcRioButton {
 .queue > *:not(a) {
   float:left;
 }
+  .queue h1:not([class^="col-"]),.queue p,.queue h2 {
+    width:100%;
+  }
   .queue .button {
     float:left;
     clear:both;

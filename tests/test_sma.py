@@ -1,4 +1,4 @@
-from piiipod.utils.sma import SMA
+from piipod.utils.sma import SMA
 
 
 def test_raw_sma():
