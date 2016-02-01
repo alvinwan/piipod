@@ -7,7 +7,7 @@
     {{ event.name }}
   </p>
   <h1>{{ event.name }}</h1>
-  <p>{{ event.description }}</p>
+  <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }} . {{ event.description }}</p>
   <div class="action-cont col-md-12">
   {% if current_user.is_authenticated and current_user in event %}
     {% if current_user.can('edit_event') %}
