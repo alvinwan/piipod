@@ -4,7 +4,7 @@ from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
     ImportSignupsForm
 from piipod.event.forms import EventForm
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
-    Signup
+    Signup, Membership
 from piipod.defaults import default_event_roles
 from sqlalchemy.orm.exc import NoResultFound
 import csv
@@ -215,9 +215,13 @@ def signup():
         back=url_for('group.home'))
 
 @group.route('/u/<int:user_id>')
-def member():
+def member(user_id):
     """Displays information about member"""
-    
+    g.membership = Membership.query.filter_by(group_id=g.group.id, user_id=user_id).one_or_none()
+    if not g.membership:
+        abort(404)
+    return render_group('group/member.html',
+        membership=g.membership)
 
 ################
 # LOGIN/LOGOUT #

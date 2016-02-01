@@ -7,7 +7,7 @@
 <tr><th>Name</th><th>Role</th><th class="hidden-xs">Join Date</th></tr>
 {% for member in g.group.members %}
 <tr>
-  <td>{{ member.user.name }}</td>
+  <td><a href="{{ the_url('group.member', user_id=member.user_id)}}">{{ member.user.name }}</a></td>
   <td>{{ member.role.name }}</td>
   <td class="hidden-xs">{{ member.created_at.humanize() }}</td>
 </tr>
