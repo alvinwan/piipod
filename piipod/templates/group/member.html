@@ -20,8 +20,8 @@
     {% if signup.event_id %}
     <tr>
       <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.name }}</a></td>
-      <td>{{ signup.event.start.humanize() }}</td>
-      <td>{{ signup.event.end.humanize() }}</td>
+      <td>{{ signup.event.start.format('h:mm a') }}</td>
+      <td>{{ signup.event.end.format('h:mm a') }}</td>
       <td></td>
       <td>{{ signup.category }}</td>
     </tr>
