@@ -20,7 +20,7 @@ def add_ids(endpoint, values):
     values.setdefault('event_slug', getattr(g, 'event_slug', None))
 
 
-@event.slug_value_preprocessor
+@event.url_value_preprocessor
 def pull_ids(endpoint, values):
     try:
         g.group_url = values.pop('group_url')
