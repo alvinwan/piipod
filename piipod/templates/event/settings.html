@@ -1,0 +1,34 @@
+{% extends "event/event.html" %}
+{% block panel %}
+<div class="queue detail">
+  <p class="subnav">
+    <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
+    <a href="{{ the_url('group.events') }}">Events</a> &raquo;
+    <a href="{{ the_url('event.home') }}">{{ event.name }}</a> &raquo;
+    Settings
+  </p>
+{% for setting in settings %}
+<form method="post" action="{{ current_url() }}" class="col-md-12">
+  <h3>{{ setting.label }}</h3>
+  <p>{{ setting.description }}</p>
+  <input type="hidden" name="id" value="{{ setting.id }}">
+  {% if setting.is_active %}
+    {% if setting.type != 'boolean' %}
+  <input type="text" name="value" value="{{ setting.value}} ">
+  <input type="submit" class="button sm color" value="save">
+    {% endif %}
+  {% else %}
+  <input type="hidden" name="is_active" value="y">
+  <input type="submit" class="button sm color" value="enable">
+  {% endif %}
+</form>
+{% if setting.is_active %}
+<form method="POST" action="{{ current_url() }}">
+  <input type="hidden" name="id" value="{{ setting.id }}">
+  <input type="hidden" name="is_active" value="n">
+  <input type="submit" class="button sm color" value="disable">
+</form>
+{% endif %}
+{% endfor %}
+</div>
+{% endblock %}

@@ -87,16 +87,29 @@ default_event_settings = {
     'max_check_ins': {
         'label': 'Maximum Number of Checkins',
         'description': 'This is typically one. Disable this setting for no limit.',
-        'value': 1
+        'value': 1,
     },
     'choose_role': {
         'label': 'Users Pick Roles',
         'description': 'Specify roles that new signups can select to be. Disable to auto-assign the default role to new signups.',
         'is_active': False,
+        'type': 'boolean'
     },
-    'role': {
-        'value': 'Volunteer',
-        'type': 'select'
+    'enable_signups': {
+        'label': 'Enable Signups',
+        'description': 'Allow users to signup',
+        'type': 'boolean'
+    },
+    'enable_leave': {
+        'label': 'Enable Leave',
+        'description': 'Allow users to leave event',
+        'type': 'boolean'
+    },
+    'auto_waitlist': {
+        'label': 'Automatically Waitlist',
+        'description': 'New signups are put on the waitlist.',
+        'type': 'boolean',
+        'is_active': False
     }
 }
 

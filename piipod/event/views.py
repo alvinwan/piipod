@@ -3,9 +3,9 @@ from piipod.views import current_user, login_required, url_for, requires
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm, ProcessWaitlistForm
 from piipod.models import Group, Event, User, UserSetting, Membership, Signup,\
-    GroupRole, EventRole, Base
+    GroupRole, EventRole, Base, EventSetting
 from sqlalchemy.orm.exc import NoResultFound
-from piipod.defaults import default_user_settings
+from piipod.defaults import default_user_settings, default_event_settings
 import arrow
 
 
@@ -197,10 +197,19 @@ def edit():
 @login_required
 def settings():
     """edit settings"""
+    for k in default_event_settings:
+        g.event.setting(k)
     settings = EventSetting.query.filter_by(event_id=g.event.id).all()
     if request.method == 'POST':
-        pass
-    return render_event('settings.html', settings=settings)
+        _id = request.form['id']
+        value = request.form.get('value', None)
+        is_active = request.form.get('is_active', None)
+        setting = EventSetting.query.get(int(_id))
+        if value is not None:
+            setting.update(value=value).save()
+        if is_active is not None:
+            setting.update(is_active=is_active == 'y').save()
+    return render_event('event/settings.html', settings=settings)
 
 @event.route('/process', methods=['GET', 'POST'])
 @requires('create_event')
