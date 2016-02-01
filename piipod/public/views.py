@@ -78,7 +78,7 @@ def token_login():
     if google_info:
         print(' * Google Token verified!')
         google_id = google_info['sub']
-        user = User.query.filter_by(google_id=google_id).first()
+        user = User.query.filter_by(email=google_info['email']).first()
         if not user:
             print(' * Registering user using Google token...')
             user = User(
