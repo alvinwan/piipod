@@ -13,14 +13,14 @@ event = Blueprint('event', __name__,
     url_prefix='/<string:group_url>/e/<int:event_id>/<string:event_slug>')
 
 
-@event.url_defaults
+@event.slug_defaults
 def add_ids(endpoint, values):
     values.setdefault('group_url', getattr(g, 'group_url', None))
     values.setdefault('event_id', getattr(g, 'event_id', None))
     values.setdefault('event_slug', getattr(g, 'event_slug', None))
 
 
-@event.url_value_preprocessor
+@event.slug_value_preprocessor
 def pull_ids(endpoint, values):
     try:
         g.group_url = values.pop('group_url')
