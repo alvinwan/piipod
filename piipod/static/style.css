@@ -225,7 +225,7 @@ main {
     border:none;
     outline:none;
   }
-    .button:hover {
+    a.button:hover, *:not(a).button {
       background-color:rgba(0,0,0,0.25);
       text-decoration:none;
       color:#FFF;

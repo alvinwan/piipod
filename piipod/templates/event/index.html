@@ -24,7 +24,11 @@
     <a href="{{ the_url('event.leave') }}" class="button warning sm">Leave event</a>
     {% endif %}
   {% elif g.event.setting('enable_signups').is_active %}
+    {% if current_user.is_authenticated %}
     <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
+    {% else %}
+    <span class="button gray sm">Login to Signup</span>
+    {% endif %}
   {% endif %}
   {% if g.user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
