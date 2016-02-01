@@ -23,8 +23,8 @@
   {% for error in form.errors[field.name] %}
     <p style="color:red"><strong>Error!</strong> {{error}}</p>
   {% endfor %}
-  {{ field }}
   {% endif %}
+  {{ field }}
 {% endfor %}
   {% if cancel %}
   <a class="button" href="{{ cancel }}">cancel</a>

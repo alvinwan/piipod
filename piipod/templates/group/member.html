@@ -16,7 +16,7 @@
       <td>Checkin</td>
       <td>Category</td>
     </tr>
-  {% for signup in membership.user.signups %}
+  {% for signup in membership.signups() %}
     {% if signup.event_id %}
     <tr>
       <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.name }}</a></td>
