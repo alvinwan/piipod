@@ -50,7 +50,7 @@ def pull_ids(endpoint, values):
         else:
             g.membership = g.signup = g.group_role = g.event_role = None
     except NoResultFound:
-        return 'No such event.'
+        abort(404)
 
 
 def render_event(f, *args, **kwargs):

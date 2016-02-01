@@ -409,6 +409,8 @@ class Event(Base):
 
     def __contains__(self, user):
         """Check if user is in signups"""
+        if not user.is_authenticated:
+            return False
         return Signup.query.filter_by(
             user_id=user.id,
             event_id=self.id,
