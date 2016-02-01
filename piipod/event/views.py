@@ -10,14 +10,14 @@ import arrow
 
 
 event = Blueprint('event', __name__,
-    url_prefix='/<string:group_url>/e/<int:event_id>/<string:event_url>')
+    url_prefix='/<string:group_url>/e/<int:event_id>/<string:event_slug>')
 
 
 @event.url_defaults
 def add_ids(endpoint, values):
     values.setdefault('group_url', getattr(g, 'group_url', None))
     values.setdefault('event_id', getattr(g, 'event_id', None))
-    values.setdefault('event_url', getattr(g, 'event_url', None))
+    values.setdefault('event_slug', getattr(g, 'event_slug', None))
 
 
 @event.url_value_preprocessor
@@ -26,7 +26,7 @@ def pull_ids(endpoint, values):
         g.group_url = values.pop('group_url')
         g.group = Group.query.filter_by(url=g.group_url).one_or_none()
         g.event_id = values.pop('event_id')
-        g.event_url = values.pop('event_url')
+        g.event_slug = values.pop('event_slug')
         g.event = Event.query.get(g.event_id)
         if not g.group or not g.event:
             abort(404)

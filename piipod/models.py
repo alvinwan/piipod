@@ -10,6 +10,7 @@ from passlib.context import CryptContext
 from piipod.defaults import default_event_settings, default_group_settings, \
     default_user_settings
 import arrow
+import csv
 import flask_login
 
 
@@ -56,7 +57,7 @@ class Base(db.Model):
     @classmethod
     def from_request(cls):
         """Create object from request"""
-        return cls(**dict(request.form.items())).save()
+        return cls(**dict(request.form.items()))
 
     def update(self, **kwargs):
         """Update object with kwargs"""
@@ -172,6 +173,14 @@ class Base(db.Model):
             description='for integrating with other services',
             **key
         ).save()).value
+
+    @classmethod
+    def get_or_create(cls, data={}, override=False, **filter_by):
+        """Get or create user by email"""
+        obj = cls.query.filter_by(**filter_by).one_or_none()
+        if override and obj:
+            return obj.update(**data).save()
+        return obj or cls(**data).save()
 
 
 class Setting(Base):
@@ -379,7 +388,7 @@ class Event(Base):
     __defaultsettings__ = default_event_settings
 
     name = db.Column(db.String(50), nullable=False)
-    url = db.Column(db.String(30), nullable=False)
+    slug = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text)
     start = db.Column(ArrowType)
     end = db.Column(ArrowType)
@@ -436,6 +445,10 @@ class Signup(Base):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('event_role.id'))
+    category = db.Column(db.String(50))
+    status = db.Column(db.String(50))
+    preference = db.Column(db.Integer)
+    comment = db.Column(db.Text)
 
     @property
     def event(self):
@@ -460,6 +473,16 @@ class Signup(Base):
         return Checkin.query.filter_by(
             user_id=self.user_id,
             event_id=self.event_id).count()
+
+    @classmethod
+    def from_csv_string(cls, string, override=False):
+        """Import signups from csv"""
+        reader = csv.reader(string.splitlines(), delimiter=',')
+        headers = [s.strip() for s in next(reader)]
+        for row in reader:
+            data = dict(zip(headers, [s.strip() for s in row]))
+            user = User.get_or_create(email=data.pop('user_email'))
+            yield Signup.get_or_create(user_id=user.id, event_id=data.pop('event_id'), override=override, data=data)
 
 
 class Membership(Base):

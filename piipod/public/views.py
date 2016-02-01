@@ -86,6 +86,8 @@ def token_login():
                 email=google_info['email'],
                 google_id=google_id
             ).save()
+        else:
+            user.update(name=name, google_id=google_id).save()
         flask_login.login_user(user)
         print(' * %s (%s) logged in.' % (user.name, user.email))
         if redirect:

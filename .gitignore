@@ -1,5 +1,6 @@
 # configuration file
 config.cfg
+migrations
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,10 +1,13 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
 from piipod.views import current_user, login_required, url_for, requires
-from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm
+from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
+    ImportSignupsForm
 from piipod.event.forms import EventForm
-from piipod.models import Event, Group, Membership, GroupRole, GroupSetting
+from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
+    Signup
 from piipod.defaults import default_event_roles
 from sqlalchemy.orm.exc import NoResultFound
+import csv
 
 
 group = Blueprint('group', __name__, url_prefix='/<string:group_url>')
@@ -158,14 +161,14 @@ def create_event():
     form = EventForm(request.form)
     if request.method == 'POST' and form.validate():
         event = Event.from_request()
-        if not event.url:
-            event.url = event.name.replace(' ','-')
-        event.save().load_roles(
+        event.update(
+            slug=event.name.replace(' ','-')
+        ).save().load_roles(
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
             event_id=g.user.signup(event, 'Owner').event_id,
-            event_url=event.url))
+            event_slug=event.slug))
     form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',
@@ -184,6 +187,25 @@ def process():
     return render_group('form.html',
         title='Process Waitlists',
         submit='Process',
+        form=form)
+
+@group.route('/import/signups', methods=['GET', 'POST'])
+@requires('create_event')
+@login_required
+def import_signups():
+    """import signups"""
+    form = ImportSignupsForm(request.form)
+    if request.method == 'POST' and form.validate():
+        signups = list(Signup.from_csv_string(
+            request.form['csv'], request.form['override'] == 'y'))
+        return render_group('group/import_signups.html',
+            message='All %d signups created.' % len(signups),
+            url=url_for('group.events'),
+            action='Back',
+            signups=signups)
+    return render_group('form.html',
+        title='Import Signups',
+        submit='Import',
         form=form)
 
 ################

@@ -28,3 +28,10 @@ class GroupSignupForm(wtf.Form):
 
 class ProcessWaitlistsForm(wtf.Form):
     """process form"""
+
+
+class ImportSignupsForm(wtf.Form):
+    """import signups"""
+
+    csv = wtf.TextAreaField('csv', description='Comma-separated text with <i>at least</i> the headers <code>user_email, event_id, category</code>. You may additionally specify <code>status, preference, comment</code>')
+    override = wtf.BooleanField(description='Check to override signup details if a corresponding signup with the same user and event id is found.')
