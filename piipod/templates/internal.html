@@ -39,12 +39,21 @@
       </div>
     </a>
     {% elif current_user.can('create_event') %}
+      {% if g.event and current_user.can('authorize') %}
+    <a href="{{ the_url('event.authorize') }}">
+      <div class="mobile-action">
+        <span class="ma-add"><i class="fa fa-key"></i></span>
+        <p>Authorize</p>
+      </div>
+    </a>
+      {% else %}
     <a href="{{ the_url('group.create_event') }}">
       <div class="mobile-action">
         <span class="ma-add"><i class="fa fa-calendar"></i></span>
         <p>Create Event</p>
       </div>
     </a>
+      {% endif %}
     {% elif current_user not in g.group %}
     <a href="{{ the_url('group.signup') }}">
       <div class="mobile-action">

@@ -21,8 +21,8 @@ class GroupForm(ModelForm):
 class GroupSignupForm(wtf.Form):
     """signup form for groups"""
 
-    user_id = wtf.HiddenField('user')
-    group_id = wtf.HiddenField('group')
+    user_id = wtf.HiddenField()
+    group_id = wtf.HiddenField()
     role_id = wtf.SelectField(coerce=int)
 
 

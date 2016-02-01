@@ -15,7 +15,7 @@
       <p class="content-copy">{{ message }}</p>
       {% endif %}
 {% for field in form %}
-  {% if field %}
+  {% if field.type != 'HiddenField' %}
   <h3>{{ field.label }}</h3>
   {% if field.description %}
   <p>{{ field.description | safe }}</p>
