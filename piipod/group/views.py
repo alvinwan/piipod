@@ -164,7 +164,7 @@ def create_event():
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'Owner').event_id)
+            event_id=g.user.signup(event, 'Owner').event_id))
     form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',
