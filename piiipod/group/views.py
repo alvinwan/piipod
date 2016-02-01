@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
 from piiipod.views import current_user, login_required, url_for, requires
-from .forms import GroupForm, GroupSignupForm, AssignmentForm
+from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm
 from piiipod.event.forms import EventForm
 from piiipod.models import Event, Group, Membership, GroupRole, GroupSetting
 from piiipod.defaults import default_event_roles
@@ -173,17 +173,17 @@ def create_event():
         submit='Create',
         form=form)
 
-@group.route('/e/', methods=['GET', 'POST'])
+@group.route('/process', methods=['GET', 'POST'])
 @requires('create_event')
 @login_required
-def assign():
-    """make assignments"""
-    form = AssignmentForm(request.form)
+def process():
+    """process whitelists"""
+    form = ProcessWaitlistsForm(request.form)
     if request.method == 'POST' and form.validate():
         pass
     return render_group('form.html',
-        title='Make Assignments',
-        submit='Assign',
+        title='Process Waitlists',
+        submit='Process',
         form=form)
 
 ################

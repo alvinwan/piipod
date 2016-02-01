@@ -26,5 +26,5 @@ class GroupSignupForm(wtf.Form):
     role_id = wtf.SelectField(coerce=int)
 
 
-class AssignmentForm(wtf.Form):
-    """assignment form"""
+class ProcessWaitlistsForm(wtf.Form):
+    """process form"""

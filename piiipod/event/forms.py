@@ -38,3 +38,7 @@ class EventGenerateCodeForm(wtf.Form):
 
     length = wtf.IntegerField(default=5)
     value = wtf.StringField()
+
+
+class ProcessWaitlistForm(wtf.Form):
+    """form for processing waitlist"""

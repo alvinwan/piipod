@@ -576,15 +576,21 @@ header div.abcRioButton {
 
 .queue > *:not(a) {
   float:left;
-  width:100%;
 }
   .queue .button {
     float:left;
     clear:both;
   }
+  .queue .button.right {
+    float:right;
+    clear:none;
+  }
 .action-cont {
   padding:0;
 }
+  .tr-action {
+    margin:2em 0 0 0;
+  }
 .page-item {
   display:block;
   float:left;

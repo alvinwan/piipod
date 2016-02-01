@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, g
 from piiipod.views import current_user, login_required, url_for, requires
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
-    EventGenerateCodeForm
+    EventGenerateCodeForm, ProcessWaitlistForm
 from piiipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base
 from sqlalchemy.orm.exc import NoResultFound
@@ -63,29 +63,15 @@ def render_event(f, *args, **kwargs):
     return render(f, *args, **data)
 
 
-#########
-# EVENT #
-#########
+################
+# PUBLIC PAGES #
+################
 
 
 @event.route('/')
 def home():
     """event homepage"""
     return render_event('event/index.html')
-
-
-@event.route('/edit', methods=['GET', 'POST'])
-@login_required
-def edit():
-    """event edit"""
-    form = EventForm(request.form, obj=g.event)
-    if request.method == 'POST' and form.validate():
-        g.event.update(**request.form).save().set_local('start', 'end').save()
-        return redirect(url_for('event.home'))
-    return render_event('form.html',
-        title='Edit Event',
-        submit='save',
-        form=form)
 
 
 @event.route('/signup', methods=['GET', 'POST'])
@@ -146,15 +132,6 @@ def leave():
     return redirect(url_for('event.home'))
 
 
-@event.route('/delete')
-@requires('create_event')
-@login_required
-def delete():
-    """delete event"""
-    g.event.deactivate()
-    return redirect(url_for('group.events'))
-
-
 @event.route('/checkin', methods=['GET', 'POST'])
 @login_required
 def checkin():
@@ -179,6 +156,9 @@ def checkin():
         submit='Checkin',
         form=form)
 
+#########
+# STAFF #
+#########
 
 @event.route('/authorize', methods=['GET', 'POST'])
 @login_required
@@ -199,6 +179,23 @@ def authorize():
         form=form,
         back=url_for('event.home'))
 
+##############
+# MANAGEMENT #
+##############
+
+@event.route('/edit', methods=['GET', 'POST'])
+@login_required
+def edit():
+    """event edit"""
+    form = EventForm(request.form, obj=g.event)
+    if request.method == 'POST' and form.validate():
+        g.event.update(**request.form).save().set_local('start', 'end').save()
+        return redirect(url_for('event.home'))
+    return render_event('form.html',
+        title='Edit Event',
+        submit='save',
+        form=form)
+
 @event.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
@@ -207,3 +204,24 @@ def settings():
     if request.method == 'POST':
         pass
     return render_event('settings.html', settings=settings)
+
+@event.route('/process', methods=['GET', 'POST'])
+@requires('create_event')
+@login_required
+def process():
+    """process whitelist"""
+    form = ProcessWaitlistForm(request.form)
+    if request.method == 'POST' and form.validate():
+        pass
+    return render_event('form.html',
+        title='Process Waitlist',
+        submit='Process',
+        form=form)
+
+@event.route('/delete')
+@requires('create_event')
+@login_required
+def delete():
+    """delete event"""
+    g.event.deactivate()
+    return redirect(url_for('group.events'))

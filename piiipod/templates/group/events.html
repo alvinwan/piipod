@@ -2,7 +2,10 @@
 {% set panel='Events' %}
 {% block panel %}
 <div class="queue">
-<h1>Events</h1>
+<h1 class="col-md-6">Events</h1>
+<div class="col-md-6">
+  <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
+</div>
 <table>
 <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th>{% if g.user.can('create_event') %}<th>Actions</th>{% endif %}</tr>
 {% set pagination=g.group.events(page=page, per_page=10) %}
@@ -13,8 +16,10 @@
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
   {% if g.user.can('create_event') %}<td>
-    <a href="{{ url_for('event.delete', event_id=event.id, event_url=event.url) }}" class="button xs compact warning">Delete</a>
-    <a href="{{ url_for('event.edit', event_id=event.id, event_url=event.url) }}" class="button xs compact color">Edit</a></td>{% endif %}
+    <a href="{{ the_url('event.delete', event_id=event.id, event_url=event.url) }}" class="button xs compact warning">Delete</a>
+    <a href="{{ the_url('event.edit', event_id=event.id, event_url=event.url) }}" class="button xs compact color">Edit</a>
+    <a href="{{ the_url('event.process', event_id=event.id, event_url=event.url) }}" class="button xs compact color">Process</a>
+  </td>{% endif %}
 </tr>
 {% endfor %}
 {% if g.group.num_events == 0 %}
