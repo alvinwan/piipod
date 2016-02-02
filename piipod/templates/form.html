@@ -12,7 +12,7 @@
       <p class="content-copy"><a href="{{ back }}">back</a></p>
       {% endif %}
       {% if message %}
-      <p class="content-copy">{{ message }}</p>
+      <p class="content-copy">{{ message | safe }}</p>
       {% endif %}
 {% for field in form %}
   {% if field.type != 'HiddenField' %}
@@ -29,7 +29,9 @@
   {% if cancel %}
   <a class="button" href="{{ cancel }}">cancel</a>
   {% endif %}
+  {% if submit %}
   <input type="submit" class="button color" value="{{ submit }}">
+  {% endif %}
 </form>
 </div>
 </section>

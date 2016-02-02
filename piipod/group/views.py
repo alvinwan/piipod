@@ -5,7 +5,7 @@ from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
 from piipod.event.forms import EventForm
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
     Signup, Membership
-from piipod.defaults import default_event_roles
+from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
 import csv
 
@@ -178,7 +178,7 @@ def signup():
     form = GroupSignupForm(request.form)
     choose_role = g.group.setting('choose_role').is_active
     message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
-    whitelisted = []
+    whitelisted, submit = [], 'Join'
     for block in g.group.setting('whitelist').value.split(','):
         data = block.split('(')
         if len(data) == 2:
@@ -188,7 +188,10 @@ def signup():
     emails = [s.strip() for s, _ in whitelisted]
     if g.user.email in emails:
         title = [title for email, title in whitelisted if email == g.user.email][0]
-        message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
+        message = 'You\'ve been identified as <code>%s</code>. Hello! Click "Confirm" below, to get started.' % title
+        if title not in default_group_roles[g.group.category]:
+            submit = None
+            message = 'You\'ve been identified as <code>%s</code>. Hello! However, there is no such role <code>%s</code> in this group. Please contact your group manager.' % (title, title)
     if choose_role:
         form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
             group_id=g.group.id,
@@ -211,7 +214,7 @@ def signup():
     form.process()
     return render_group('form.html',
         title='Signup for %s' % g.group.name,
-        submit='Join',
+        submit=submit,
         form=form,
         message=message,
         back=url_for('group.home'))

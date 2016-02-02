@@ -244,14 +244,17 @@ class User(Base, flask_login.UserMixin):
         """Join a group"""
         assert group.id, 'Save group object first'
         assert isinstance(group, Group), 'Can only join group.'
-        role_id = role_id or GroupRole.query.filter_by(
-            name=role,
-            group_id=group.id
-        ).one().id
-        return Membership(
-            user_id=self.id,
-            group_id=group.id,
-            role_id=role_id).save()
+        try:
+            role_id = role_id or GroupRole.query.filter_by(
+                name=role,
+                group_id=group.id
+            ).one().id
+            return Membership(
+                user_id=self.id,
+                group_id=group.id,
+                role_id=role_id).save()
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise UserWarning('No such group role "%s" found!' % role)
 
     def signup(self, event, role=None, role_id=None):
         """Signup for an event"""
