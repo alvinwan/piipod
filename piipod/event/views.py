@@ -131,7 +131,7 @@ def signup():
 def leave():
     """leave event"""
     g.user.leave(g.event)
-    return redirect(url_for('event.home'))
+    return redirect(url_for('group.events'))
 
 
 @event.route('/checkin', methods=['GET', 'POST'])

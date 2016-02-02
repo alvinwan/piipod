@@ -39,7 +39,7 @@ def test_userSignupMax(users, events):
 
 def test_eventSignupMax(users, events):
     """test that signups per event are enforced"""
-    limit = 5
+    limit = 4
     csp = SignupCSP(users, events)
     csp.setEventSignupMax('b', limit)
     sol = csp.getSolution()

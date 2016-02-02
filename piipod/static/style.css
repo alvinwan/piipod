@@ -255,6 +255,9 @@ main {
       text-align:center;
       margin-top:2em;
     }
+      .button i {
+        font-size:1.25em;
+      }
     .button.sm {
       font-size:0.85em;
     }

@@ -94,19 +94,29 @@ class SignupCSP(object):
 
     def setEventSignupMax(self, event_id, n):
         """Set maximum number of signups for an event"""
-        self.addConstraint(lambda count: count <= n, [event_id])
+        # self.addConstraint(MaxSumConstraint(n), [event_id])
+        self.changeVariable(event_id, list(range(n+1)))
 
     def setUserSignupMax(self, user_id, n):
         """Set maximum number of signups for a user"""
-        self.addConstraint(lambda count: count <= n, [user_id])
+        self.addConstraint(MaxSumConstraint(n), [user_id])
 
     def setEventSignupMin(self, event_id, n):
         """Set minimum number of signups for an event"""
-        self.addConstraint(lambda count: count >= n, [event_id])
+        self.addConstraint(MinSumConstraint(n), [event_id])
 
     def setUserSignupMin(self, user_id, n):
         """Set minimum number of signups for a user"""
-        self.addConstraint(lambda count: count >= n, [user_id])
+        self.addConstraint(MinSumConstraint(n), [user_id])
+
+    def setEventSignupExact(self, event_id, n):
+        """Setup exact number of signups for an event"""
+        self.addConstraint(ExactSumConstraint(n), [event_id])
+
+    def setUserSignupExact(self, user_id, n):
+        """Setup exact number of signups for a user"""
+        self.changeVariable(user_id, [n])
+        # self.addConstraint(ExactSumConstraint(n), [user_id])
 
 
 if __name__ == '__main__':
