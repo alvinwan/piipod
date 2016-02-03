@@ -2,6 +2,12 @@
 {% set panel='Settings' %}
 {% block panel %}
 <div class="queue">
+  <p>Available Roles (temporary display):</p>
+  <ul>
+  {% for r in g.group.roles() %}
+  <li>{{ r.name }}</li>
+  {% endfor %}
+</ul>
 {% for setting in settings %}
 <form method="post" class="col-md-12">
   <h3>{{ setting.label }}</h3>

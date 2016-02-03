@@ -374,6 +374,10 @@ class Group(Base):
             Event.is_active==True
         ).all()
 
+    def roles(self):
+        """Returns all GroupRoles"""
+        return GroupRole.query.filter_by(group_id=self.id, is_active=True).all()
+
 
 class EventSetting(Setting):
     """settings for a PIAP event"""

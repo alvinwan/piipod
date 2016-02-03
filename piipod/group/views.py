@@ -189,9 +189,9 @@ def signup():
     if g.user.email in emails:
         title = [title for email, title in whitelisted if email == g.user.email][0]
         message = 'You\'ve been identified as <code>%s</code>. Hello! Click "Confirm" below, to get started.' % title
-        if title not in default_group_roles[g.group.category]:
+        if not GroupRole.query.filter_by(group_id=g.group.id, name=title).one_or_none():
             submit = None
-            message = 'You\'ve been identified as <code>%s</code>. Hello! However, there is no such role <code>%s</code> in this group. Please contact your group manager.' % (title, title)
+            message = 'You\'ve been identified as <code>%s</code>. Hello! However, there is no such role <code>%s</code> in this group - only <code>%s</code>. Please contact your group manager.' % (title, title, str([r.name for r in g.group.roles()]))
     if choose_role:
         form.role_id.choices = [(r.id, r.name) for r in GroupRole.query.filter_by(
             group_id=g.group.id,
