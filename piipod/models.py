@@ -482,7 +482,7 @@ class Signup(Base):
     def is_checked_in(self):
         return Checkin.query.filter_by(
             user_id=self.user_id,
-            event_id=self.event_id).one_or_none() is not None
+            event_id=self.event_id).count() > 0
 
     @property
     def num_check_ins(self):
