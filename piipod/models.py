@@ -123,7 +123,7 @@ class Base(db.Model):
             **key).one_or_none()
         if not setting:
             setting = self.load_setting(name)
-        default_description = self.__defaultsettings__[name]['description']
+        default_description = self.__defaultsettings__[name].get('description', None)
         # Note: This doesn't actually take effect on the settings page - only when the setting is loaded.
         if setting.description != default_description:
             setting.update(description=default_description).save()
