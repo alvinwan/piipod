@@ -47,5 +47,13 @@ class ImportSignupsForm(wtf.Form):
 class SyncForm(wtf.Form):
     """sync with service"""
 
-    regex = wtf.StringField('Filter Synced Events', description='Only sync events that match the given regex string. Use <code>*</code> to match all events.', default='*')
-    calendars = wtf.SelectField(coerce=str)
+    pattern = wtf.StringField('Filter Synced Events', description='Only sync events that match the given regex string. Use <code>*</code> to match all events.', default='*')
+    calendar = wtf.SelectField(coerce=str)
+
+
+class ConfirmSyncForm(wtf.Form):
+    """confirm sync"""
+
+    confirm = wtf.HiddenField(default='y')
+    pattern = wtf.HiddenField()
+    calendar = wtf.HiddenField()

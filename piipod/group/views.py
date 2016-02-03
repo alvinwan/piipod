@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify, session
 from piipod.views import current_user, login_required, url_for, requires, current_user, current_url
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
-    ImportSignupsForm, SyncForm
+    ImportSignupsForm, SyncForm, ConfirmSyncForm
 from piipod.event.forms import EventForm
 from piipod.forms import choicify
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
@@ -9,9 +9,12 @@ from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
 from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
 import csv
+import googleapiclient
 from apiclient import discovery
 import httplib2
 from oauth2client import client
+import arrow
+import re
 
 
 group = Blueprint('group', __name__, url_prefix='/<string:group_url>')
@@ -178,11 +181,18 @@ def sync(service):
         form, message = SyncForm(request.form), ''
         setting = g.group.setting(service)
         calendars = setting.value.split(',') if setting.value else []
-        form.calendars.choices = choicify(calendars)
+        form.calendar.choices = choicify(calendars)
         if not calendars:
             message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
             form = None
-        if request.method == 'POST' and form.validate() and calendars:
+        if (request.method == 'POST' and form.validate() and calendars) or 'confirm' in request.form:
+
+            calendarId = request.form['calendar']
+
+            pattern = request.form.get('pattern', '*')
+            if pattern != '*':
+                pattern = re.compile(request.form['pattern'])
+
             # TODO: combine with regular login
             if 'credentials' not in session:
                 session['redirect'] = current_url()
@@ -194,21 +204,52 @@ def sync(service):
             http_auth = credentials.authorize(httplib2.Http())
             service = discovery.build('calendar', 'v3', http=http_auth)
 
-            events = []
+            all_events = []
             page_token = None
             while True:
-              events = service.events().list(calendarId='primary', pageToken=page_token).execute()
+              events = service.events().list(calendarId=calendarId.strip(), pageToken=page_token).execute()
               for event in events['items']:
-                events.append(event)
+                all_events.append(event)
               page_token = events.get('nextPageToken')
               if not page_token:
                 break
 
-            if not events:
-                print('No upcoming events found.')
+            all_events = [e for e in all_events if (pattern == '*' or pattern.match(e.get('summary', 'None'))) and 'start' in e]
+
+            events = [dict(
+                name=e.get('summary', ''),
+                description=e.get('summary', ''),
+                start=arrow.get(
+                    e['start'].get('dateTime', e['start'].get('date', None)
+                    )).to('local'),
+                end=arrow.get(
+                    e['end'].get('dateTime', e['start'].get('date', None)
+                    )).to('local'),
+                google_id=e['id'],
+                group_id=g.group.id
+            ) for e in all_events]
+
+            if 'confirm' not in request.form:
+                form = ConfirmSyncForm(request.form)
+                message = 'Are you sure? %d events will be synced:<br><br> %s' % (len(all_events), '<br>'.join('{name} <span class="subtext">({start} to {end})</span>'.format(
+                    name=e['name'],
+                    start=e['start'].format('MMM D h:mm a'),
+                    end=e['end'].format('MMM D h:mm a')) for e in events))
+                return render_group('form.html',
+                    title='Confirm Sync',
+                    message=message,
+                    submit='Sync',
+                    form=form,
+                    back=url_for('group.events'))
+
             for event in events:
-                start = event['start'].get('dateTime', event['start'].get('date'))
-                print(start, event['summary'])
+                query = Event.query.filter_by(google_id=event['google_id'])
+                if not query.count():
+                    Event(**event).save()
+                else:
+                    query.first().update(**event).save()
+
+            return redirect(url_for('group.events'))
 
         return render_group('form.html',
             title='Sync with %s' % setting.label,
@@ -218,6 +259,14 @@ def sync(service):
             back=url_for('group.events'))
     except AssertionError:
         abort(404)
+    except googleapiclient.errors.HttpError:
+        form.errors.setdefault('calendar', []).append('Google Calendar failed to load. Wrong link perhaps?')
+        return render_group('form.html',
+            title='Sync with %s' % setting.label,
+            message=message,
+            submit='Sync',
+            form=form,
+            back=url_for('group.events'))
 
 ##############
 # MEMBERSHIP #

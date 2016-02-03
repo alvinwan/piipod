@@ -622,3 +622,7 @@ header div.abcRioButton {
 div.detail li {
   clear:both;
 }
+  span.subtext {
+    color:#CCC;
+    font-size:0.85em;
+  }
