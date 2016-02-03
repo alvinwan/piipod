@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
-from piipod.views import current_user, login_required, url_for, requires
+from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
     ImportSignupsForm
 from piipod.event.forms import EventForm
