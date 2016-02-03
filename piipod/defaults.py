@@ -115,7 +115,7 @@ default_event_settings = {
         'label': 'Default Role',
         'description': 'Specify a default role for this event',
         'value': 'Volunteer'
-    }
+    },
 }
 
 default_group_settings = {
@@ -139,7 +139,13 @@ default_group_settings = {
     },
     'role': {
         'value': 'Member',
-        'type': 'select'
+        'type': 'select',
+        'value': ''
+    },
+    'googlecalendar': {
+        'label': 'Google Calendars',
+        'description': 'Add your Google Calendar IDs below. Each ID will generally have the form of <code>[token]@group.calendar.google.com</code>.',
+        'value': '',
     }
 }
 

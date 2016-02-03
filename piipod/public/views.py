@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect
+from flask import Blueprint, request, redirect, session
 from .forms import *
 from piipod import app, login_manager, logger, googleclientID
 from piipod.models import User
@@ -163,6 +163,7 @@ def verify_google_token(token):
     :return: token information if valid or None
     """
     try:
+        session['token'] = token
         idinfo = client.verify_id_token(token, googleclientID)
         #If multiple clients access the backend server:
         if idinfo['aud'] not in [googleclientID]:

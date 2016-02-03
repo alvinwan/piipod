@@ -39,7 +39,7 @@ def requires(*permissions):
     def wrap(f):
         @wraps(f)
         def decorator(*args, **kwargs):
-            if not all(g.user.can(p) for p in permissions):
+            if not all(flask_login.current_user.can(p) for p in permissions):
                 return 'Permissions Error'
             return f(*args, **kwargs)
         return decorator

@@ -1,8 +1,9 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
-    ImportSignupsForm
+    ImportSignupsForm, SyncForm
 from piipod.event.forms import EventForm
+from piipod.forms import choicify
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
     Signup, Membership
 from piipod.defaults import default_event_roles, default_group_roles
@@ -164,6 +165,30 @@ def import_signups():
         submit='Import',
         form=form,
         back=url_for('group.events'))
+
+@group.route('/sync/<string:service>', methods=['GET', 'POST'])
+@requires('create_event')
+@login_required
+def sync(service):
+    """sync events with service"""
+    try:
+        form, message = SyncForm(request.form), ''
+        setting = g.group.setting(service)
+        calendars = setting.value.split(',') if setting.value else []
+        form.calendars.choices = choicify(calendars)
+        if not calendars:
+            message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
+            form = None
+        if request.method == 'POST' and form.validate() and calendars:
+            pass
+        return render_group('form.html',
+            title='Sync with %s' % setting.label,
+            message=message,
+            submit='Sync',
+            form=form,
+            back=url_for('group.events'))
+    except AssertionError:
+        abort(404)
 
 ##############
 # MEMBERSHIP #

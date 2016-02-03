@@ -5,6 +5,7 @@
 <h1 class="col-md-6">Events</h1>
 {% if current_user.can('create_event') %}
 <div class="col-md-6">
+  <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="tr-action right button sm compact color">Google Calendar Sync</a>
   <a href="{{ the_url('group.import_signups') }}" class="tr-action right button sm compact color">Import Signups</a>
   <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
 </div>

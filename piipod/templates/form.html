@@ -14,6 +14,7 @@
       {% if message %}
       <p class="content-copy">{{ message | safe }}</p>
       {% endif %}
+{% if form %}
 {% for field in form %}
   {% if field.type != 'HiddenField' %}
   <h3>{{ field.label }}</h3>
@@ -33,6 +34,7 @@
   <input type="submit" class="button color" value="{{ submit }}">
   {% endif %}
 </form>
+{% endif %}
 </div>
 </section>
 {% endblock %}
