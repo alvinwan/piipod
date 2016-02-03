@@ -217,7 +217,7 @@ def sync(service):
             all_events = [e for e in all_events if (pattern == '*' or pattern.match(e.get('summary', 'None'))) and 'start' in e]
 
             events = [dict(
-                name=e.get('summary', ''),
+                name=e.get('summary', '')[:50],
                 description=e.get('summary', ''),
                 start=arrow.get(
                     e['start'].get('dateTime', e['start'].get('date', None)
