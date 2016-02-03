@@ -340,7 +340,7 @@ def logout():
     return logout()
 
 
-@group.route('/login', methods=['POST'])
+@group.route('/login', methods=['POST', 'GET'])
 def login():
     from piipod.public.views import login
     return login()
