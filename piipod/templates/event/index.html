@@ -20,7 +20,7 @@
     <p>Checked in!</p>
       {% endif %}
     {% endif %}
-    {% if g.user in g.event and g.event.setting('enable_leave').is_active %}
+    {% if current_user in g.event and g.event.setting('enable_leave').is_active %}
     <a href="{{ the_url('event.leave') }}" class="button warning sm">Leave event</a>
     {% endif %}
   {% elif g.event.setting('enable_signups').is_active %}
@@ -30,7 +30,7 @@
     <span class="button gray sm">Login to Signup</span>
     {% endif %}
   {% endif %}
-  {% if g.user.can('edit_settings') %}
+  {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
   </div>

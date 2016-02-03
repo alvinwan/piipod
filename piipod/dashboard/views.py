@@ -10,7 +10,7 @@ dashboard = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
 @dashboard.url_value_preprocessor
 def load_current_user(_, __):
-    g.user = current_user()
+    pass
 
 
 def render_dashboard(f, *args, **kwargs):
@@ -28,7 +28,7 @@ def render_dashboard(f, *args, **kwargs):
 @login_required
 def home():
     """user dashboard"""
-    return render_dashboard('dashboard/index.html', groups=g.user.groups())
+    return render_dashboard('dashboard/index.html', groups=current_user().groups())
 
 
 @dashboard.route('/g/', methods=['GET', 'POST'])
@@ -39,7 +39,7 @@ def create_group():
     if request.method == 'POST' and form.validate():
         group = Group.from_request().save().load_roles(
             default_group_roles[request.form['category']]).save()
-        g.user.join(group, role='Owner')
+        current_user().join(group, role='Owner')
         group.load_settings('whitelist')
         return redirect(url_for('group.home', group_url=group.url))
     return render_dashboard('form.html',

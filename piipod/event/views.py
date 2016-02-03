@@ -29,11 +29,10 @@ def pull_ids(endpoint, values):
         if not g.group or not g.event:
             abort(404)
         g.event.to_local('start', 'end')
-        g.user = current_user()
-        if g.user.is_authenticated:
+        if current_user().is_authenticated:
             g.membership = Membership.query.filter_by(
                 group_id=g.group.id,
-                user_id=g.user.id,
+                user_id=current_user().id,
                 is_active=True).one_or_none()
             if g.membership:
                 g.group_role = GroupRole.query.get(g.membership.role_id)
@@ -41,7 +40,7 @@ def pull_ids(endpoint, values):
                 g.group_role = None
             g.signup = Signup.query.filter_by(
                 event_id=g.event.id,
-                user_id=g.user.id,
+                user_id=current_user().id,
                 is_active=True).one_or_none()
             if g.signup:
                 if g.signup.role_id:
@@ -92,8 +91,8 @@ def signup():
         else:
             whitelisted.append((data[0].strip(), ''))
     emails = [s.strip() for s, _ in whitelisted]
-    if g.user.email in emails:
-        title = [title for email, title in whitelisted if email == g.user.email][0]
+    if current_user().email in emails:
+        title = [title for email, title in whitelisted if email == current_user().email][0]
         message = 'You\'ve been identified as "%s". Hello! Click "Confirm" below, to get started.' % title
     roles = EventRole.query.filter_by(
         event_id=g.event.id,
@@ -102,10 +101,10 @@ def signup():
         form.role_id.choices = [(r.id, r.name) for r in roles]
     else:
         del form.role_id
-    if g.user in g.event:
+    if current_user() in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
-        if g.user.email in emails:
+        if current_user().email in emails:
             if title not in [r.name for r in roles]:
                 title = 'Authorizer'
             role = {'role': title or 'Authorizer'}
@@ -113,10 +112,10 @@ def signup():
             role = {'role_id': request.form['role_id']}
         else:
             role = {'role': g.event.setting('role').value }
-        signup = g.user.signup(g.event, **role)
+        signup = current_user().signup(g.event, **role)
         return redirect(url_for('event.home'))
     form.event_id.default = g.event.id
-    form.user_id.default = g.user.id
+    form.user_id.default = current_user().id
     form.process()
     return render_event('form.html',
         title='Signup for %s' % event.name,
@@ -130,7 +129,7 @@ def signup():
 @login_required
 def leave():
     """leave event"""
-    g.user.leave(g.event)
+    current_user().leave(g.event)
     return redirect(url_for('group.events'))
 
 
@@ -146,11 +145,11 @@ def checkin():
             value=request.form['code'].strip(),
             is_active=True).one_or_none()
         if setting:
-            checkin = g.user.checkin(g.event, setting.user)
+            checkin = current_user().checkin(g.event, settincurrent_user())
             return redirect(url_for('event.home', notif=8))
         message = 'Authorization failed.'
     form.event_id.default = g.event.id
-    form.user_id.default = g.user.id
+    form.user_id.default = current_user().id
     form.process()
     return render_event('form.html',
         title='Checkin for %s' % event.name,
@@ -167,7 +166,7 @@ def checkin():
 def authorize():
     """event authorization (for checkin)"""
     form = EventGenerateCodeForm(request.form)
-    setting = g.user.setting('authorize_code')
+    setting = current_user().setting('authorize_code')
     n = 25
     if (request.method == 'POST' and form.validate()) or setting.value == default_user_settings['authorize_code']['value'] or UserSetting.query.filter_by(value=setting.value).count() > 1:
         setting.value = Base.hash(request.form.get('value', str(arrow.now()))

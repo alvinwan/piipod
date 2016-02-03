@@ -25,12 +25,11 @@ def pull_group_id(endpoint, values):
         g.group = Group.query.filter_by(url=g.group_url).one_or_none()
         if not g.group:
             abort(404)
-        g.user = current_user()
         g.event_role = g.signup = None
-        if g.user.is_authenticated:
+        if current_user().is_authenticated:
             g.membership = Membership.query.filter_by(
                 group_id=g.group.id,
-                user_id=g.user.id,
+                user_id=current_user().id,
                 is_active=True).one_or_none()
             if g.membership:
                 g.group_role = GroupRole.query.get(g.membership.role_id)
@@ -117,7 +116,7 @@ def create_event():
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
-            event_id=g.user.signup(event, 'Owner').event_id))
+            event_id=current_user().signup(event, 'Owner').event_id))
     form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',
@@ -186,8 +185,8 @@ def signup():
         else:
             whitelisted.append((data[0].strip(), ''))
     emails = [s.strip() for s, _ in whitelisted]
-    if g.user.email in emails:
-        title = [title for email, title in whitelisted if email == g.user.email][0]
+    if current_user().email in emails:
+        title = [title for email, title in whitelisted if email == current_user().email][0]
         message = 'You\'ve been identified as <code>%s</code>. Hello! Click "Confirm" below, to get started.' % title
         if not GroupRole.query.filter_by(group_id=g.group.id, name=title).one_or_none():
             submit = None
@@ -198,19 +197,19 @@ def signup():
             is_active=True).all()]
     else:
         del form.role_id
-    if g.user in g.group:
+    if current_user() in g.group:
         return redirect(url_for('group.home', notif=5))
     if request.method == 'POST' and form.validate():
-        if g.user.email in emails:
+        if current_user().email in emails:
             role = {'role': title or 'Authorizer'}
         elif choose_role:
             role = {'role_id': request.form['role_id']}
         else:
             role = {'role': g.group.setting('role').value}
-        membership = g.user.join(g.group, **role)
+        membership = current_user().join(g.group, **role)
         return redirect(url_for('group.home'))
     form.group_id.default = g.group.id
-    form.user_id.default = g.user.id
+    form.user_id.default = current_user().id
     form.process()
     return render_group('form.html',
         title='Signup for %s' % g.group.name,

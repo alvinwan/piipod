@@ -3,7 +3,7 @@
 {% block panel %}
 <div class="queue events">
 <h1 class="col-md-6">Events</h1>
-{% if g.user.can('create_event') %}
+{% if current_user.can('create_event') %}
 <div class="col-md-6">
   <a href="{{ the_url('group.import_signups') }}" class="tr-action right button sm compact color">Import Signups</a>
   <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
@@ -19,7 +19,7 @@
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
   <td>
-    {% if g.user.can('create_event') %}
+    {% if current_user.can('create_event') %}
     <a href="{{ the_url('event.delete', event_id=event.id) }}" class="button xs compact warning">Delete</a>
     <a href="{{ the_url('event.edit', event_id=event.id) }}" class="button xs compact color">Edit</a>
     <a href="{{ the_url('event.settings', event_id=event.id) }}" class="button xs compact color"><i class="fa fa-cog"></i></a>
