@@ -341,7 +341,7 @@ def logout():
 
 
 @group.route('/login', methods=['POST'])
-def token_login():
+def login():
     from piipod.public.views import login
     return login()
 
