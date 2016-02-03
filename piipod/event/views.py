@@ -145,7 +145,7 @@ def checkin():
             value=request.form['code'].strip(),
             is_active=True).one_or_none()
         if setting:
-            checkin = current_user().checkin(g.event, settincurrent_user())
+            checkin = current_user().checkin(g.event, setting.user)
             return redirect(url_for('event.home', notif=8))
         message = 'Authorization failed.'
     form.event_id.default = g.event.id
