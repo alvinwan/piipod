@@ -40,7 +40,9 @@ def requires(*permissions):
         @wraps(f)
         def decorator(*args, **kwargs):
             if not all(flask_login.current_user.can(p) for p in permissions):
-                return 'Permissions Error'
+                if getattr(g, 'group', None):
+                    return redirect(url_for('group.home'))
+                return redirect(url_for('dashboard.home'))
             return f(*args, **kwargs)
         return decorator
     return wrap

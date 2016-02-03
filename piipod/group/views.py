@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify, session
-from piipod.views import current_user, login_required, url_for, requires, current_user
+from piipod.views import current_user, login_required, url_for, requires, current_user, current_url
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
     ImportSignupsForm, SyncForm
 from piipod.event.forms import EventForm
@@ -183,18 +183,14 @@ def sync(service):
             message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
             form = None
         if request.method == 'POST' and form.validate() and calendars:
-            CLIENT_SECRET_FILE = 'client_secret.json'
-            SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
-
-            print(session['token'])
-
-            # Exchange auth code for access token, refresh token, and ID token
-            credentials = client.credentials_from_clientsecrets_and_code(
-                CLIENT_SECRET_FILE,
-                SCOPES,
-                session['token'])
-
-            # Call Google API
+            # TODO: combine with regular login
+            if 'credentials' not in session:
+                session['redirect'] = current_url()
+                return redirect(url_for('public.login'))
+            credentials = client.OAuth2Credentials.from_json(session['credentials'])
+            if credentials.access_token_expired:
+                session['redirect'] = current_url()
+                return redirect(url_for('public.login'))
             http_auth = credentials.authorize(httplib2.Http())
             service = discovery.build('calendar', 'v3', http=http_auth)
 

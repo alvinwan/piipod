@@ -56,7 +56,7 @@
         auth2 = gapi.auth2.init({
           client_id: '{{ cfg_GOOGLECLIENTID }}',
           cookiepolicy: 'single_host_origin',
-          scope: 'https://www.googleapis.com/auth/calendar',
+          scope: 'https://www.googleapis.com/auth/calendar.readonly',
         });
       });
     }
