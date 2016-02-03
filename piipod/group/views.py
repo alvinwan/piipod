@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, g, abort, jsonify
+from flask import Blueprint, request, redirect, g, abort, jsonify, session
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
     ImportSignupsForm, SyncForm
@@ -9,6 +9,9 @@ from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
 from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
 import csv
+from apiclient import discovery
+import httplib2
+from oauth2client import client
 
 
 group = Blueprint('group', __name__, url_prefix='/<string:group_url>')
@@ -180,7 +183,37 @@ def sync(service):
             message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
             form = None
         if request.method == 'POST' and form.validate() and calendars:
-            pass
+            CLIENT_SECRET_FILE = 'client_secret.json'
+            SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+
+            print(session['token'])
+
+            # Exchange auth code for access token, refresh token, and ID token
+            credentials = client.credentials_from_clientsecrets_and_code(
+                CLIENT_SECRET_FILE,
+                SCOPES,
+                session['token'])
+
+            # Call Google API
+            http_auth = credentials.authorize(httplib2.Http())
+            service = discovery.build('calendar', 'v3', http=http_auth)
+
+            events = []
+            page_token = None
+            while True:
+              events = service.events().list(calendarId='primary', pageToken=page_token).execute()
+              for event in events['items']:
+                events.append(event)
+              page_token = events.get('nextPageToken')
+              if not page_token:
+                break
+
+            if not events:
+                print('No upcoming events found.')
+            for event in events:
+                start = event['start'].get('dateTime', event['start'].get('date'))
+                print(start, event['summary'])
+
         return render_group('form.html',
             title='Sync with %s' % setting.label,
             message=message,

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link href='https://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <script src="https://apis.google.com/js/api:client.js"></script>
     <meta name="google-signin-client_id" content="{{ cfg_GOOGLECLIENTID }}">
     <script src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
     <!-- custom code -->
@@ -41,12 +42,25 @@
       {% if refresh %}
       pollNotification('.queue', {{ refresh }});
       {% endif %}
+
+      startApp();
     });
 
     /*
      * Google Authentication
      * Signin or signout on data load
      */
+    var startApp = function() {
+      gapi.load('auth2', function(){
+      // Retrieve the singleton for the GoogleAuth library and set up the client.
+        auth2 = gapi.auth2.init({
+          client_id: '{{ cfg_GOOGLECLIENTID }}',
+          cookiepolicy: 'single_host_origin',
+          scope: 'https://www.googleapis.com/auth/calendar',
+        });
+      });
+    }
+
     var forceSignOut = {{ logout or 'false' }};
     function onSignIn(googleUser) {
       if (forceSignOut) {
