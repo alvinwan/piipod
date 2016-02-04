@@ -31,6 +31,9 @@
     <span class="button gray sm">Signup Cap Reached</span>
     {% endif %}
   {% endif %}
+  {% if current_user.can('authorize') %}
+  <a href="{{ the_url('event.accept_signup') }}" class="button sm color">Accept All</a>
+  {% endif %}
   {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
@@ -52,7 +55,7 @@
     {% for signup in signups[category] %}
     <tr>
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
-      <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
+      <td>{% if signup.user.can('authorize') %}<span class="button xs">Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
       <td>{{ signup.user.num_active_signups }}</td>
       {% if current_user.can('authorize') %}
       <td>{{ signup.user.num_waitlisted_signups }}</td>

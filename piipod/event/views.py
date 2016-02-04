@@ -132,12 +132,17 @@ def signup():
 
 
 @event.route('/signup/<int:signup_id>/accept')
+@event.route('/signup/all/accept')
 @requires('authorize')
 @login_required
-def accept_signup(signup_id):
+def accept_signup(signup_id='all'):
     """Accept signup (pull off of waitlist)"""
     try:
-        Signup.query.get(signup_id).update(category='Accepted').save()
+        if signup_id == 'all':
+            for signup in Signup.query.filter_by(event_id=g.event.id, is_active=True).all():
+                signup.update(category='Accepted').save()
+        else:
+            Signup.query.get(signup_id).update(category='Accepted').save()
         return redirect(url_for('event.home'))
     except NoResultFound:
         abort(404)
