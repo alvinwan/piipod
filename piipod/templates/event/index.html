@@ -15,13 +15,10 @@
     {% endif %}
     {% if not current_user.can('authorize') %}
       {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
-    <a href="{{ the_url('event.checkin') }}" class="button color sm">Checkin</a>
+    <p>Not checked in.</p>
       {% else %}
     <p>Checked in!</p>
       {% endif %}
-    {% endif %}
-    {% if current_user in g.event and g.event.setting('enable_leave').is_active %}
-    <a href="{{ the_url('event.leave') }}" class="button warning sm">Leave event</a>
     {% endif %}
   {% elif g.event.setting('enable_signups').is_active %}
     {% if current_user.is_authenticated %}
@@ -40,19 +37,27 @@
     <tr>
       <td>Name</td>
       <td>Checkin</td>
-      {% if current_user.can('authorize') %}
       <td>Action</td>
-      {% endif %}
     </tr>
     {% for signup in categories[category] %}
     <tr>
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
       <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
-      {% if current_user.can('authorize') %}
-      {% if signup.category == 'Waitlisted' %}
-      <td><a href="{{ the_url('event.accept', signup_id=signup.id) }}" class="button xs color">Accept</a></td>
-      {% endif %}
-      {% endif %}
+      <td>
+        {% if current_user.can('authorize') %}
+          {% if current_user.id != signup.user.id %}
+        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Delete</a>
+          {% endif %}
+          {% if not signup.category or signup.category == 'Waitlisted' %}
+        <a href="{{ the_url('event.accept_signup', signup_id=signup.id) }}" class="button xs color">Accept</a>
+          {% elif not signup.user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
+        <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>
+          {% endif %}
+        {% endif %}
+        {% if current_user.id == signup.user.id and g.event.setting('enable_leave').is_active %}
+        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Leave</a>
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
     </table>

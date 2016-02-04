@@ -108,7 +108,7 @@ def signup():
     if current_user() in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
-        data = {'category': g.event.setting('default_category')}
+        data = {'category': g.event.setting('default_category').value }
         if current_user().email in emails:
             if title not in [r.name for r in roles]:
                 title = 'Authorizer'
@@ -131,11 +131,37 @@ def signup():
 
 
 @event.route('/signup/<int:signup_id>/accept')
+@requires('authorize')
 @login_required
-def accept(signup_id):
+def accept_signup(signup_id):
     """Accept signup (pull off of waitlist)"""
     try:
         Signup.query.get(signup_id).update(category='Accepted').save()
+        return redirect(url_for('event.home'))
+    except NoResultFound:
+        abort(404)
+
+@event.route('/signup/<int:signup_id>/deactivate')
+@login_required
+def deactivate_signup(signup_id):
+    """Deactivate signup"""
+    try:
+        signup = Signup.query.get(signup_id)
+        if not signup.user.id == current_user().id and not current_user().can('authorize'):
+            raise UserWarning('Not allowed to delete other signups.')
+        signup.update(is_active=False).save()
+        return redirect(url_for('event.home'))
+    except NoResultFound:
+        abort(404)
+
+@event.route('/signup/<int:signup_id>/checkin')
+@login_required
+@requires('authorize')
+def checkin_signup(signup_id):
+    """checkin signup"""
+    try:
+        signup = Signup.query.get(signup_id)
+        checkin = signup.user.checkin(g.event, current_user())
         return redirect(url_for('event.home'))
     except NoResultFound:
         abort(404)
