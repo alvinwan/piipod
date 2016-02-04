@@ -37,6 +37,7 @@
   </div>
   {% for category in categories %}
   <h2>{{ category or 'Participant' }}</h2>
+  <p>{{ categories[category] | length }} signups</p>
   <table>
     <tr>
       <td>Name</td>
