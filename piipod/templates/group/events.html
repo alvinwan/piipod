@@ -26,9 +26,9 @@
     <a href="{{ the_url('event.settings', event_id=event.id) }}" class="button xs compact color"><i class="fa fa-cog"></i></a>
     {% endif %}
     {% if current_user.is_authenticated %}
-    {% if event.setting('enable_signups').is_active and current_user not in event %}
+    {% if event.setting('enable_signups').is_active and current_user not in event and event.num_signups < event.setting('max_signups').value | int %}
     <a href="{{ the_url('event.signup', event_id=event.id) }}" class="button xs compact color">Signup</a>
-    {% elif event.setting('enable_leave').is_active and current_user in event %}
+    {% elif event.setting('enable_leave').is_active and current_user in event and event.num_signups > event.setting('min_signups').value | int %}
     <a href="{{ the_url('event.leave', event_id=event.id) }}" class="button xs compact color">Leave</a>
     {% endif %}
     {% endif %}

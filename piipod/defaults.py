@@ -89,6 +89,18 @@ default_event_settings = {
         'description': 'This is typically one. Disable this setting for no limit.',
         'value': 1,
     },
+    'max_signups': {
+        'label': 'Maximum Number of Signups',
+        'description': 'Signups will be disable once the maximum has been reached.',
+        'value': 10,
+        'is_active': False
+    },
+    'min_signups': {
+        'label': 'Minimum Number of Signups',
+        'description': 'Users will not be able to cancel signups if the minimum number of signups is not met.',
+        'value': 2,
+        'is_active': False
+    },
     'choose_role': {
         'label': 'Users Pick Roles',
         'description': 'Specify roles that new signups can select to be. Disable to auto-assign the default role to new signups.',

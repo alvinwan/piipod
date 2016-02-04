@@ -448,6 +448,13 @@ class Event(Base):
             is_active=True).all()
 
     @property
+    def num_signups(self):
+        """number of signups"""
+        return int(Signup.query.filter_by(
+            event_id=self.id,
+            is_active=True).count())
+
+    @property
     def categories(self):
         """all event categories"""
         return [s.strip() for s in g.event.setting('categories').value.split(',')] + ['Accepted', 'Waitlisted']

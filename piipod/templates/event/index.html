@@ -21,10 +21,13 @@
       {% endif %}
     {% endif %}
   {% elif g.event.setting('enable_signups').is_active %}
-    {% if current_user.is_authenticated %}
+  {% set max_signups = g.event.setting('max_signups') %}
+    {% if not current_user.is_authenticated %}
+    <span class="button gray sm">Login to Signup</span>
+    {% elif g.event.num_signups < max_signups.value | int %}
     <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
     {% else %}
-    <span class="button gray sm">Login to Signup</span>
+    <span class="button gray sm">Signup Cap Reached</span>
     {% endif %}
   {% endif %}
   {% if current_user.can('edit_settings') %}
@@ -60,8 +63,13 @@
             {% endif %}
           {% endif %}
         {% endif %}
-        {% if current_user.id == signup.user.id and g.event.setting('enable_leave').is_active %}
-        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Leave</a>
+        {% set min_signups = g.event.setting('min_signups') %}
+        {% if current_user.id == signup.user.id %}
+          {% if current_user.can('authorize') or (g.event.setting('enable_leave').is_active and (not min_signups.is_active or min_signups.value | int < event.num_signups)) %}
+        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Cancel</a>
+          {% else %}
+        <span class="button xs">Cancellation Disabled</span>
+          {% endif %}
         {% endif %}
       </td>
       {% endif %}
