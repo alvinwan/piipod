@@ -495,6 +495,15 @@ class Event(Base):
             is_active=True
         ).one_or_none() is not None
 
+    @property
+    def num_non_waitlisted_signups(self):
+        """Number of active signups"""
+        return Event.query.join(Signup).filter(
+            Event.id == self.id,
+            Event.start >= arrow.now(),
+            Signup.category != 'Waitlisted'
+        ).count()
+
 
 ########################
 # RELATIONSHIP TABLES #

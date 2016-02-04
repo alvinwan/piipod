@@ -19,7 +19,7 @@
   <td>{{ event.start.format('h:mm a') }}</td>
   <td>{{ event.end.format('h:mm a') }}</td>
   <td class="hidden-xs">{{ event.start.humanize() }}</td>
-  <td class="hidden-xs">{{ event.num_signups }}</td>
+  <td class="hidden-xs">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups') %}/{{ event.setting('min_signups').value }}{% endif %}</td>
   <td>
     {% if current_user.can('create_event') %}
     <a href="{{ the_url('event.delete', event_id=event.id) }}" class="button xs compact warning">Delete</a>
