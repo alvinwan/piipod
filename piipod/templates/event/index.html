@@ -33,6 +33,7 @@
   {% endif %}
   {% if current_user.can('authorize') %}
   <a href="{{ the_url('event.accept_signup') }}" class="button sm color">Accept All</a>
+  <a href="{{ the_url('event.filter_signup') }}" class="button sm color">Filter Signups</a>
   {% endif %}
   {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>

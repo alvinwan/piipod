@@ -2,7 +2,7 @@ from flask import g
 from wtforms_alchemy import ModelForm, ModelFieldList
 import wtforms as wtf
 from piipod.models import Event
-
+from piipod.forms import choicify
 
 class EventForm(ModelForm):
     """form for user events"""
@@ -47,3 +47,15 @@ class RecategorizeForm(wtf.Form):
     """recategorize signup"""
 
     category = wtf.SelectField('Category', description='new category for the signup',coerce=str)
+
+
+class FilterSignupForm(wtf.Form):
+    """filter out signups"""
+
+    value = wtf.SelectField(choices=[
+        ('num_active_signups', 'User\'s Number of Active Signups'),
+        ('num_waitlisted_signups', 'User\'s Number of Waitlisted Signups'),
+        ('num_non_waitlisted_signups', 'User\'s Number of Non-Waitlisted Signups')
+    ])
+    operator = wtf.SelectField(choices=choicify(['<', '<=', '=', '>=', '>']))
+    n = wtf.IntegerField('n', description='number')

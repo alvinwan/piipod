@@ -131,6 +131,43 @@ def signup():
         back=url_for('event.home'))
 
 
+@event.route('/leave')
+@login_required
+def leave():
+    """leave event"""
+    current_user().leave(g.event)
+    return redirect(url_for('group.events'))
+
+
+@event.route('/checkin', methods=['GET', 'POST'])
+@login_required
+def checkin():
+    """event checkin"""
+    message = ''
+    form = EventCheckinForm(request.form)
+    if request.method == 'POST' and form.validate():
+        setting = UserSetting.query.filter_by(
+            name='authorize_code',
+            value=request.form['code'].strip(),
+            is_active=True).one_or_none()
+        if setting:
+            checkin = current_user().checkin(g.event, setting.user)
+            return redirect(url_for('event.home', notif=8))
+        message = 'Authorization failed.'
+    form.event_id.default = g.event.id
+    form.user_id.default = current_user().id
+    form.process()
+    return render_event('form.html',
+        title='Checkin for %s' % event.name,
+        message=message,
+        submit='Checkin',
+        form=form)
+
+##################
+# SIGNUP ACTIONS #
+##################
+
+
 @event.route('/signup/<int:signup_id>/accept')
 @event.route('/signup/all/accept')
 @requires('authorize')
@@ -192,37 +229,35 @@ def recategorize_signup(signup_id):
     except NoResultFound:
         abort(404)
 
-@event.route('/leave')
+@event.route('/signup/filter')
 @login_required
-def leave():
-    """leave event"""
-    current_user().leave(g.event)
-    return redirect(url_for('group.events'))
-
-
-@event.route('/checkin', methods=['GET', 'POST'])
-@login_required
-def checkin():
-    """event checkin"""
-    message = ''
-    form = EventCheckinForm(request.form)
-    if request.method == 'POST' and form.validate():
-        setting = UserSetting.query.filter_by(
-            name='authorize_code',
-            value=request.form['code'].strip(),
-            is_active=True).one_or_none()
-        if setting:
-            checkin = current_user().checkin(g.event, setting.user)
-            return redirect(url_for('event.home', notif=8))
-        message = 'Authorization failed.'
-    form.event_id.default = g.event.id
-    form.user_id.default = current_user().id
-    form.process()
-    return render_event('form.html',
-        title='Checkin for %s' % event.name,
-        message=message,
-        submit='Checkin',
-        form=form)
+def filter_signup():
+    """Filter out signups"""
+    from op import __le__, __eq__, __ge__
+    try:
+        form = FilterSignupForm(request.form)
+        if request.method == 'POST' and form.validate():
+            n = int(request.form['n'])
+            op = {
+                '<': __lt__,
+                '<=': __le__,
+                '=': __eq__,
+                '>=': __ge__,
+                '>': __gt__
+            }[request.form['operator']]
+            for signup in Signup.query.filter_by(
+                is_active=True,
+                event_id=self.id):
+                if op(getattr(signup.user, request.form['value']), n):
+                        signup.update(is_active=False).save()
+            return redirect(url_for('event.home'))
+        return render_event('form.html',
+            title='Filter Out Signups',
+            form=form,
+            message='Use the following to filter out signups.',
+            submit='Filter')
+    except NoResultFound:
+        abort(404)
 
 #########
 # STAFF #
