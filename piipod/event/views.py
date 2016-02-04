@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, g
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
-    EventGenerateCodeForm, ProcessWaitlistForm
+    EventGenerateCodeForm, ProcessWaitlistForm, RecategorizeForm
 from piipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base, EventSetting
+from piipod.forms import choicify
 from sqlalchemy.orm.exc import NoResultFound
 from piipod.defaults import default_user_settings, default_event_settings
 import arrow
@@ -163,6 +164,26 @@ def checkin_signup(signup_id):
         signup = Signup.query.get(signup_id)
         checkin = signup.user.checkin(g.event, current_user())
         return redirect(url_for('event.home'))
+    except NoResultFound:
+        abort(404)
+
+@event.route('/signup/<int:signup_id>/recategorize', methods=['POST', 'GET'])
+@requires('authorize')
+@login_required
+def recategorize_signup(signup_id):
+    """Deactivate signup"""
+    try:
+        signup = Signup.query.get(signup_id)
+        form = RecategorizeForm(request.form)
+        form.category.choices = choicify(g.event.categories)
+        if request.method == 'POST' and form.validate():
+            signup.update(category=request.form['category']).save()
+            return redirect(url_for('event.home'))
+        return render_event('form.html',
+            title='Recategorize Signup',
+            form=form,
+            message='Assign the signup to a new category',
+            submit='Recategorize')
     except NoResultFound:
         abort(404)
 

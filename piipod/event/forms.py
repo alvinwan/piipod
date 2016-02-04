@@ -41,3 +41,9 @@ class EventGenerateCodeForm(wtf.Form):
 
 class ProcessWaitlistForm(wtf.Form):
     """form for processing waitlist"""
+
+
+class RecategorizeForm(wtf.Form):
+    """recategorize signup"""
+
+    category = wtf.SelectField('Category', description='new category for the signup',coerce=str)

@@ -10,7 +10,7 @@
 {% for setting in settings %}
 <form method="post" action="{{ current_url() }}" class="col-md-12">
   <h3>{{ setting.label }}</h3>
-  <p>{{ setting.description }}</p>
+  <p>{{ setting.description | safe }}</p>
   <input type="hidden" name="id" value="{{ setting.id }}">
   {% if setting.is_active %}
     {% if setting.type != 'boolean' %}

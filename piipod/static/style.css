@@ -412,7 +412,7 @@ main {
 footer.authorship {
   background-color:#eee;
   padding:1em 2em;
-  margin-top: -3em;
+  margin-top: -2em;
   z-index:15;
   color:#999;
 }
@@ -515,7 +515,7 @@ footer.authorship {
   }
   footer.authorship {
     padding:2em 5em;
-    margin-top:-5em;
+    margin-top:-3em;
   }
   header .left {
     display:block;
@@ -594,6 +594,12 @@ header div.abcRioButton {
 .action-cont {
   padding:0;
 }
+  .action-cont .button {
+    clear:none;
+  }
+    .action-cont .button + .button {
+      margin-left:0.5em;
+    }
   .tr-action {
     margin:2em 0 0 0;
   }

@@ -447,6 +447,11 @@ class Event(Base):
             event_id=self.id,
             is_active=True).all()
 
+    @property
+    def categories(self):
+        """all event categories"""
+        return [s.strip() for s in g.event.setting('categories').value.split(',')] + ['Accepted', 'Waitlisted']
+
     def __contains__(self, user):
         """Check if user is in signups"""
         if not user.is_authenticated:
