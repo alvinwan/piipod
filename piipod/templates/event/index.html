@@ -35,7 +35,9 @@
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
   </div>
-  {% for category in sorted(categories) %}
+  {% set cats = categories.keys() %}
+  {% cats.sort() %}
+  {% for category in cats %}
   <h2>{{ category or 'Participant' }}</h2>
   <p>{{ categories[category] | length }} signups</p>
   <table>
