@@ -74,7 +74,7 @@
             {% if not signup.user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
         <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>
             {% endif %}
-            {% if signup.user.can('authorize') %}
+            {% if current_user.can('authorize') %}
         <a href="{{ the_url('event.recategorize_signup', signup_id=signup.id) }}" class="button xs color">Recategorize</a>
             {% endif %}
           {% endif %}

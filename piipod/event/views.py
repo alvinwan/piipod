@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, g
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
-    EventGenerateCodeForm, ProcessWaitlistForm, RecategorizeForm
+    EventGenerateCodeForm, ProcessWaitlistForm, RecategorizeForm, FilterSignupForm
 from piipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base, EventSetting
 from piipod.forms import choicify
@@ -229,11 +229,11 @@ def recategorize_signup(signup_id):
     except NoResultFound:
         abort(404)
 
-@event.route('/signup/filter')
+@event.route('/signup/filter', methods=['POST', 'GET'])
 @login_required
 def filter_signup():
     """Filter out signups"""
-    from op import __le__, __eq__, __ge__
+    from operator import __le__, __eq__, __ge__, __lt__, __gt__
     try:
         form = FilterSignupForm(request.form)
         if request.method == 'POST' and form.validate():
@@ -247,15 +247,15 @@ def filter_signup():
             }[request.form['operator']]
             for signup in Signup.query.filter_by(
                 is_active=True,
-                event_id=self.id):
+                event_id=g.event.id):
                 if op(getattr(signup.user, request.form['value']), n):
                         signup.update(is_active=False).save()
             return redirect(url_for('event.home'))
         return render_event('form.html',
-            title='Filter Out Signups',
+            title='Remove Signups by Filter',
             form=form,
             message='Use the following to filter out signups.',
-            submit='Filter')
+            submit='Remove')
     except NoResultFound:
         abort(404)
 
