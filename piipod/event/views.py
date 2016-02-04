@@ -75,10 +75,10 @@ def render_event(f, *args, **kwargs):
 def home():
     """event homepage"""
     signups = g.event.signups
-    categories = {}
+    data = {}
     for signup in signups:
-        categories.setdefault(signup.category, []).append(signup)
-    return render_event('event/index.html', categories=categories)
+        data.setdefault(signup.category, []).append(signup)
+    return render_event('event/index.html', categories=data.keys(), data=data)
 
 
 @event.route('/signup', methods=['GET', 'POST'])

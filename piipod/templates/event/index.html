@@ -35,11 +35,9 @@
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
   </div>
-  {% set cats = categories.keys() %}
-  {% cats.sort() %}
-  {% for category in cats %}
+  {% for category in categories %}
   <h2>{{ category or 'Participant' }}</h2>
-  <p>{{ categories[category] | length }} signups</p>
+  <p>{{ data[category] | length }} signups</p>
   <table>
     <tr>
       <td>Name</td>
@@ -47,7 +45,7 @@
       <td>Signups</td>
       {% if current_user.is_authenticated %}<td>Action</td>{% endif %}
     </tr>
-    {% for signup in categories[category] %}
+    {% for signup in data[category] %}
     <tr>
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
       <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
