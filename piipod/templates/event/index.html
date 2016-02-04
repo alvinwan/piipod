@@ -43,6 +43,7 @@
       <td>Name</td>
       <td>Checkin</td>
       <td>Signups</td>
+      <td>Waitlisted Signups</td>
       {% if current_user.is_authenticated %}<td>Action</td>{% endif %}
     </tr>
     {% for signup in signups[category] %}
@@ -50,6 +51,7 @@
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
       <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
       <td>{{ signup.user.num_active_signups }}</td>
+      <td>{{ signup.user.num_waitlisted_signups }}</td>
       {% if current_user.is_authenticated %}
       <td>
         {% if current_user.can('authorize') %}

@@ -342,6 +342,15 @@ class User(Base, flask_login.UserMixin):
             Event.start >= arrow.now()
         ).count()
 
+    @property
+    def num_waitlisted_signups(self):
+        """Number of active signups"""
+        return Signup.query.join(Event).filter(
+            Signup.user_id == self.id,
+            Event.start >= arrow.now(),
+            Signup.category == 'Waitlisted'
+        ).count()
+
 
 class GroupSetting(Setting):
     """settings for a PIAP group"""
