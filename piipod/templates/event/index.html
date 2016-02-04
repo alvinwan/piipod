@@ -25,7 +25,7 @@
   {% set max_signups = g.event.setting('max_signups') %}
     {% if not current_user.is_authenticated %}
     <span class="button gray sm">Login to Signup</span>
-    {% elif g.event.num_signups < max_signups.value | int %}
+    {% elif not max_signups.is_active or g.event.num_signups < max_signups.value | int %}
     <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
     {% else %}
     <span class="button gray sm">Signup Cap Reached</span>
