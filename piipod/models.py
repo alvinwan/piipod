@@ -334,6 +334,14 @@ class User(Base, flask_login.UserMixin):
             return True
         return False
 
+    @property
+    def num_active_signups(self):
+        """Number of active signups"""
+        return Signup.query.join(Event).filter(
+            Signup.user_id == self.id,
+            Event.start <= arrow.now()
+        ).count()
+
 
 class GroupSetting(Setting):
     """settings for a PIAP group"""
