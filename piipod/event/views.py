@@ -236,6 +236,7 @@ def filter_signup():
     from operator import __le__, __eq__, __ge__, __lt__, __gt__
     try:
         form = FilterSignupForm(request.form)
+        form.category.choices = choicify(g.event.categories)
         if request.method == 'POST' and form.validate():
             n = int(request.form['n'])
             op = {
@@ -247,14 +248,15 @@ def filter_signup():
             }[request.form['operator']]
             for signup in Signup.query.filter_by(
                 is_active=True,
-                event_id=g.event.id):
+                event_id=g.event.id,
+                category=request.form['category']):
                 if op(getattr(signup.user, request.form['value']), n):
                         signup.update(is_active=False).save()
             return redirect(url_for('event.home'))
         return render_event('form.html',
             title='Remove Signups by Filter',
             form=form,
-            message='Use the following to filter out signups.',
+            message='Use the following to filter out signups. Signups that MATCH this filter will be removed.',
             submit='Remove')
     except NoResultFound:
         abort(404)

@@ -59,3 +59,4 @@ class FilterSignupForm(wtf.Form):
     ])
     operator = wtf.SelectField(choices=choicify(['<', '<=', '=', '>=', '>']))
     n = wtf.IntegerField('n', description='number')
+    category = wtf.SelectField('Category', description='Select a category of signups to apply this filter to.')
