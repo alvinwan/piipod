@@ -134,12 +134,16 @@ class Base(db.Model):
         key = {'%s_id' % self.entity: self.id}
         key.update(self.__defaultsettings__[name])
         key.setdefault('name', name)
+        key.setdefault('type', str)
+        key['type'] = str(key['type'])
         return self.__settingclass__(
             **key).save()
 
     def load_settings(self, *names):
         """load a series of settings"""
-        return [self.load_setting(n) for n in names]
+        if not names:
+            return [self.setting(k) for k in self.__defaultsettings__]
+        return [self.setting(n) for n in names]
 
     def deactivate(self):
         """deactivate"""
@@ -201,6 +205,7 @@ class Setting(Base):
     description = db.Column(db.Text)
     value = db.Column(db.Text)
     type = db.Column(db.String(50))
+    toggable = db.Column(db.Boolean)
 
 
 class Role(Base):
@@ -210,6 +215,9 @@ class Role(Base):
 
     name = db.Column(db.String(100))
     permissions = db.Column(db.Text)
+
+    def all_permissions(self):
+        return [s.strip() for s in self.permissions.split(',')]
 
 
 ############
@@ -260,7 +268,7 @@ class User(Base, flask_login.UserMixin):
         except sqlalchemy.orm.exc.NoResultFound:
             raise UserWarning('No such group role "%s" found!' % role)
 
-    def signup(self, event, role=None, role_id=None):
+    def signup(self, event, role=None, role_id=None, **kwargs):
         """Signup for an event"""
         assert event.id, 'Save event object first'
         assert isinstance(event, Event), 'Can only signup for events.'
@@ -273,13 +281,13 @@ class User(Base, flask_login.UserMixin):
             event_id=event.id
         ).one().id
         if signup:
-            signup.role_id = role_id
-            signup.is_active = True
-            return signup.save()
+            return signup.update(
+                role_id=role_id, is_active=True, **kwargs).save()
         return Signup(
             user_id=self.id,
             event_id=event.id,
-            role_id=role_id).save()
+            role_id=role_id,
+            **kwargs).save()
 
     def leave(self, event):
         """Leave an event"""
@@ -298,14 +306,26 @@ class User(Base, flask_login.UserMixin):
             user_id=self.id,
             event_id=event.id).save()
 
-    def permissions(self, include=('event', 'group')):
-        """get all permissions"""
+    def get_permission(self, category):
+        """Returns permission for object"""
         try:
-            ps = sum([role.permissions.split(',') for role in
-                (getattr(g, '%s_role' % r) for r in include) if role], [])
-            return [s.strip() for s in ps]
+            if category == 'event':
+                return EventRole.query.join(Signup).filter_by(
+                    event_id=g.event.id,
+                    user_id=self.id
+                ).one_or_none().all_permissions()
+            if category == 'group':
+                return GroupRole.query.join(Membership).filter_by(
+                    user_id=self.id,
+                    group_id=g.group.id
+                ).one_or_none().all_permissions()
+            return []
         except AttributeError:
             return []
+
+    def permissions(self, include=('event', 'group')):
+        """get all permissions"""
+        return sum([self.get_permission(r) for r in include], [])
 
     def can(self, permission, include=('event', 'group')):
         """Check if user has the given permission"""
@@ -421,7 +441,7 @@ class Event(Base):
         return Group.query.get(self.group_id)
 
     @property
-    def participants(self):
+    def signups(self):
         """Returns all participants"""
         return Signup.query.filter_by(
             event_id=self.id,

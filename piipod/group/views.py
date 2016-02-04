@@ -98,7 +98,7 @@ def edit():
 @login_required
 def settings():
     """edit settings"""
-    g.group.setting('whitelist')
+    g.group.load_settings()
     g.group.access_token
     if request.method == 'POST':
         id, value = request.form['id'], request.form['value']
@@ -123,7 +123,8 @@ def create_event():
             default_event_roles[g.group.category]
         ).set_local('start', 'end').save()
         return redirect(url_for('event.home',
-            event_id=current_user().signup(event, 'Owner').event_id))
+            event_id=current_user().signup(event, 'Owner',
+                category='Accepted').event_id))
     form.group_id.default = g.group.id
     form.process()
     return render_group('form.html',

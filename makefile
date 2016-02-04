@@ -21,7 +21,10 @@ refresh:
 
 migrate:
 	source manage.sh activate && \
-		python migrate.py db migrate && \
+		python migrate.py db migrate
+
+upgrade:
+	source manage.sh activate && \
 		python migrate.py db upgrade
 
 tornado:

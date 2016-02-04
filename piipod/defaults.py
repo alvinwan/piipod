@@ -105,17 +105,24 @@ default_event_settings = {
         'description': 'Allow users to leave event',
         'type': 'boolean'
     },
-    'auto_waitlist': {
-        'label': 'Automatically Waitlist',
-        'description': 'New signups are put on the waitlist.',
-        'type': 'boolean',
-        'is_active': False
+    'categories': {
+        'label': 'Available categories',
+        'description': 'Comma-separated list of all possible categories (on top of <code>Waitlisted, Accepted</code>)',
+        'value': 'Pending',
+        'toggable': False
+    },
+    'default_category': {
+        'label': 'Default Category',
+        'description': 'New signups are automatically placed in this category.',
+        'value': 'Waitlisted',
+        'is_active': True,
+        'toggable': False,
     },
     'role': {
         'label': 'Default Role',
         'description': 'Specify a default role for this event',
         'value': 'Volunteer'
-    },
+    }
 }
 
 default_group_settings = {
@@ -124,20 +131,14 @@ default_group_settings = {
         'description': 'Whitelist staff members as user1@berkeley.edu(Position), user2@berkeley.edu(Position2),...',
         'value': ''
     },
-    'google_login': {
-        'label': 'Google Login',
-        'type': bool
-    },
-    'builtin_login': {
-        'label': 'Built-in Login',
-        'type': bool
-    },
     'choose_role': {
         'label': 'Users Pick Roles',
         'description': 'Specify roles that new signups can select to be. Disable to auto-assign the default role to new signups.',
         'is_active': False,
     },
     'role': {
+        'label': 'Default Role',
+        'description': 'Pick the default role for this group upon signup.',
         'value': 'Member',
         'type': 'select',
         'value': ''
@@ -149,10 +150,10 @@ default_group_settings = {
     }
 }
 
-dgs = default_group_settings
-default_group_settings = {
-    'default_%s' % k:v.copy() for k, v in default_event_settings.items()}
-default_group_settings.update(dgs)
+# dgs = default_group_settings
+# default_group_settings = {
+#     'default_%s' % k:v.copy() for k, v in default_event_settings.items()}
+# default_group_settings.update(dgs)
 
 default_user_settings = {
     'authorize_code': {

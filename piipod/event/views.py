@@ -73,7 +73,11 @@ def render_event(f, *args, **kwargs):
 @event.route('/')
 def home():
     """event homepage"""
-    return render_event('event/index.html')
+    signups = g.event.signups
+    categories = {}
+    for signup in signups:
+        categories.setdefault(signup.category, []).append(signup)
+    return render_event('event/index.html', categories=categories)
 
 
 @event.route('/signup', methods=['GET', 'POST'])
@@ -104,15 +108,16 @@ def signup():
     if current_user() in g.event:
         return redirect(url_for('event.home', notif=7))
     if request.method == 'POST' and form.validate():
+        data = {'category': g.event.setting('default_category')}
         if current_user().email in emails:
             if title not in [r.name for r in roles]:
                 title = 'Authorizer'
-            role = {'role': title or 'Authorizer'}
+            data['role'] = title or 'Authorizer'
         elif choose_role:
-            role = {'role_id': request.form['role_id']}
+            data['role_id'] = request.form['role_id']
         else:
-            role = {'role': g.event.setting('role').value }
-        signup = current_user().signup(g.event, **role)
+            data['role'] = g.event.setting('role').value
+        signup = current_user().signup(g.event, **data)
         return redirect(url_for('event.home'))
     form.event_id.default = g.event.id
     form.user_id.default = current_user().id
@@ -124,6 +129,16 @@ def signup():
         message=message,
         back=url_for('event.home'))
 
+
+@event.route('/signup/<int:signup_id>/accept')
+@login_required
+def accept(signup_id):
+    """Accept signup (pull off of waitlist)"""
+    try:
+        Signup.query.get(signup_id).update(category='Accepted').save()
+        return redirect(url_for('event.home'))
+    except NoResultFound:
+        abort(404)
 
 @event.route('/leave')
 @login_required
@@ -201,8 +216,7 @@ def edit():
 @login_required
 def settings():
     """edit settings"""
-    for k in default_event_settings:
-        g.event.setting(k)
+    g.event.load_settings()
     settings = EventSetting.query.filter_by(event_id=g.event.id).all()
     if request.method == 'POST':
         _id = request.form['id']

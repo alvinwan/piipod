@@ -34,17 +34,27 @@
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
   </div>
-  <h2>Participants</h2>
+  {% for category in categories %}
+  <h2>{{ category or 'Participant' }}</h2>
   <table>
     <tr>
       <td>Name</td>
       <td>Checkin</td>
+      {% if current_user.can('authorize') %}
+      <td>Action</td>
+      {% endif %}
     </tr>
-  {% for participant in event.participants %}
+    {% for signup in categories[category] %}
     <tr>
-      <td><a href="{{ the_url('group.member', user_id=participant.user.id) }}">{{ participant.user.name }}</a></td>
-      <td>{% if participant.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
+      <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
+      <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
+      {% if current_user.can('authorize') %}
+      {% if signup.category == 'Waitlisted' %}
+      <td><a href="{{ the_url('event.accept', signup_id=signup.id) }}" class="button xs color">Accept</a></td>
+      {% endif %}
+      {% endif %}
     </tr>
+    {% endfor %}
+    </table>
   {% endfor %}
-  </table>
 {% endblock %}
