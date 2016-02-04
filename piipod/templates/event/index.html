@@ -37,7 +37,7 @@
   </div>
   {% for category in categories %}
   <h2>{{ category or 'Participant' }}</h2>
-  <p>{{ data[category] | length }} signups</p>
+  <p>{{ signups[category] | length }} signups</p>
   <table>
     <tr>
       <td>Name</td>
@@ -45,7 +45,7 @@
       <td>Signups</td>
       {% if current_user.is_authenticated %}<td>Action</td>{% endif %}
     </tr>
-    {% for signup in data[category] %}
+    {% for signup in signups[category] %}
     <tr>
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
       <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>

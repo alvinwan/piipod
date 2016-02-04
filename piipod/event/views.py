@@ -78,7 +78,7 @@ def home():
     data = {}
     for signup in signups:
         data.setdefault(signup.category, []).append(signup)
-    return render_event('event/index.html', categories=data.keys(), data=data)
+    return render_event('event/index.html', categories=data.keys(), signups=data)
 
 
 @event.route('/signup', methods=['GET', 'POST'])
