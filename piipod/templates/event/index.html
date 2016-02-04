@@ -43,7 +43,7 @@
       <td>Name</td>
       <td>Checkin</td>
       <td>Signups</td>
-      {% if signup.user.can('authorize') %}
+      {% if current_user.can('authorize') %}
       <td>Waitlisted Signups</td>
       <td>Non-Waitlisted Signups</td>
       {% endif %}
@@ -54,7 +54,7 @@
       <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
       <td>{% if signup.user.can('authorize') %}<span class="button xs">Event Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
       <td>{{ signup.user.num_active_signups }}</td>
-      {% if signup.user.can('authorize') %}
+      {% if current_user.can('authorize') %}
       <td>{{ signup.user.num_waitlisted_signups }}</td>
       <td>{{ signup.user.num_non_waitlisted_signups }}</td>
       {% endif %}
