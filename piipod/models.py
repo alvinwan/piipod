@@ -604,7 +604,8 @@ class Membership(Base):
     def signups(self):
         """Returns signups for this membership"""
         return Signup.query.filter_by(
-            user_id=self.user_id).all()
+            user_id=self.user_id,
+            is_active=True).all()
 
     def save(self):
         """save membership"""
