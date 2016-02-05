@@ -32,9 +32,9 @@
     {% endif %}
   {% endif %}
   {% if current_user.can('authorize') %}
-  <a href="{{ the_url('event.accept_signup') }}" class="button sm color">Accept All</a>
+  <a href="{{ the_url('event.categorize') }}" class="button sm color">Categorize All</a>
   <a href="{{ the_url('event.filter_signup') }}" class="button sm color">Filter Signups</a>
-  <a href="{{ the_url('event.auto_categorize') }}" class="button sm color">Auto-categorize Accepted</a>
+  <a href="{{ the_url('event.distribute') }}" class="button sm color">Distribute Categories</a>
   {% endif %}
   {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>

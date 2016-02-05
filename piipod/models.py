@@ -473,13 +473,14 @@ class Event(Base):
             event_id=self.id,
             is_active=True).all()
 
-    @property
-    def accepted_signups(self):
+    def signups_by_category(self, **kwargs):
         """Returns all accepted participants"""
+        if kwargs['category'] == '*':
+            kwargs.pop('category')
         return Signup.query.filter_by(
             event_id=self.id,
             is_active=True,
-            category='Accepted').all()
+            **kwargs).all()
 
     @property
     def num_signups(self):
@@ -491,7 +492,32 @@ class Event(Base):
     @property
     def categories(self):
         """all event categories"""
-        return [s.strip() for s in g.event.setting('categories').value.split(',')] + ['Accepted', 'Waitlisted']
+        return [s.strip().split('(')[0] for s in g.event.setting('categories').value.split(',')] + ['Accepted', 'Waitlisted']
+
+    @property
+    def category_defaults(self):
+        """all event categories"""
+        counts = [('Accepted', 0), ('Waitlisted', 0)]
+        for s in g.event.setting('categories').value.split(','):
+            data = s.strip().split('(')
+            if len(data) > 1:
+                counts.append((data[0], int(data[1][:-1])))
+            else:
+                counts.append((data[0], 0))
+        return counts
+
+    @property
+    def category_counts(self):
+        """all event categories"""
+        counts = []
+        for s in g.event.setting('categories').value.split(',') + ('Accepted', 'Waitlisted'):
+            category = s.strip().split('(')[0]
+            counts.append((category, Signup.query.filter_by(
+                category=category,
+                is_active=True,
+                event_id=self.id
+            )))
+        return counts
 
     def __contains__(self, user):
         """Check if user is in signups"""

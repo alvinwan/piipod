@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, g
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
-    EventGenerateCodeForm, ProcessWaitlistForm, RecategorizeForm, FilterSignupForm
+    EventGenerateCodeForm, ProcessWaitlistForm, CategorizeForm, FilterSignupForm, wtf, CategorizeBatchForm
 from piipod.models import Group, Event, User, UserSetting, Membership, Signup,\
     GroupRole, EventRole, Base, EventSetting
 from piipod.forms import choicify
@@ -168,19 +168,26 @@ def checkin():
 ##################
 
 
-@event.route('/signup/<int:signup_id>/accept')
-@event.route('/signup/all/accept')
+@event.route('/signup/<int:signup_id>/categorize', methods=['POST', 'GET'])
+@event.route('/batch/categorize', methods=['POST', 'GET'])
 @requires('authorize')
 @login_required
-def accept_signup(signup_id='all'):
+def categorize(signup_id='all'):
     """Accept signup (pull off of waitlist)"""
     try:
-        if signup_id == 'all':
-            for signup in Signup.query.filter_by(event_id=g.event.id, is_active=True).all():
-                signup.update(category='Accepted').save()
-        else:
-            Signup.query.get(signup_id).update(category='Accepted').save()
-        return redirect(url_for('event.home'))
+        form = CategorizeForm(request.form)
+        form.category.choices = choicify(g.event.categories)
+        if request.method == 'POST' and form.validate():
+            if signup_id == 'all':
+                for signup in Signup.query.filter_by(event_id=g.event.id, is_active=True).all():
+                    signup.update(category=request.form['category']).save()
+            else:
+                Signup.query.get(signup_id).update(category=request.form['category']).save()
+            return redirect(url_for('event.home'))
+        return render_event('form.html',
+            title='Categorize',
+            form=form,
+            submit='Categorize %s' % (signup.user.name if signup_id != 'all' else 'all'))
     except NoResultFound:
         abort(404)
 
@@ -209,25 +216,30 @@ def checkin_signup(signup_id):
     except NoResultFound:
         abort(404)
 
-@event.route('/signup/autocategorize')
+@event.route('/batch/distribute', methods=['POST', 'GET'])
 @requires('authorize')
 @login_required
-def auto_categorize():
-    """autocategorize users"""
+def distribute():
+    """categorize users"""
     try:
-        signups = iter(g.event.accepted_signups)
-        for data in g.event.setting('categories').value.split(','):
-            datum = data.split('(')
-            if len(datum) <= 1:
-                return render_event('error.html',
-                    title='Cannot Autocategorize',
-                    message='Cannot autocategorize, since there is no quantity specified for each category. Specify the number of signups allocated for each category as <code>category1(num1),category2(num2)...</code> to auto-categorize in your <a href="%s">settings</a>.' % url_for('event.settings'),
-                    action='Back',
-                    url=url_for('event.home'))
-            category, count = datum[0], int(datum[1][:-1])
-            for _ in range(count):
-                signup = next(signups)
-                signup.update(category=category).save()
+        for category, count in g.event.category_defaults:
+            setattr(CategorizeBatchForm, category, wtf.IntegerField(category,
+                description='Number of signups to allocate to %s' % category,
+                default=count))
+        form = CategorizeBatchForm(request.form)
+        form.category.choices = choicify(['*'] + g.event.categories)
+        if request.method == 'POST' and form.validate():
+            signups = iter(g.event.signups_by_category(
+                category=request.form['category']))
+            for category, count in g.event.category_defaults:
+                for _ in range(count):
+                    signup = next(signups)
+                    signup.update(category=category).save()
+        form.category.description = 'Category to pull signups from and distribute among the categories in specified amounts.'
+        return render_event('form.html',
+            title='Distribute Signups',
+            form=form,
+            submit='Distribute')
     except StopIteration:
         pass
     return redirect(url_for('event.home'))
@@ -239,10 +251,14 @@ def recategorize_signup(signup_id):
     """Deactivate signup"""
     try:
         signup = Signup.query.get(signup_id)
-        form = RecategorizeForm(request.form)
-        form.category.choices = choicify(g.event.categories)
+        form = CategorizeForm(request.form)
+        add_count = lambda c: c + ' (%d signup)' % Signup.query.filter_by(
+            event_id=g.event.id, category=c, is_active=True).count()
+        form.category.choices = choicify([add_count(c) for c in
+            g.event.categories])
         if request.method == 'POST' and form.validate():
-            signup.update(category=request.form['category']).save()
+            category = request.form['category'].split('(')[0]
+            signup.update(category=category).save()
             return redirect(url_for('event.home'))
         return render_event('form.html',
             title='Recategorize Signup',

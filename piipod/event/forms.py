@@ -43,8 +43,14 @@ class ProcessWaitlistForm(wtf.Form):
     """form for processing waitlist"""
 
 
-class RecategorizeForm(wtf.Form):
-    """recategorize signup"""
+class CategorizeForm(wtf.Form):
+    """categorize signup"""
+
+    category = wtf.SelectField('Category', description='new category for the signup',coerce=str)
+
+
+class CategorizeBatchForm(wtf.Form):
+    """categorize by batch"""
 
     category = wtf.SelectField('Category', description='new category for the signup',coerce=str)
 
