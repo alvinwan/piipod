@@ -70,7 +70,7 @@
         <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Delete</a>
           {% endif %}
           {% if not signup.category or signup.category == 'Waitlisted' %}
-        <a href="{{ the_url('event.accept_signup', signup_id=signup.id) }}" class="button xs color">Accept</a>
+        <a href="{{ the_url('event.categorize', signup_id=signup.id, category='Accept') }}" class="button xs color">Accept</a>
           {% else %}
             {% if not signup.user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
         <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>

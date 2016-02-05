@@ -169,20 +169,23 @@ def checkin():
 
 
 @event.route('/signup/<int:signup_id>/categorize', methods=['POST', 'GET'])
+@event.route('/signup/<int:signup_id>/categorize/<string:category>',
+    methods=['POST', 'GET'])
+@event.route('/batch/categorize/<string:category>', methods=['POST', 'GET'])
 @event.route('/batch/categorize', methods=['POST', 'GET'])
 @requires('authorize')
 @login_required
-def categorize(signup_id='all'):
-    """Accept signup (pull off of waitlist)"""
+def categorize(signup_id='all', category=None):
+    """Categorize signup"""
     try:
         form = CategorizeForm(request.form)
         form.category.choices = choicify(g.event.categories)
-        if request.method == 'POST' and form.validate():
+        if request.method == 'POST' and form.validate() or category:
             if signup_id == 'all':
                 for signup in Signup.query.filter_by(event_id=g.event.id, is_active=True).all():
-                    signup.update(category=request.form['category']).save()
+                    signup.update(category=request.form.get('category', category)).save()
             else:
-                Signup.query.get(signup_id).update(category=request.form['category']).save()
+                Signup.query.get(signup_id).update(category=request.form.get('category', category)).save()
             return redirect(url_for('event.home'))
         return render_event('form.html',
             title='Categorize',
