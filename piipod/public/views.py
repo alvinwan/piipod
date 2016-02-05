@@ -47,11 +47,11 @@ def token_login():
     redirect = request.form.get('return', None)
     google_info = verify_google_token(request.form['token'])
     if google_info:
-        print(' * Google Token verified!')
+        logger.debug(' * Google Token verified!')
         google_id = google_info['sub']
         user = User.query.filter_by(email=google_info['email']).first()
         if not user:
-            print(' * Registering user using Google token...')
+            logger.debug(' * Registering user using Google token...')
             user = User(
                 name=google_info['name'],
                 email=google_info['email'],

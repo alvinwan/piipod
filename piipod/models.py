@@ -501,7 +501,8 @@ class Event(Base):
         return Event.query.join(Signup).filter(
             Event.id == self.id,
             Event.start >= arrow.now(),
-            Signup.category != 'Waitlisted'
+            Signup.category != 'Waitlisted',
+            Signup.is_active == True
         ).count()
 
 
