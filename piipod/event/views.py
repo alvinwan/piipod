@@ -77,7 +77,7 @@ def home():
     signups = g.event.signups
     data = {}
     for signup in signups:
-        data.setdefault(signup.category.strip().lower(), []).append(signup)
+        data.setdefault(signup.category.strip().capitalize(), []).append(signup)
     return render_event('event/index.html', categories=data.keys(), signups=data)
 
 
@@ -235,6 +235,7 @@ def distribute():
                 for _ in range(count):
                     signup = next(signups)
                     signup.update(category=category).save()
+            return redirect(url_for('event.home'))
         form.category.description = 'Category to pull signups from and distribute among the categories in specified amounts.'
         return render_event('form.html',
             title='Distribute Signups',
