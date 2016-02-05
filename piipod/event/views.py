@@ -232,7 +232,7 @@ def distribute():
             signups = iter(g.event.signups_by_category(
                 category=request.form['category']))
             for category in g.event.categories:
-                count = request.form[category]
+                count = int(request.form[category])
                 for _ in range(count):
                     signup = next(signups)
                     signup.update(category=category).save()
