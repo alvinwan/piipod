@@ -231,7 +231,8 @@ def distribute():
         if request.method == 'POST' and form.validate():
             signups = iter(g.event.signups_by_category(
                 category=request.form['category']))
-            for category, count in g.event.category_defaults:
+            for category in g.event.categories:
+                count = request.form[category]
                 for _ in range(count):
                     signup = next(signups)
                     signup.update(category=category).save()
