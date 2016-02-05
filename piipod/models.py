@@ -474,6 +474,14 @@ class Event(Base):
             is_active=True).all()
 
     @property
+    def accepted_signups(self):
+        """Returns all accepted participants"""
+        return Signup.query.filter_by(
+            event_id=self.id,
+            is_active=True,
+            category='Accepted').all()
+
+    @property
     def num_signups(self):
         """number of signups"""
         return int(Signup.query.filter_by(

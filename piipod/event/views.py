@@ -209,6 +209,29 @@ def checkin_signup(signup_id):
     except NoResultFound:
         abort(404)
 
+@event.route('/signup/autocategorize')
+@requires('authorize')
+@login_required
+def auto_categorize():
+    """autocategorize users"""
+    try:
+        signups = iter(g.event.accepted_signups)
+        for data in g.event.setting('categories').value.split(','):
+            datum = data.split('(')
+            if len(datum) <= 1:
+                return render_event('error.html',
+                    title='Cannot Autocategorize',
+                    message='Cannot autocategorize, since there is no quantity specified for each category. Specify the number of signups allocated for each category as <code>category1(num1),category2(num2)...</code> to auto-categorize in your <a href="%s">settings</a>.' % url_for('event.settings'),
+                    action='Back',
+                    url=url_for('event.home'))
+            category, count = datum[0], int(datum[1][:-1])
+            for _ in range(count):
+                signup = next(signups)
+                signup.update(category=category).save()
+    except StopIteration:
+        pass
+    return redirect(url_for('event.home'))
+
 @event.route('/signup/<int:signup_id>/recategorize', methods=['POST', 'GET'])
 @requires('authorize')
 @login_required
