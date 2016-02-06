@@ -13,8 +13,12 @@
       <li><a class="{% if link[1] == panel %}s{% endif %}" href="{% if link[1] != panel %}{{ link[0] }}{% else %}#{% endif %}">{{ link[1] }}</a></li>
       {% endif %}
       {% endfor %}
-      {% if current_user.is_authenticated and current_user not in group %}
+      {% if current_user.is_authenticated %}
+        {% if current_user not in group %}
       <li><a href="{{ the_url('group.signup') }}">Join</a></li>
+        {% else %}
+      <li><a href="{{ the_url('group.leave') }}">Leave</a></li>
+        {% endif %}
       {% endif %}
       <p class="right nav-text hidden-xs">{% block subnav %}{% endblock %}</p>
     </ul>

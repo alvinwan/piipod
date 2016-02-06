@@ -322,6 +322,14 @@ def signup():
         message=message,
         back=url_for('group.home'))
 
+@group.route('/leave', methods=['GET', 'POST'])
+@login_required
+def leave():
+    """group leave"""
+    signup = GroupRole.query.filter_by(group_id=g.group.id, user_id=current_user().id, is_active=True).one_or_none()
+    signup.update(is_active=False).save()
+    return redirect(url_for('group.home'))
+
 @group.route('/u/<int:user_id>')
 def member(user_id):
     """Displays information about member"""
