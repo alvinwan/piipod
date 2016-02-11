@@ -224,12 +224,17 @@ def checkin_signup(signup_id):
 @login_required
 def distribute():
     """categorize users"""
+
+    # TODO: provide less hacky fix
+    class CategorizeHackForm(CategorizeBatchForm):
+        pass
+    for category, count in g.event.category_defaults:
+        setattr(CategorizeHackForm, category, wtf.IntegerField(category,
+            description='Number of signups to allocate to %s' % category,
+            default=count))
+
     try:
-        for category, count in g.event.category_defaults:
-            setattr(CategorizeBatchForm, category, wtf.IntegerField(category,
-                description='Number of signups to allocate to %s' % category,
-                default=count))
-        form = CategorizeBatchForm(request.form)
+        form = CategorizeHackForm(request.form)
         form.category.choices = choicify(['*'] + g.event.categories)
         if request.method == 'POST' and form.validate():
             signups = iter(g.event.signups_by_category(

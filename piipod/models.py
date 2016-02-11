@@ -412,7 +412,9 @@ class Group(Base):
     def __contains__(self, user):
         """Tests if user is in group"""
         return Membership.query.filter_by(
-            user_id=user.id, group_id=self.id
+            user_id=user.id,
+            group_id=self.id,
+            is_active=True
         ).one_or_none() is not None
 
     def current_events(self):

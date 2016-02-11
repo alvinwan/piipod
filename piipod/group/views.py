@@ -326,8 +326,14 @@ def signup():
 @login_required
 def leave():
     """group leave"""
-    signup = GroupRole.query.filter_by(group_id=g.group.id, user_id=current_user().id, is_active=True).one_or_none()
-    signup.update(is_active=False).save()
+    Membership.query.filter_by(
+        group_id=g.group.id,
+        user_id=current_user().id,
+        is_active=True
+    ).one().deactivate()
+    # raise UserWarning(Membership.query.filter_by(
+    #     group_id=g.group.id,
+    #     user_id=current_user().id).one().is_active)
     return redirect(url_for('group.home'))
 
 @group.route('/u/<int:user_id>')
