@@ -1,4 +1,4 @@
-# Piipod
+# [Piipod](http://piipod.com)
 Staff and event management, with Google calendar sync and a one-click Google sign in; used at [TEDxBerkeley](http://tedxberkeley.piipod.com) to manage 230 volunteers, now being used to manage ~150 staff members across 2 courses - [CS61B](http://cs61b.piipod.com), [CS70](http://staff.eecs70.org) - at UC Berkeley.
 
 created by [Alvin Wan](http://alvinwan.com), Spring 2016
