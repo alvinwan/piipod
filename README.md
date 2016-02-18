@@ -1,13 +1,27 @@
-# Piipod
-staff and event management, with Google calendar sync
+# [Piipod](http://piipod.com)
+Staff and event management, with Google calendar sync and a one-click Google sign in; used at [TEDxBerkeley](http://tedxberkeley.piipod.com) to manage 230 volunteers, now being used to manage ~150 staff members across 2 courses - [CS61B](http://cs61b.piipod.com), [CS70](http://staff.eecs70.org) - at UC Berkeley.
 
-programmed by [Alvin Wan](http://alvinwan.com)
+created by [Alvin Wan](http://alvinwan.com), Spring 2016
+
+To get started, see [piipod.com](http://piipod.com)
 
 ## Features
 
-- Automatic Waitlist Resolution:
+**Google Login** 
+One-click login and registration for ease-of-use
+
+**Staff Approval** 
+Add staff emails to the whitelist to auto-promote staff.
+
+**Google Calendar Sync** 
+One-click synchronization to load events from Google calendar.
+
+Automatic Waitlist Resolution:
   - **Constraint Satisifaction Problem Model** allows staff to setup event signup minimum or maximum, per-user signups maximum or minimum for a group of events.
   - **Stable Marriage Algorithm** allows staff to accept waitlisted users based on user preferences.
+
+**Batch Processing and Filtering**
+Allows you to auto-categorize signups, process multiple events at once, and/or filter by signup properties. Categories can be shifts, tasks, or anything else representable with a string.
 
 ## Installation
 
