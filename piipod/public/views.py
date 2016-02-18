@@ -119,7 +119,7 @@ def not_found(error):
     return render('error.html',
         title='500. Hurr.',
         code=500,
-        message='Sorry. Here is the error: <br><code>%s</code><br> Please file an issue on the <a href="https://github.com/CS70/ohquu/issues">Github issues page</a>, with the above code if it has not already been submitted.' % str(error)), 500
+        message='Sorry. Here is the error: <br><code>%s</code><br> Please file an issue on the <a href="https://github.com/alvinwan/piipod/issues">Github issues page</a>, with the above code if it has not already been submitted.' % str(error)), 500
 
 
 #########################
