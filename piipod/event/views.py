@@ -77,7 +77,7 @@ def home():
     signups = g.event.signups
     data = {}
     for signup in signups:
-        data.setdefault(signup.category.strip().capitalize(), []).append(signup)
+        data.setdefault(getattr(signup, 'category', 'Waitlisted').strip().capitalize(), []).append(signup)
     return render_event('event/index.html', categories=sorted(data.keys()), signups=data)
 
 
