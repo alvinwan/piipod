@@ -555,7 +555,7 @@ class Event(Base):
                 i = i.replace(minutes=shift_duration)
                 j = j.replace(minutes=shift_duration)
                 if i == event_end:
-                    continue
+                    break
                 if j > event_end:
                     j = event_end
                 yield i, j
