@@ -544,6 +544,67 @@ class Event(Base):
             Signup.is_active == True
         ).count()
 
+    @classmethod
+    def range(cls, event_start, event_end, shift_duration, shift_alignment):
+        """Returns an iterable of time spans"""
+        def start(i=None, j=None):
+            """generates iterable of time spans in shift_duration from start"""
+            if not i:
+                i, j = event_start, event_end
+            while i < event_end:
+                i = i.replace(minutes=shift_duration)
+                j = j.replace(minutes=shift_duration)
+                if i == event_end:
+                    continue
+                if j > event_end:
+                    j = event_end
+                yield i, j
+
+        def hour():
+            """generates iterable of time spans per hour from start"""
+            i, j = event_start, event_start.replace(minutes=shift_duration)
+            if i.floor('hour') != i:
+                j = event_start.replace(hours=1).floor('hour')
+            yield i, j
+            for i, j in start(i, j):
+                yield i, j
+
+        return locals()[shift_alignment.lower()]()
+
+    @classmethod
+    def split(cls, event_data, shift_duration, shift_alignment):
+        """
+        Splits and saves event as a series of shifts
+        :param event_data: dictionary of event attributes
+        :param shift_duration: time in minutes
+        :param shift_alignment: HOUR, START, END
+        """
+        return [Event(**event_data).update(start=i, end=j).save()
+            for i, j in Event.range(
+                event_data['start'], event_data['end'],
+                shift_duration, shift_alignment)]
+
+
+    def split_existing(self, event_data, shift_duration, shift_alignment):
+        """
+        Splits and saves existing event
+        :param event_data: dictionary of event attributes
+        :param shift_duration: time in minutes
+        :param shift_alignment: HOUR, START, END
+        """
+        span_range = Event.range(
+            event_data['start'], event_data['end'],
+            shift_duration, shift_alignment)
+
+        # modify existing event to match shift
+        i, j = next(span_range)
+        self.update(start=i, end=j).save()
+
+        # create all other events
+        event_data['parent_id'] = self.id
+        event_data.pop('google_id', '')
+        return [self] + [Event(**event_data).update(start=i, end=j).save()
+            for i, j in span_range]
 
 ########################
 # RELATIONSHIP TABLES #

@@ -260,13 +260,17 @@ def sync(service):
                 # ['RRULE:FREQ=WEEKLY;UNTIL=20160426T160000Z;BYDAY=TU']
                 recurrence_start = arrow.get(request.form['recurrence_start'], 'YYYY-MM-DD HH:mm:ss')
                 recurrence_end = arrow.get(request.form['recurrence_end'], 'YYYY-MM-DD HH:mm:ss')
+                shift_duration = int(request.form['shift_duration'])
+                shift_alignment = request.form['shift_alignment']
 
                 if not query.count():
                     event = Event(**event_data).save()
                 else:
                     event = query.first().update(**event_data).save()
+                if shift_duration:
+                    event.deactivate()
 
-                event_data.pop('google_id')
+                event_data.pop('google_id', '')
                 event_data['parent_id'] = event.id
 
                 if event.until and recurrence_start < event.until:
@@ -285,9 +289,10 @@ def sync(service):
                             end = end.replace(weeks=diff)
                             span = start.replace(weeks=1)-start
                         # does not support MONTHLY yet
-                        event_data.update({'start': start, 'end': end})
                         if recurrence_start < start < recurrence_end:
-                            Event(**event_data).save()
+                            event_data.update({'start': start, 'end': end})
+                            Event.split(
+                                event_data, shift_duration, shift_alignment)
 
             return redirect(url_for('group.events'))
 

@@ -53,6 +53,11 @@ class SyncForm(wtf.Form):
     recurrence_start = wtf.DateTimeField('Recurrence Start', description='Using all recurring events, create recurrences starting from this datetime. (Default: Today)', default=arrow.now().to('local'))
     recurrence_end = wtf.DateTimeField('Recurrence End', description='Using all recurring events, create recurrences ending at this datetime. (Default: One week from today)',
     default=arrow.now().to('local').replace(weeks=1))
+    shift_duration = wtf.IntegerField('Shift Duration', description='Specify <b>in minutes</b> the length of each shift. Each event will be split into shifts of this duration. Use <code>0</code> to <i>not</i> split events into shifts.', default=0)
+    shift_alignment = wtf.SelectField('Shift Alignment', description='Specify where to start splitting shifts. If <code>shift_duration</code> is <code>0</code>, this field will be ignored.', choices=(
+        ('HOUR', 'Align with the hour'),
+        ('START', 'Align with the start')
+    ))
 
 
 class ConfirmSyncForm(wtf.Form):
@@ -63,3 +68,5 @@ class ConfirmSyncForm(wtf.Form):
     calendar = wtf.HiddenField()
     recurrence_start = wtf.HiddenField()
     recurrence_end = wtf.HiddenField()
+    shift_duration = wtf.HiddenField()
+    shift_alignment = wtf.HiddenField()
