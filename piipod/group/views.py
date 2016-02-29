@@ -329,7 +329,7 @@ def delete_events():
         for event in Event.query.filter(
             Event.id <= end_id,
             Event.id >= start_id,
-            Event.group_id == event.group_id).all():
+            Event.group_id == g.group.id).all():
             event.deactivate()
         return redirect(url_for('group.events'))
     return render_group('form.html',
