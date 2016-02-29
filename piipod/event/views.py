@@ -27,7 +27,7 @@ def pull_ids(endpoint, values):
         g.group = Group.query.filter_by(url=g.group_url).one_or_none()
         g.event_id = values.pop('event_id')
         g.event = Event.query.get(g.event_id)
-        if not g.group or not g.event or not g.event.is_active:
+        if not g.group or not g.event:
             abort(404)
         g.event.to_local('start', 'end')
         if current_user().is_authenticated:
@@ -74,6 +74,8 @@ def render_event(f, *args, **kwargs):
 @event.route('/')
 def home():
     """event homepage"""
+    if not g.event.is_active:
+        abort(404)
     signups = g.event.signups
     data = {}
     for signup in signups:
