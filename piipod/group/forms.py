@@ -70,3 +70,10 @@ class ConfirmSyncForm(wtf.Form):
     recurrence_end = wtf.HiddenField()
     shift_duration = wtf.HiddenField()
     shift_alignment = wtf.HiddenField()
+
+
+class DeleteEventsEnMasse(wtf.Form):
+    """delete events within a range"""
+
+    start_id = wtf.IntegerField()
+    end_id = wtf.IntegerField()

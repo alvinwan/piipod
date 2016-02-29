@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, g
+from flask import Blueprint, render_template, request, redirect, g, abort
 from piipod.views import current_user, login_required, url_for, requires, current_user
 from .forms import EventForm, EventSignupForm, EventCheckinForm, \
     EventGenerateCodeForm, ProcessWaitlistForm, CategorizeForm, FilterSignupForm, wtf, CategorizeBatchForm
@@ -27,7 +27,7 @@ def pull_ids(endpoint, values):
         g.group = Group.query.filter_by(url=g.group_url).one_or_none()
         g.event_id = values.pop('event_id')
         g.event = Event.query.get(g.event_id)
-        if not g.group or not g.event:
+        if not g.group or not g.event or not g.event.is_active:
             abort(404)
         g.event.to_local('start', 'end')
         if current_user().is_authenticated:

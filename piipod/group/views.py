@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, g, abort, jsonify, session
 from piipod.views import current_user, login_required, url_for, requires, current_user, current_url
 from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
-    ImportSignupsForm, SyncForm, ConfirmSyncForm
+    ImportSignupsForm, SyncForm, ConfirmSyncForm, DeleteEventsEnMasse
 from piipod.event.forms import EventForm
 from piipod.forms import choicify
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
@@ -146,6 +146,10 @@ def process():
         submit='Process',
         form=form,
         back=url_for('group.events'))
+
+##########
+# EVENTS #
+##########
 
 @group.route('/import/signups', methods=['GET', 'POST'])
 @requires('create_event')
@@ -312,6 +316,28 @@ def sync(service):
             submit='Sync',
             form=form,
             back=url_for('group.events'))
+
+@group.route('/events/delete', methods=['POST', 'GET'])
+@requires('create_event')
+@login_required
+def delete_events():
+    """delete events en masse"""
+    form = DeleteEventsEnMasse(request.form)
+    if request.method == 'POST' and form.validate():
+        start_id = request.form['start_id']
+        end_id = request.form['end_id']
+        for event in Event.query.filter(
+            Event.id <= end_id,
+            Event.id >= start_id).all():
+            if event.group_id == g.group.id:
+                event.deactivate()
+        return redirect(url_for('group.events'))
+    return render_group('form.html',
+        title='Delete Events En Masse',
+        message='Be careful! This en masse is not undo-able.',
+        submit='Delete',
+        form=form,
+        back=url_for('group.events'))
 
 ##############
 # MEMBERSHIP #
