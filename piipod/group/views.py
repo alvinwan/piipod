@@ -328,9 +328,9 @@ def delete_events():
         end_id = request.form['end_id']
         for event in Event.query.filter(
             Event.id <= end_id,
-            Event.id >= start_id).all():
-            if event.group_id == g.group.id:
-                event.deactivate()
+            Event.id >= start_id,
+            Event.group_id == event.group_id).all():
+            event.deactivate()
         return redirect(url_for('group.events'))
     return render_group('form.html',
         title='Delete Events En Masse',
