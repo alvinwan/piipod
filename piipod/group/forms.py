@@ -3,6 +3,7 @@ import wtforms as wtf
 from piipod.models import Group
 from piipod.defaults import default_group_roles
 from piipod.forms import choicify
+import arrow
 
 
 class GroupForm(ModelForm):
@@ -49,6 +50,9 @@ class SyncForm(wtf.Form):
 
     pattern = wtf.StringField('Filter Synced Events', description='Only sync events that match the given regex string. Use <code>*</code> to match all events.', default='*')
     calendar = wtf.SelectField(coerce=str)
+    recurrence_start = wtf.DateTimeField('Recurrence Start', description='Using all recurring events, create recurrences starting from this datetime. (Default: Today)', default=arrow.now().to('local'))
+    recurrence_end = wtf.DateTimeField('Recurrence End', description='Using all recurring events, create recurrences ending at this datetime. (Default: One week from today)',
+    default=arrow.now().to('local').replace(weeks=1))
 
 
 class ConfirmSyncForm(wtf.Form):
@@ -57,3 +61,5 @@ class ConfirmSyncForm(wtf.Form):
     confirm = wtf.HiddenField(default='y')
     pattern = wtf.HiddenField()
     calendar = wtf.HiddenField()
+    recurrence_start = wtf.HiddenField()
+    recurrence_end = wtf.HiddenField()

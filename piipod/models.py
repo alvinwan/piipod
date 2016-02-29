@@ -463,6 +463,9 @@ class Event(Base):
     google_id = db.Column(db.String(50), unique=True)
     settings = relationship("EventSetting", backref="event")
     checkins = relationship("Checkin", backref="event")
+    frequency = db.Column(db.String(20))
+    byday = db.Column(db.String(10))
+    until = db.Column(ArrowType)
 
     @property
     def group(self):
