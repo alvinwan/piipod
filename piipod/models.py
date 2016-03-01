@@ -555,7 +555,7 @@ class Event(Base):
                 i = i.replace(minutes=shift_duration)
                 j = j.replace(minutes=shift_duration)
                 if i == event_end:
-                    break
+                    raise StopIteration
                 if j > event_end:
                     j = event_end
                 yield i, j
@@ -579,6 +579,8 @@ class Event(Base):
         :param shift_duration: time in minutes
         :param shift_alignment: HOUR, START, END
         """
+        if shift_duration == 0:
+            return Event(**event_data).save()
         return [Event(**event_data).update(start=i, end=j).save()
             for i, j in Event.range(
                 event_data['start'], event_data['end'],
@@ -592,6 +594,9 @@ class Event(Base):
         :param shift_duration: time in minutes
         :param shift_alignment: HOUR, START, END
         """
+        if shift_duration == 0:
+            return Event(**event_data).save()
+
         span_range = Event.range(
             event_data['start'], event_data['end'],
             shift_duration, shift_alignment)
