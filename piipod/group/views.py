@@ -8,6 +8,7 @@ from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
     Signup, Membership
 from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import update
 import csv
 import googleapiclient
 from apiclient import discovery
@@ -326,11 +327,10 @@ def delete_events():
     if request.method == 'POST' and form.validate():
         start_id = request.form['start_id']
         end_id = request.form['end_id']
-        for event in Event.query.filter(
-            Event.id <= end_id,
-            Event.id >= start_id,
-            Event.group_id == g.group.id).all():
-            event.deactivate()
+        events = Event.__table__
+        update(events).where(events.c.id <= end_id).\
+        where(events.c.id >= start_id).\
+        where(events.c.group_id == g.group.id).values(is_active=False)
         return redirect(url_for('group.events'))
     return render_group('form.html',
         title='Delete Events En Masse',
