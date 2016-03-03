@@ -276,10 +276,15 @@ class User(Base, flask_login.UserMixin):
             user_id=self.id,
             event_id=event.id
         ).one_or_none()
-        role_id = role_id or EventRole.query.filter_by(
+        role = EventRole.query.filter_by(
             name=role,
             event_id=event.id
-        ).one().id
+        ).one_or_none()
+        if not role_id:
+            if role:
+                role_id = role.id
+            else:
+                role_id = EventRole(name=role, event_id=event.id).save().id
         if signup:
             return signup.update(
                 role_id=role_id, is_active=True, **kwargs).save()
