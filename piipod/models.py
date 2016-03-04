@@ -697,6 +697,7 @@ class Signup(Base):
                 for event_id in event_ids:
                     event = Event.query.get(event_id)
                     role = EventRole.query.filter_by(name=event.setting('role').value, event_id=event_id).one()
+                    data['is_active'] = True
                     yield Signup.get_or_create(user_id=user.id, event_id=event_id, override=override, role_id=role.id, data=data)
         except sqlalchemy.exc.IntegrityError:
             raise UserWarning('Invalid event_id found. Check that all event_ids are associated with valid events.')

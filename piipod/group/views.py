@@ -163,11 +163,12 @@ def import_signups():
         signups = list(Signup.from_csv_string(
             request.form['csv'], request.form['override'] == 'y'))
         for signup in signups:
-            Membership(group_id=g.group.id, user_id=signup.user_id,
-                role_id=GroupRole.query.filter_by(
-                    name='Member',
-                    group_id=g.group.id).one().id
-                ).save()
+            if not Membership.query.filter_by(group_id=g.group.id, user_id=signup.user_id).count():
+                Membership(group_id=g.group.id, user_id=signup.user_id,
+                    role_id=GroupRole.query.filter_by(
+                        name='Member',
+                        group_id=g.group.id).one().id
+                    ).save()
         return render_group('group/import_signups.html',
             message='All %d signups created.' % len(signups),
             url=url_for('group.events'),
