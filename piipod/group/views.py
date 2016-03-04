@@ -103,9 +103,14 @@ def settings():
     g.group.load_settings()
     g.group.access_token
     if request.method == 'POST':
-        id, value = request.form['id'], request.form['value']
+        id = request.form['id']
+        value = request.form.get('value', None)
+        is_active = request.form.get('is_active', None)
         setting = GroupSetting.query.get(id)
-        setting.value = value
+        if value:
+            setting.value = value
+        if is_active is not None:
+            setting.is_active = is_active
         setting.save()
     settings = GroupSetting.query.filter_by(group_id=g.group.id).all()
     return render_group('group/settings.html', settings=settings, back=url_for('group.home'))

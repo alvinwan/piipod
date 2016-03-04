@@ -211,15 +211,17 @@ def deactivate_signup(signup_id):
 
 @event.route('/signup/<int:signup_id>/checkin')
 @login_required
-@requires('authorize')
 def checkin_signup(signup_id):
     """checkin signup"""
-    try:
-        signup = Signup.query.get(signup_id)
-        checkin = signup.user.checkin(g.event, current_user())
-        return redirect(url_for('event.home'))
-    except NoResultFound:
-        abort(404)
+    if g.group.setting('self_checkin').is_active or current_user().can('authorize'):
+        try:
+            signup = Signup.query.get(signup_id)
+            checkin = signup.user.checkin(g.event, current_user())
+            return redirect(url_for('event.home'))
+        except NoResultFound:
+            abort(404)
+    else:
+        return redirect(url_for('group.events'))
 
 @event.route('/batch/distribute', methods=['POST', 'GET'])
 @requires('authorize')

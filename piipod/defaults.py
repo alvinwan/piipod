@@ -159,6 +159,12 @@ default_group_settings = {
         'label': 'Google Calendars',
         'description': 'Add your Google Calendar IDs below. Each ID will generally have the form of <code>[token]@group.calendar.google.com</code>.',
         'value': '',
+    },
+    'self_checkin': {
+        'label': 'Self Checkins',
+        'description': 'Allow any event attendee to checkin him or herself.',
+        'type': 'boolean',
+        'is_active': False
     }
 }
 

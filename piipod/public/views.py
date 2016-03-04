@@ -39,7 +39,7 @@ def login():
         auth_code = request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
-        return redirect(session['redirect'])
+        return redirect(url_for('public.home'))
 
 @public.route('/tokenlogin', methods=['POST'])
 def token_login():

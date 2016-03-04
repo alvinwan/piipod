@@ -9,13 +9,31 @@
   {% endfor %}
 </ul>
 {% for setting in settings %}
+<div class="col-md-12">
+<h3>{{ setting.label }}</h3>
+<p>{{ setting.description | safe }}</p>
+{% if not setting.is_active %}
 <form method="post" class="col-md-12">
-  <h3>{{ setting.label }}</h3>
-  <p>{{ setting.description | safe }}</p>
+  <input type="hidden" name="id" value="{{ setting.id }}">
+  <input type="hidden" name="is_active" value="1">
+  <input type="submit" class="button sm color" value="Enable">
+</form>
+{% endif %}
+{% if setting.is_active %}
+{% if setting.type != 'boolean' %}
+<form method="post" class="col-md-12">
   <input type="hidden" name="id" value="{{ setting.id }}">
   <input type="text" name="value" value="{{ setting.value}} ">
   <input type="submit" class="button sm color" value="save">
 </form>
+{% endif %}
+<form method="post" class="col-md-12">
+  <input type="hidden" name="id" value="{{ setting.id }}">
+  <input type="hidden" name="is_active" value="0">
+  <input type="submit" class="button sm color" value="Disable">
+</form>
+{% endif %}
+</div>
 {% endfor %}
 </div>
 {% endblock %}

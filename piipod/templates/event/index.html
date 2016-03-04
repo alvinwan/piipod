@@ -79,6 +79,8 @@
         <a href="{{ the_url('event.recategorize_signup', signup_id=signup.id) }}" class="button xs color">Recategorize</a>
             {% endif %}
           {% endif %}
+        {% elif g.group.setting('self_checkin').is_active and signup.user.id == current_user.id and signup.num_check_ins < event.setting('max_check_ins').value | int %}
+        <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>
         {% endif %}
         {% set min_signups = g.event.setting('min_signups') %}
         {% if current_user.id == signup.user.id %}
