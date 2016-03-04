@@ -559,7 +559,7 @@ class Event(Base):
             while i < event_end:
                 i = i.replace(minutes=shift_duration)
                 j = j.replace(minutes=shift_duration)
-                if i == event_end:
+                if i >= event_end:
                     raise StopIteration
                 if j > event_end:
                     j = event_end
