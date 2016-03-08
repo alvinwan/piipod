@@ -552,18 +552,18 @@ class Event(Base):
     @classmethod
     def range(cls, event_start, event_end, shift_duration, shift_alignment):
         """Returns an iterable of time spans"""
-        def start(i=None, j=None):
+        def start(i=None):
             """generates iterable of time spans in shift_duration from start"""
-            if not i:
-                i, j = event_start, event_end
+            i = i or event_start
+            j = i.replace(minutes=shift_duration)
             while i < event_end:
-                i = i.replace(minutes=shift_duration)
-                j = j.replace(minutes=shift_duration)
                 if i >= event_end:
                     raise StopIteration
                 if j > event_end:
                     j = event_end
                 yield i, j
+                i = j
+                j = j.replace(minutes=shift_duration)
 
         def hour():
             """generates iterable of time spans per hour from start"""
@@ -571,7 +571,7 @@ class Event(Base):
             if i.floor('hour') != i:
                 j = event_start.replace(hours=1).floor('hour')
             yield i, j
-            for i, j in start(i, j):
+            for i, j in start(j):
                 yield i, j
 
         return locals()[shift_alignment.lower()]()
@@ -680,6 +680,8 @@ class Signup(Base):
             reader = csv.reader(string.splitlines(), delimiter=',')
             headers = [s.strip() for s in next(reader)]
             for row in reader:
+                if row.strip() == '':
+                    continue
                 data = dict(zip(headers, [s.strip() for s in row]))
                 user_data = {}
                 for k in list(data.keys()):

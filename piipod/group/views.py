@@ -166,7 +166,7 @@ def import_signups():
     form = ImportSignupsForm(request.form)
     if request.method == 'POST' and form.validate():
         signups = list(Signup.from_csv_string(
-            request.form['csv'], request.form['override'] == 'y'))
+            request.form['csv'], request.form.get('override', 'n') == 'y'))
         for signup in signups:
             if not Membership.query.filter_by(group_id=g.group.id, user_id=signup.user_id).count():
                 Membership(group_id=g.group.id, user_id=signup.user_id,
@@ -195,6 +195,8 @@ def sync(service):
         setting = g.group.setting(service)
         calendars = setting.value.split(',') if setting.value else []
         form.calendar.choices = choicify(calendars)
+        form.recurrence_start.default = arrow.now().to('local')
+        form.recurrence_end.default = arrow.now().to('local').replace(weeks=1)
         if not calendars:
             message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
             form = None
@@ -307,7 +309,8 @@ def sync(service):
                                 event_data, shift_duration, shift_alignment)
 
             return redirect(url_for('group.events'))
-
+        if form:
+            form.process()
         return render_group('form.html',
             title='Sync with %s' % setting.label,
             message=message,
