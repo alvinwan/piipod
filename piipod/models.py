@@ -680,7 +680,7 @@ class Signup(Base):
             reader = csv.reader(string.splitlines(), delimiter=',')
             headers = [s.strip() for s in next(reader)]
             for row in reader:
-                if row.strip() == '':
+                if ''.join(row).strip() == '':
                     continue
                 data = dict(zip(headers, [s.strip() for s in row]))
                 user_data = {}
