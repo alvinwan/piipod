@@ -1,10 +1,11 @@
 from flask import Blueprint, request, redirect, session
 from .forms import *
 from piipod import app, login_manager, logger, googleclientID
-from piipod.models import User
+from piipod.models import User, Group
 from piipod.views import anonymous_required, render, url_for, current_url
 from urllib.parse import urlparse
 import flask_login
+from sqlalchemy import desc
 from oauth2client import client, crypt
 from apiclient import discovery
 import httplib2
@@ -18,7 +19,8 @@ public = Blueprint('public', __name__)
 @public.route('/')
 def home():
     """Home page"""
-    return render('index.html')
+    return render('index.html', groups=Group.query.order_by(
+        desc(Group.created_at)).limit(10).all())
 
 
 ##################

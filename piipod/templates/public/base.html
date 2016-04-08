@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+  <body class="{{ body_class }}">
+    {% include "public/header.html" %}
+    {% block main %}
+    {% endblock %}
+    {% include "footer.html" %}
+  </body>
+{% endblock %}
