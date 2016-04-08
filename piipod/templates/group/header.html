@@ -39,10 +39,16 @@
       </span>
     </div>
     <nav>
-      {% if current_user.is_authenticated and current_user in group %}
+      {% if current_user.is_authenticated %}
+      {% if current_user not in group %}
       <ul>
         <a class="button" href="{{ the_url('group.signup') }}">Join</a>
       </ul>
+      {% elif current_user.can('create_event') %}
+      <ul>
+        <a class="button" href="{{ the_url('group.create_event') }}">+ Event</a>
+      </ul>
+      {% endif %}
       {% endif %}
       <ul class="primary">
         <li><a href="{{ the_url('group.home') }}">Home</a></li>

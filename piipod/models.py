@@ -406,10 +406,10 @@ class Group(Base):
         pagination = Event.query.filter_by(group_id=self.id, is_active=True).order_by(desc(Event.start)).paginate(page, per_page)
         return pagination if paginated else pagination.items
 
-    @property
-    def members(self):
+    def members(self, page=1, per_page=10, paginated=True):
         """List of all members"""
-        return Membership.query.filter_by(group_id=self.id).all()
+        pagination = Membership.query.filter_by(group_id=self.id).paginate(page, per_page)
+        return pagination if paginated else pagination.items
 
     def setting_query(self):
         return GroupSetting.query.filter_by(group_id=self.id)

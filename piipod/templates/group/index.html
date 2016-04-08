@@ -6,22 +6,7 @@
     <h1 class="sp-title">{{ group.name }}</h1>
     <p class="sp-byline">{{ group.description }}</p>
     <a href="#" class="button">Checkin</a>
-    <a href="#" class="button">Signup</a>
-  </section>
-  <section class="sp-module-banner module">
-    <table>
-      <tbody>
-        <tr><th>Name</th><th>Start</th><th>End</th><th class="hidden=xs">Time Until Start</th></tr>
-        {% for event in g.group.current_events() %}
-        <tr>
-          <td><a href="{{ the_url('event.home', event_id=event.id) }}">{{ event.name }}</a></td>
-          <td>{{ event.to_local('start', 'end').start.format('h:mm a') }}</td>
-          <td>{{ event.end.format('h:mm a') }}</td>
-          <td class="hidden-xs">{{ event.start.humanize() }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <a href="{{ the_url('group.events') }}" class="button">Browse Events</a>
   </section>
 </main>
 {% endblock %}

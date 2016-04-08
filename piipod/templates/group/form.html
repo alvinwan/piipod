@@ -4,18 +4,27 @@
 {% block modules %}
   <section class="sf-module-banner module col-md-6">
     <p class="sf-back"><a href="{{ back or the_url('group.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
-    {% if form_title %}
+    {% if form_title or wide_title %}
+    {% if wide_title %}
+    <h2>{{ form_title }}</h2>
+    {% if form_description %}
+    <p class="sp-byline">{{ form_description | safe }}</p>
+    {% endif %}
+    {% else %}
     <div class="sf-section-label">
       <h2>{{ form_title }}</h2>
       {% if form_description %}
-      <p>{{ form_description }}
+      <p>{{ form_description }}</p>
       {% endif %}
     </div>
+    {% endif %}
     {% endif %}
     <form action="{{ current_url() }}" method="POST">
     {% for field in form %}
       <div class="sf-field">
+      {% if field.type != 'HiddenField' %}
         {{ field.label(class_='sf-label') }}
+      {% endif %}
       {% if field.description %}
         <p class="sf-description">{{ field.description | safe }}</p>
       {% endif %}

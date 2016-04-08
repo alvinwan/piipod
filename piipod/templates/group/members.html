@@ -1,16 +1,33 @@
-{% extends "group/base.html" %}
-{% set panel='Members' %}
-{% block panel %}
-<div class="queue">
-<h1>Members</h1>
-<table>
-<tr><th>Name</th><th>Role</th><th class="hidden-xs">Join Date</th></tr>
-{% for member in g.group.members %}
-<tr>
-  <td><a href="{{ the_url('group.member', user_id=member.user_id)}}">{{ member.user.name }}</a></td>
-  <td>{{ member.role.name }}</td>
-  <td class="hidden-xs">{{ member.created_at.humanize() }}</td>
-</tr>
-{% endfor %}
-</table>
+{% extends "group/group.html" %}
+{% block modules %}
+<section class="sp-module-banner module">
+  <h2 class="sp-module-title">Members</h2>
+  <table>
+    <tbody>
+      <tr><th>Name</th><th>Role</th><th class="hidden-xs">Join Date</th></tr>
+      {% set pagination=g.group.members(page=page, per_page=10) %}
+      {% for member in pagination.items %}
+      <tr>
+        <td><a href="{{ the_url('group.member', user_id=member.user_id)}}">{{ member.user.name }}</a></td>
+        <td>{{ member.role.name }}</td>
+        <td class="hidden-xs">{{ member.created_at.humanize() }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class=pagination>
+    {% for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <a class="page-item" href="{{ the_url('group.events', page=page) }}"><span>{{ page }}</span></a>
+        {% else %}
+          <div class="page-item"><span>{{ page }}</span></div>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>...</span>
+      {% endif %}
+    {% endfor %}
+    </div>
+  </section>
+</section>
 {% endblock %}

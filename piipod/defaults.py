@@ -151,8 +151,7 @@ default_group_settings = {
         'label': 'Default Role',
         'description': 'Pick the default role for this group upon signup.',
         'value': 'Member',
-        'type': 'select',
-        'value': ''
+        'type': 'select'
     },
     'googlecalendar': {
         'label': 'Google Calendars',

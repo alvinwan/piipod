@@ -77,7 +77,8 @@ def events():
 @group.route('/members')
 def members():
     """group members"""
-    return render_group('group/members.html')
+    return render_group('group/members.html',
+        page=int(request.args.get('page', 1)))
 
 ##############
 # MANAGEMENT #
@@ -362,7 +363,7 @@ def signup():
     form = GroupSignupForm(request.form)
     choose_role = g.group.setting('choose_role').is_active
     message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
-    whitelisted, submit = [], 'Join'
+    whitelisted, submit = [], 'Confirm'
     for block in g.group.setting('whitelist').value.split(','):
         data = block.split('(')
         if len(data) == 2:
@@ -397,7 +398,9 @@ def signup():
     form.user_id.default = current_user().id
     form.process()
     return render_group('group/form.html',
-        title='Signup for %s' % g.group.name,
+        form_title='Signup for %s' % g.group.name,
+        form_description='Ready to join? Click confirm below.',
+        wide_title=True,
         submit=submit,
         form=form,
         message=message,

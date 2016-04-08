@@ -23,8 +23,7 @@ public = Blueprint('public', __name__)
 @public.route('/')
 def home():
     """Home page"""
-    return render('index.html', groups=Group.query.order_by(
-        desc(Group.created_at)).limit(10).all())
+    return render('index.html')
 
 ##################
 # LOGIN/REGISTER #
