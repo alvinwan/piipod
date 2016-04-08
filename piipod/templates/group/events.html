@@ -1,13 +1,13 @@
-{% extends "group/group.html" %}
-{% set panel='Events' %}
-{% block panel %}
-<div class="queue events">
+{% extends "group/base.html" %}
+{% block main %}
+<main class="sp-main">
+<section class="sp-modular-banner module">
 <h1 class="col-md-6">Events</h1>
 {% if current_user.can('create_event') %}
 <div class="col-md-6">
-  <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="tr-action right button sm compact color">Google Calendar Sync</a>
-  <a href="{{ the_url('group.import_signups') }}" class="tr-action right button sm compact color">Import Signups</a>
-  <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
+  <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="small-button">Google Calendar Sync</a>
+  <a href="{{ the_url('group.import_signups') }}" class="small-button">Import Signups</a>
+  <a href="{{ the_url('group.process') }}" class="small-button">Process Waitlists</a>
 </div>
 {% endif %}
 <table>
@@ -53,4 +53,6 @@
     {% endif %}
   {% endfor %}
   </div>
+</section>
+</main>
 {% endblock %}

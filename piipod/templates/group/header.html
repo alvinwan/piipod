@@ -1,6 +1,6 @@
 <header>
   {% if g.group %}
-  <a href="{% if current_user.can('help') %}{{ the_url('admin.home') }}{% else %}{{ the_url('group.home') }}{% endif %}"><h1 class="hidden-xs col-sm-4 col-md-3 header-title">{{ g.group.name }} <span>{% if current_user.can('admin') %}Admin{% else %}group{% endif %}</span></h1></a>
+  <a href="{{ the_url('group.home') }}"><h1 class="hidden-xs col-sm-4 col-md-3 header-title">{{ g.group.name }} <span>{% if current_user.can('admin') %}Admin{% else %}group{% endif %}</span></h1></a>
   <nav class="col-md-9 col-sm-8 col-xs-12">
     <ul>
       <li>
@@ -43,6 +43,8 @@
         <li><a href="{{ the_url('group.home') }}">Home</a></li>
         <li><a href="{{ the_url('group.events') }}">Events</a></li>
         <li><a href="{{ the_url('group.members') }}">Members</a></li>
+      </ul>
+      <ul class="secondary">
         {% if current_user.is_authenticated %}
         {% if current_user.can('edit_group_settings') %}
         <li><a href="{{ the_url('group.settings') }}">Settings</a></li>
@@ -51,8 +53,6 @@
         <li><a href="{{ the_url('group.edit') }}">Edit Information</a></li>
         {% endif %}
         {% endif %}
-      </ul>
-      <ul class="secondary">
         {% if current_user.is_authenticated %}
           {% if current_user not in group %}
         <li><a href="{{ the_url('group.signup') }}">Join</a></li>

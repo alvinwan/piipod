@@ -430,17 +430,19 @@ def member(user_id):
 # LOGIN/LOGOUT #
 ################
 
-@group.route('/logout')
-def logout():
-    from piipod.public.views import logout
-    return logout()
-
-
 @group.route('/login', methods=['POST', 'GET'])
 def login():
+    """Login using globally defined login procedure"""
     from piipod.public.views import login
-    return login()
+    return login(
+        home=url_for('group.home', _external=True),
+        login=url_for('group.login', _external=True))
 
+@group.route('/logout')
+def logout():
+    """Logout using globally defined logout procedure"""
+    from piipod.public.views import logout
+    return logout(home=url_for('group.home', _external=True))
 
 @group.route('/tokenlogin', methods=['POST'])
 def token_login():
