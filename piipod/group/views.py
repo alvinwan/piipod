@@ -192,14 +192,14 @@ def import_signups():
 def sync(service):
     """sync events with service"""
     try:
-        form, message = SyncForm(request.form), ''
+        form, message = SyncForm(request.form), 'See fields below for instructions.'
         setting = g.group.setting(service)
         calendars = setting.value.split(',') if setting.value else []
         form.calendar.choices = choicify(calendars)
         form.recurrence_start.default = arrow.now().to('local')
         form.recurrence_end.default = arrow.now().to('local').replace(weeks=1)
         if not calendars:
-            message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
+            message = 'You have no %s to select from! Access the <a href="%s#%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.name, setting.label)
             form = None
         if (request.method == 'POST' and form.validate() and calendars) or 'confirm' in request.form:
 
@@ -253,8 +253,9 @@ def sync(service):
                     start=e['start'].format('MMM D h:mm a'),
                     end=e['end'].format('MMM D h:mm a')) for e in events))
                 return render_group('group/form.html',
-                    title='Confirm Sync',
-                    message=message,
+                    wide_title=True,
+                    form_title='Confirm Sync',
+                    form_message=message,
                     submit='Sync',
                     form=form,
                     back=url_for('group.events'))
@@ -313,8 +314,9 @@ def sync(service):
         if form:
             form.process()
         return render_group('group/form.html',
-            title='Sync with %s' % setting.label,
-            message=message,
+            wide_title=True,
+            form_title='Sync with %s' % setting.label,
+            form_description=message,
             submit='Sync',
             form=form,
             back=url_for('group.events'))

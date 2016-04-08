@@ -14,12 +14,13 @@
     <div class="sf-section-label">
       <h2>{{ form_title }}</h2>
       {% if form_description %}
-      <p>{{ form_description }}</p>
+      <p>{{ form_description | safe }}</p>
       {% endif %}
     </div>
     {% endif %}
     {% endif %}
     <form action="{{ current_url() }}" method="POST">
+    {% if form %}
     {% for field in form %}
       <div class="sf-field">
       {% if field.type != 'HiddenField' %}
@@ -35,6 +36,7 @@
       </div>
     {% endfor %}
       <input type="submit" class="form-button" value="{{ submit }}">
+    {% endif %}
     </form>
   </section>
 {% endblock %}

@@ -1,9 +1,12 @@
 {% extends "group/group.html" %}
 {% block modules %}
 <section class="sp-modular-banner module">
-<h1 class="col-md-6">Events</h1>
+<h1 class="col-md-12">Events</h1>
+{% if g.group.num_events == 0 %}
+<p class="sp-byline">Looks like you've just created your group! Click to <a href="{{ the_url('group.create_event') }}">create an event</a>.</p>
+{% endif %}
 {% if current_user.can('create_event') %}
-<div class="col-md-6">
+<div class="col-md-12">
   <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="small-button">Google Calendar Sync</a>
   <a href="{{ the_url('group.import_signups') }}" class="small-button">Import Signups</a>
   <a href="{{ the_url('group.process') }}" class="small-button">Process Waitlists</a>
@@ -35,9 +38,6 @@
   </td>
 </tr>
 {% endfor %}
-{% if g.group.num_events == 0 %}
-<p class="queue-note">Looks like you've just created your group! Click to <a href="{{ the_url('group.create_event') }}">create an event</a>.</p>
-{% endif %}
 </table>
 <div class=pagination>
   {% for page in pagination.iter_pages() %}
