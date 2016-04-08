@@ -91,7 +91,7 @@ default_event_settings = {
     },
     'max_signups': {
         'label': 'Maximum Number of Signups',
-        'description': 'Signups will be disable once the maximum has been reached.',
+        'description': 'Signups will be disabled once the maximum has been reached.',
         'value': 10,
         'is_active': False
     },
@@ -127,7 +127,6 @@ default_event_settings = {
         'label': 'Default Category',
         'description': 'New signups are automatically placed in this category.',
         'value': 'Waitlisted',
-        'is_active': True,
         'toggable': False,
     },
     'role': {

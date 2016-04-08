@@ -91,7 +91,7 @@ def edit():
     if request.method == 'POST' and form.validate():
         g.group.update(**request.form).save()
         return redirect(url_for('group.home'))
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Edit Group',
         submit='Save',
         form=form)
@@ -134,7 +134,7 @@ def create_event():
                 category='Accepted').event_id))
     form.group_id.default = g.group.id
     form.process()
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Create Event',
         submit='Create',
         form=form,
@@ -148,7 +148,7 @@ def process():
     form = ProcessWaitlistsForm(request.form)
     if request.method == 'POST' and form.validate():
         pass
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Process Waitlists',
         submit='Process',
         form=form,
@@ -179,7 +179,7 @@ def import_signups():
             url=url_for('group.events'),
             action='Back',
             signups=signups)
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Import Signups',
         submit='Import',
         form=form,
@@ -251,7 +251,7 @@ def sync(service):
                     name=e['name'],
                     start=e['start'].format('MMM D h:mm a'),
                     end=e['end'].format('MMM D h:mm a')) for e in events))
-                return render_group('form.html',
+                return render_group('group/form.html',
                     title='Confirm Sync',
                     message=message,
                     submit='Sync',
@@ -311,7 +311,7 @@ def sync(service):
             return redirect(url_for('group.events'))
         if form:
             form.process()
-        return render_group('form.html',
+        return render_group('group/form.html',
             title='Sync with %s' % setting.label,
             message=message,
             submit='Sync',
@@ -321,7 +321,7 @@ def sync(service):
         abort(404)
     except googleapiclient.errors.HttpError:
         form.errors.setdefault('calendar', []).append('Google Calendar failed to load. Wrong link perhaps?')
-        return render_group('form.html',
+        return render_group('group/form.html',
             title='Sync with %s' % setting.label,
             message=message,
             submit='Sync',
@@ -343,7 +343,7 @@ def delete_events():
             events.c.group_id == g.group.id)).values(is_active=False))
         db.session.commit()
         return redirect(url_for('group.events'))
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Delete Events En Masse',
         message='Be careful! This en masse is not undo-able.',
         submit='Delete',
@@ -396,7 +396,7 @@ def signup():
     form.group_id.default = g.group.id
     form.user_id.default = current_user().id
     form.process()
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Signup for %s' % g.group.name,
         submit=submit,
         form=form,

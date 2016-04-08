@@ -42,7 +42,7 @@ def create_group():
         current_user().join(group, role='Owner')
         group.load_settings('whitelist')
         return redirect(url_for('group.home', group_url=group.url))
-    return render_dashboard('form.html',
+    return render_dashboard('public/form.html',
         title='Create Group',
         submit='create',
         form=form)

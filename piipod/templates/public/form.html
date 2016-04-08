@@ -1,9 +1,9 @@
-{% extends "group/group.html" %}
+{% extends "public/public.html" %}
 {% set main_class='sf-main' %}
 {% set body_class='staff-form' %}
 {% block modules %}
   <section class="sf-module-banner module col-md-6">
-    <p class="sf-back"><a href="{{ back or the_url('group.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
+    <p class="sf-back"><a href="{{ back or the_url('dashboard.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
     {% if form_title %}
     <div class="sf-section-label">
       <h2>{{ form_title }}</h2>

@@ -1,6 +1,5 @@
-{% extends "group/base.html" %}
-{% block main %}
-<main class="sp-main">
+{% extends "group/group.html" %}
+{% block modules %}
 <section class="sp-modular-banner module">
 <h1 class="col-md-6">Events</h1>
 {% if current_user.can('create_event') %}
@@ -54,5 +53,4 @@
   {% endfor %}
   </div>
 </section>
-</main>
 {% endblock %}

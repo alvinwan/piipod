@@ -1,17 +1,15 @@
-{% extends "public/base.html" %}
-{% block main %}
-<main class="sp-main">
-  <section class="sp-module-banner module">
-    <h2>Welcome!</h2>
-    <p>Here are all of the people using Piipod today. {% if not current_user.is_authenticated %}Click "Sign in" in the top right to get started.{% else %}<a href="{{ url_for('dashboard.create_group') }}">Create a group</a> to get started! {% endif %}</p>
-    <table>
-      <tbody>
-        <tr><th>Name</th><th class="hidden-xs">Description</th><th>Category</th></tr>
-        {% for group in groups %}
-        <tr><td><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></td><td class="hidden-xs">{{ group.description[:20]}}</td><td>{{ group.category }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
-</main>
+{% extends "public/public.html" %}
+{% block modules %}
+<section class="sp-module-banner module">
+  <h2>Welcome!</h2>
+  <p>Here are all of the people using Piipod today. {% if not current_user.is_authenticated %}Click "Sign in" in the top right to get started.{% else %}<a href="{{ url_for('dashboard.create_group') }}">Create a group</a> to get started! {% endif %}</p>
+  <table>
+    <tbody>
+      <tr><th>Name</th><th class="hidden-xs">Description</th><th>Category</th></tr>
+      {% for group in groups %}
+      <tr><td><a href="{{ url_for('group.home', group_url=group.url) }}">{{ group.name }}</a></td><td class="hidden-xs">{{ group.description[:20]}}</td><td>{{ group.category }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endblock %}

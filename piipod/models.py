@@ -205,7 +205,7 @@ class Setting(Base):
     description = db.Column(db.Text)
     value = db.Column(db.Text)
     type = db.Column(db.String(50))
-    toggable = db.Column(db.Boolean)
+    toggable = db.Column(db.Boolean, default=True)
 
 
 class Role(Base):

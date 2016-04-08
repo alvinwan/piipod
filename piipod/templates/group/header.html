@@ -39,6 +39,11 @@
       </span>
     </div>
     <nav>
+      {% if current_user.is_authenticated and current_user in group %}
+      <ul>
+        <a class="button" href="{{ the_url('group.signup') }}">Join</a>
+      </ul>
+      {% endif %}
       <ul class="primary">
         <li><a href="{{ the_url('group.home') }}">Home</a></li>
         <li><a href="{{ the_url('group.events') }}">Events</a></li>
@@ -47,17 +52,15 @@
       <ul class="secondary">
         {% if current_user.is_authenticated %}
         {% if current_user.can('edit_group_settings') %}
-        <li><a href="{{ the_url('group.settings') }}">Settings</a></li>
+        <li><a href="{{ the_url('group.settings') }}">Group Settings</a></li>
         {% endif %}
         {% if current_user.can('edit_group') %}
-        <li><a href="{{ the_url('group.edit') }}">Edit Information</a></li>
+        <li><a href="{{ the_url('group.edit') }}">Edit Group</a></li>
         {% endif %}
         {% endif %}
         {% if current_user.is_authenticated %}
-          {% if current_user not in group %}
-        <li><a href="{{ the_url('group.signup') }}">Join</a></li>
-          {% else %}
-        <li><a href="{{ the_url('group.leave') }}">Leave</a></li>
+          {% if current_user in group %}
+        <!-- <li><a href="{{ the_url('group.leave') }}">Leave</a></li> -->
           {% endif %}
         {% endif %}
         {% if current_user.is_authenticated %}
