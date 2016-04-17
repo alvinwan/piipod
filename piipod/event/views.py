@@ -125,7 +125,7 @@ def signup():
     form.event_id.default = g.event.id
     form.user_id.default = current_user().id
     form.process()
-    return render_event('form.html',
+    return render_event('event/form.html',
         title='Signup for %s' % event.name,
         submit='Confirm',
         form=form,
@@ -159,7 +159,7 @@ def checkin():
     form.event_id.default = g.event.id
     form.user_id.default = current_user().id
     form.process()
-    return render_event('form.html',
+    return render_event('event/form.html',
         title='Checkin for %s' % event.name,
         message=message,
         submit='Checkin',
@@ -189,7 +189,7 @@ def categorize(signup_id='all', category=None):
             else:
                 Signup.query.get(signup_id).update(category=request.form.get('category', category)).save()
             return redirect(url_for('event.home'))
-        return render_event('form.html',
+        return render_event('event/form.html',
             title='Categorize',
             form=form,
             submit='Categorize %s' % (signup.user.name if signup_id != 'all' else 'all'))
@@ -250,7 +250,7 @@ def distribute():
                     signup.update(category=category).save()
             return redirect(url_for('event.home'))
         form.category.description = 'Category to pull signups from and distribute among the categories in specified amounts.'
-        return render_event('form.html',
+        return render_event('event/form.html',
             title='Distribute Signups',
             form=form,
             submit='Distribute')
@@ -274,7 +274,7 @@ def recategorize_signup(signup_id):
             category = request.form['category'].split('(')[0]
             signup.update(category=category).save()
             return redirect(url_for('event.home'))
-        return render_event('form.html',
+        return render_event('event/form.html',
             title='Recategorize Signup',
             form=form,
             message='Assign the signup to a new category',
@@ -306,7 +306,7 @@ def filter_signup():
                 if op(getattr(signup.user, request.form['value']), n):
                         signup.update(is_active=False).save()
             return redirect(url_for('event.home'))
-        return render_event('form.html',
+        return render_event('event/form.html',
             title='Remove Signups by Filter',
             form=form,
             message='Use the following to filter out signups. Signups that MATCH this filter will be removed.',
@@ -330,7 +330,7 @@ def authorize():
             )[n:n+int(request.form.get('length', 5))]
         setting.save()
     message = 'Current code: %s' % setting.value
-    return render_event('form.html',
+    return render_event('event/form.html',
         title='Authorization Code for %s' % event.name,
         message=message,
         submit='Regenerate',
@@ -349,10 +349,11 @@ def edit():
     if request.method == 'POST' and form.validate():
         g.event.update(**request.form).save().set_local('start', 'end').save()
         return redirect(url_for('event.home'))
-    return render_event('form.html',
+    return render_event('event/form.html',
         title='Edit Event',
         submit='save',
-        form=form)
+        form=form,
+        back=url_for('event.home'))
 
 @event.route('/settings', methods=['GET', 'POST'])
 @login_required
@@ -369,7 +370,8 @@ def settings():
             setting.update(value=value).save()
         if is_active is not None:
             setting.update(is_active=is_active == 'y').save()
-    return render_event('event/settings.html', settings=settings)
+    return render_event('event/settings.html', settings=settings,
+        back=url_for('event.home'))
 
 @event.route('/process', methods=['GET', 'POST'])
 @requires('create_event')
@@ -379,7 +381,7 @@ def process():
     form = ProcessWaitlistForm(request.form)
     if request.method == 'POST' and form.validate():
         pass
-    return render_event('form.html',
+    return render_event('event/form.html',
         title='Process Waitlist',
         submit='Process',
         form=form)

@@ -147,6 +147,15 @@ a:hover {
   .form-button.small {
     width:auto;
   }
+  .button.white {
+    color:#FFF;
+    background-color:transparent;
+    border:1px solid #FFF;
+  }
+  .button.white:hover {
+    background-color:#FFF;
+    color:#333;
+  }
 header {
   padding:2em 3em 1em 3em;
   position:fixed;
@@ -623,6 +632,80 @@ textarea {
   height:100%;
 }
 /* -- end student public page -- */
+/* -- calendar styles -- */
+section.sp-calendar.module {
+  padding:0;
+  margin-top:8em;
+}
+.dow {
+  background-color:#f6f6f6;
+  color:#ccc;
+  text-transform:uppercase;
+  font-size:0.8em;
+  padding:1.5em;
+  text-align:center;
+  border-bottom:none;
+}
+.calendar td:first-child {
+  border-left:none;
+}
+.calendar td {
+  border-left:1px solid #eee;
+  width:14.7%;
+  padding:0;
+}
+.event-title {
+  font-weight:400;
+  margin:0.25em 0;
+  text-transform:none;
+  font-size:1em;
+}
+.event-time {
+  margin:0;
+  opacity:0.5;
+  font-size:0.8em;
+}
+.event-byline {
+  font-size:0.6em;
+  opacity:0.5;
+  margin:0;
+}
+.event {
+  padding:1.5em;
+  color:#000;
+  display:block;
+  border-bottom:1px solid #eee;
+}
+.event.green {
+  /*background-color:rgba(86, 137, 68, 0.1);*/
+  color:#690;
+}
+.event-info {
+  text-align:left;
+  padding:9em 5em 3em 5em;
+}
+  .event-info h1 {
+    margin-bottom:0.5em;
+    font-weight:300;
+  }
+  .event-info p {
+    color:#aaa;
+    font-size:1.1em;
+  }
+  .event-info .button,.event-info .select {
+    width:100%;
+    text-align:center;
+  }
+.action-cont {
+  padding:0;
+}
+main section.event-attendees {
+  background-color:#FFF;
+  padding-top:6em;
+}
+  .event-attendees h2,.event-attendees p {
+    text-align:left;
+  }
 /* -- begin tables -- */
 th, td {
   padding:1em;
@@ -666,6 +749,7 @@ th, td {
   }
   div.select {
     padding:2em 5em 2em 3.5em;
+    z-index:100;
   }
   header {
     text-align:auto;

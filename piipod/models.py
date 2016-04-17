@@ -3,7 +3,7 @@ Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db, tz
 from flask import request, g
-from sqlalchemy import types, desc
+from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
@@ -401,10 +401,13 @@ class Group(Base):
         """Number of events"""
         return Event.query.filter_by(group_id=self.id, is_active=True).count()
 
-    def events(self, page=1, per_page=10, paginated=True):
-        """Pagination for all events"""
-        pagination = Event.query.filter_by(group_id=self.id, is_active=True).order_by(desc(Event.start)).paginate(page, per_page)
-        return pagination if paginated else pagination.items
+    def events(self, start, end):
+        """Returns events between start and end"""
+        return Event.query.filter(
+            Event.group_id==self.id,
+            Event.is_active==True,
+            Event.start > start,
+            Event.start < end).order_by(asc(Event.start)).all()
 
     def members(self, page=1, per_page=10, paginated=True):
         """List of all members"""

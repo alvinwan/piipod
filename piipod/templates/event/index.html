@@ -1,14 +1,14 @@
 {% extends "event/event.html" %}
 {% block event %}
-<div class="queue detail">
-  <p class="subnav">
+<div class="event-main">
+<aside class="event-info col-md-4">
+  <!-- <p class="subnav">
     <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
     <a href="{{ the_url('group.events') }}">Events</a> &raquo;
     {{ event.name }}
-  </p>
+  </p> -->
   <h1>{{ event.name }}</h1>
-  <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }} . {{ event.description }}</p>
-  <p>Signups: {{ event.num_signups }}</p>
+  <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }} . {{ event.description }} . Signups: {{ event.num_signups }}</p>
   <div class="action-cont col-md-12">
   {% if current_user.is_authenticated and current_user in event %}
     {% if current_user.can('edit_event') %}
@@ -24,22 +24,28 @@
   {% elif g.event.setting('enable_signups').is_active %}
   {% set max_signups = g.event.setting('max_signups') %}
     {% if not current_user.is_authenticated %}
-    <span class="button gray sm">Login to Signup</span>
+    <a href="{{ the_url('group.login') }}" class="button">Login to Signup</a>
     {% elif not max_signups.is_active or g.event.num_signups < max_signups.value | int %}
-    <a class="button color sm" href="{{ the_url('event.signup') }}">Signup</a>
+    <a class="button white" href="{{ the_url('event.signup') }}">Signup</a>
     {% else %}
-    <span class="button gray sm">Signup Cap Reached</span>
+    <span class="button faded sm">Signup Cap Reached</span>
     {% endif %}
-  {% endif %}
-  {% if current_user.can('authorize') %}
-  <a href="{{ the_url('event.categorize') }}" class="button sm color">Categorize All</a>
-  <a href="{{ the_url('event.filter_signup') }}" class="button sm color">Filter Signups</a>
-  <a href="{{ the_url('event.distribute') }}" class="button sm color">Distribute Categories</a>
   {% endif %}
   {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
   {% endif %}
-  </div>
+  {% if current_user.can('authorize') %}
+  <div class="select">
+      <li class="select-default"><span>Advanced Tools <span class="arrow-down"></span></span></li>
+      <ul class="options">
+        <li><a href="{{ the_url('event.categorize') }}" class="button">Categorize All</a></li>
+        <li><a href="{{ the_url('event.filter_signup') }}" class="button">Filter Signups</a></li>
+        <li><a href="{{ the_url('event.distribute') }}" class="button">Distribute Categories</a></li>
+      </ul>
+    </div>
+  {% endif %}
+</aside>
+<section class="event-attendees col-md-8">
   {% for category in categories %}
   <h2>{{ category or 'Participant' }}</h2>
   <p>{{ signups[category] | length }} signups</p>
@@ -96,4 +102,6 @@
     {% endfor %}
     </table>
   {% endfor %}
+</section>
+</div>
 {% endblock %}

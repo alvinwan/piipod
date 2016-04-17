@@ -70,8 +70,13 @@ def home():
 @group.route('/events')
 def events():
     """group events"""
-    return render_group('group/events.html',
-        page=int(request.args.get('page', 1)))
+    now = arrow.now()
+    begin, end = now.floor('week'), now.ceil('week')
+    dows = [begin.replace(days=i) for i in range(7)]
+    events, events_by_dow = g.group.events(begin, end), {}
+    for event in events:
+        events_by_dow.setdefault(event.start.format('d'), []).append(event)
+    return render_group('group/events.html', dows=dows, events=events_by_dow)
 
 
 @group.route('/members')
@@ -134,6 +139,8 @@ def create_event():
             event_id=current_user().signup(event, 'Owner',
                 category='Accepted').event_id))
     form.group_id.default = g.group.id
+    form.start.default = arrow.now().floor('hour').to('local')
+    form.end.default = form.start.default.replace(hours=1)
     form.process()
     return render_group('group/form.html',
         title='Create Event',
