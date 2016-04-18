@@ -5,7 +5,9 @@
     <p class="sp-subtitle">Group</p>
     <h1 class="sp-title">{{ group.name }}</h1>
     <p class="sp-byline">{{ group.description }}</p>
+    {% if current_user.is_authenticated %}
     <a href="{{ the_url('group.member', user_id=current_user.id)}}" class="button">My Hours</a>
+    {% endif %}
     <a href="{{ the_url('group.events') }}" class="button">Browse Events</a>
   </section>
 </main>
