@@ -886,6 +886,7 @@ main section.event-attendees {
     display:block;
     overflow:hidden;
     margin:2em 1.5em 1em 1.5em;
+    border:2px solid #eee;
   }
     .attendee-avatar h3 {
       text-align:center;
