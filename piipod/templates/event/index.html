@@ -1,7 +1,7 @@
 {% extends "event/event.html" %}
 {% block event %}
 <div class="event-main">
-<aside class="event-info col-md-4 colored green">
+<aside class="event-info col-md-4">
   <!-- <p class="subnav">
     <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
     <a href="{{ the_url('group.events') }}">Events</a> &raquo;
@@ -9,33 +9,45 @@
   </p> -->
   <h3>{{ event.start.format('MMM DD') }}</h3>
   <h1>{{ event.name }}</h1>
+  <p>{{ event.description }}</p>
+  <div class="event-details">
   <h4>Time</h4>
   <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
-  <h4>Description</h4>
-  <p>{{ event.description }}</p>
   <h4>Statistics</h4>
   <p>Signups: {{ event.num_signups }}</p>
-  <div class="action-cont col-md-12">
+  {% set min_signups = g.event.setting('min_signups') %}
   {% if current_user.is_authenticated and current_user in event %}
     {% if current_user.can('edit_event') %}
     <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
     {% endif %}
-    {% if not current_user.can('authorize') %}
-      {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
-    <p>Not checked in.</p>
-      {% else %}
-    <p>Checked in!</p>
-      {% endif %}
+  </div>
+
+  {% if not current_user.can('authorize') %}
+    {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
+    {% if g.group.setting('self_checkin').is_active %}
+<a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button">Checkin</a>
+  {% endif %}
+    {% else %}
+<span class="button faded">Checked In</span>
     {% endif %}
+  {% endif %}
+
   {% elif g.event.setting('enable_signups').is_active %}
   {% set max_signups = g.event.setting('max_signups') %}
     {% if not current_user.is_authenticated %}
     <a href="{{ the_url('group.login') }}" class="button">Login to Signup</a>
     {% elif not max_signups.is_active or g.event.num_signups < max_signups.value | int %}
-    <a class="button white" href="{{ the_url('event.signup') }}">Signup</a>
+    <a class="button" href="{{ the_url('event.signup') }}">Signup</a>
     {% else %}
-    <span class="button faded sm">Signup Cap Reached</span>
+    <span class="button faded">Signup Cap Reached</span>
     {% endif %}
+  {% endif %}
+  {% if signup and not signup.num_check_ins %}
+  {% if current_user.can('authorize') or (g.event.setting('enable_leave').is_active and (not min_signups.is_active or min_signups.value | int < event.num_signups)) %}
+<a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button warning">Cancel</a>
+  {% else %}
+<span class="button faded">Cancellation Disabled</span>
+  {% endif %}
   {% endif %}
   {% if current_user.can('edit_settings') %}
   <a href="{{ the_url('event.settings') }}" class="button color sm">Edit Settings</a>
@@ -53,9 +65,17 @@
 </aside>
 <section class="event-attendees col-md-8">
   {% for category in categories %}
+  <div class="event-category">
   <h2>{{ category or 'Participant' }}</h2>
   <p>{{ signups[category] | length }} signups</p>
-  <table>
+  {% for signup in signups[category] %}
+  <div class="attendee">
+    <div class="attendee-avatar"><span style="background: url('{{ signup.user.image_url }}') center; background-size:cover;"></span></div>
+    <h3 class="attendee-name"><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name.split(' ')[0] }}</a></h3>
+  </div>
+  </div>
+  {% endfor %}
+  <!-- <table>
     <tr>
       <td>Name</td>
       <td>Checkin</td>
@@ -106,7 +126,7 @@
       {% endif %}
     </tr>
     {% endfor %}
-    </table>
+    </table> -->
   {% endfor %}
 </section>
 </div>

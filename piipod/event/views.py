@@ -110,27 +110,27 @@ def signup():
         del form.role_id
     if current_user() in g.event:
         return redirect(url_for('event.home', notif=7))
-    if request.method == 'POST' and form.validate():
-        data = {'category': g.event.setting('default_category').value }
-        if current_user().email in emails:
-            if title not in [r.name for r in roles]:
-                title = 'Authorizer'
-            data['role'] = title or 'Authorizer'
-        elif choose_role:
-            data['role_id'] = request.form['role_id']
-        else:
-            data['role'] = g.event.setting('role').value
-        signup = current_user().signup(g.event, **data)
-        return redirect(url_for('event.home'))
-    form.event_id.default = g.event.id
-    form.user_id.default = current_user().id
-    form.process()
-    return render_event('event/form.html',
-        title='Signup for %s' % event.name,
-        submit='Confirm',
-        form=form,
-        message=message,
-        back=url_for('event.home'))
+    # if request.method == 'POST' and form.validate():
+    data = {'category': g.event.setting('default_category').value }
+    if current_user().email in emails:
+        if title not in [r.name for r in roles]:
+            title = 'Authorizer'
+        data['role'] = title or 'Authorizer'
+    elif choose_role:
+        data['role_id'] = request.form['role_id']
+    else:
+        data['role'] = g.event.setting('role').value
+    signup = current_user().signup(g.event, **data)
+    return redirect(url_for('event.home'))
+    # form.event_id.default = g.event.id
+    # form.user_id.default = current_user().id
+    # form.process()
+    # return render_event('event/form.html',
+    #     title='Signup for %s' % event.name,
+    #     submit='Confirm',
+    #     form=form,
+    #     message=message,
+    #     back=url_for('event.home'))
 
 
 @event.route('/leave')

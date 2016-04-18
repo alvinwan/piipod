@@ -409,7 +409,7 @@ section {
   padding-top:10em;
 }
 *[class*="-main"] {
-  padding-bottom:5em;
+  padding-bottom:4.99em;
 }
 main section:nth-child(even) {
   background-color:#f3f3f3;
@@ -679,6 +679,11 @@ section.sp-calendar.module {
   opacity:0.5;
   margin:0;
 }
+.event-main {
+  width:100%;
+  float:left;
+  padding-bottom:0;
+}
 .event {
   padding:1.5em;
   color:#000;
@@ -693,14 +698,38 @@ section.sp-calendar.module {
   color:#FFF;
   background-color:#a5be81;
 }
+.event.skyblue {
+  color:#648b9b;
+}
+.event.tan {
+  color:#a18851;
+}
+.event.skyblue:hover {
+  color:#FFF;
+  background-color:#98b1be;
+}
+.event.tan:hover {
+  color:#FFF;
+  background-color:#beac84;
+}
 .event-info {
   text-align:left;
-  padding:9em 5em 3em 5em;
+  padding:9em 5em 5em 5em;
   color:#000;
+  min-height:100%;
+  bottom:0;
 }
 .event-info.colored.gold {
   background-color:#c90;
   color:#C90;
+}
+.event-info.colored.tan,.event-main.tan {
+  background-color:#beac84;
+  color:#beac84;
+}
+.event-info.colored.skyblue,.event-main.skyblue {
+  background-color:#98b1be;
+  color:#98b1be;
 }
 .event-info.colored.dark {
   background-color:#333;
@@ -710,6 +739,9 @@ section.sp-calendar.module {
   background-color:#a5be81;
   color:#a5be81;
 }
+.event-details {
+  margin-bottom:2em;
+}
   .colored h1,.colored h2,.colored h3,.colored p,.colored h4 {
     color:#FFF;
   }
@@ -718,9 +750,9 @@ section.sp-calendar.module {
     font-weight:300;
   }
   .event-info h4 {
-    opacity:0.5;
-    text-transform:uppercase;
-    font-size:0.9em;
+    font-size:1.1em;
+    font-weight:400;
+    color:#333;
   }
   .event-info h3 {
     opacity:0.6;
@@ -728,18 +760,28 @@ section.sp-calendar.module {
     font-size:2.5em;
   }
   .event-info p {
-    font-size:1.1em;
+    font-size:1em;
+    color:#999;
+    margin-top:0.5em;
   }
   .event-info .button,.event-info .select {
     width:100%;
     text-align:center;
+  }
+  .event-info h4 {
+    margin:1.75em 0 0.25em 0;
+  }
+  .event-category {
+    width:100%;
+    float:left;
   }
 .action-cont {
   padding:0;
 }
 main section.event-attendees {
   background-color:#FFF;
-  padding:9em 3em 5em 3em;
+  padding:9em 5em 5em 5em;
+  /*box-shadow:0 0 1em 0 rgba(0,0,0,0.15);*/
 }
   .event-attendees h2,.event-attendees p {
     text-align:left;
@@ -750,6 +792,34 @@ main section.event-attendees {
   }
   .green.event-attendees h2 {
     color:#839767;
+  }
+  .attendee {
+    width:6em;
+    float:left;
+  }
+  .attendee-avatar {
+    width:3em;
+    height:3em;
+    border-radius:50%;
+    display:block;
+    overflow:hidden;
+    margin:2em 1.5em 1em 1.5em;
+  }
+    .attendee-avatar h3 {
+      text-align:center;
+    }
+  .attendee-avatar span {
+    height:100%;
+    width:100%;
+    display:inline-block;
+  }
+  .attendee-name {
+    font-size:1em;
+    text-transform:none;
+    color:#666;
+    width:100%;
+    text-align:center;
+    font-weight: 400;
   }
 /* -- begin tables -- */
 th, td {
