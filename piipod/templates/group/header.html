@@ -63,6 +63,11 @@
         {% if current_user.can('edit_group') %}
         <li><a href="{{ the_url('group.edit') }}">Edit Group</a></li>
         {% endif %}
+        {% if current_user.can('create_event') %}
+        <a href="{{ the_url('group.sync', service='googlecalendar') }}">Google Calendar Sync</a>
+  <a href="{{ the_url('group.import_signups') }}">Import Signups</a>
+  <a href="{{ the_url('group.process') }}">Process Waitlists</a>
+        {% endif %}
         {% endif %}
         {% if current_user.is_authenticated %}
           {% if current_user in group %}
