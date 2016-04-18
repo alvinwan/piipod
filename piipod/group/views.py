@@ -434,7 +434,8 @@ def member(user_id):
     """Displays information about member"""
     g.membership = Membership.query.filter_by(group_id=g.group.id, user_id=user_id).one_or_none()
     checkins = Event.query.join(Checkin).filter(
-        Checkin.user_id==g.membership.user.id)
+        Checkin.user_id==g.membership.user.id,
+        Event.group_id==g.group.id)
 
     # naiive way of counting hours - need a query to do this!
     hours = 0.0

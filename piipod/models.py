@@ -718,12 +718,12 @@ class Membership(Base):
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('group_role.id'))
 
-    # TODO: restrict to signups that belong to a specific group
     def signups(self):
         """Returns signups for this membership"""
-        return Signup.query.filter_by(
-            user_id=self.user_id,
-            is_active=True).all()
+        return Signup.query.join(Event).filter(
+            Event.group_id==self.group_id,
+            Signup.user_id==self.user_id,
+            Signup.is_active==True).all()
 
     def save(self):
         """save membership"""
