@@ -20,7 +20,7 @@ a:hover {
   transition:         0.2s ease;
 }
 
-.drawer, body, header {
+.drawer, body, header,.calendar-head {
   -webkit-transition: 0.4s ease-in-out 0.05s;
   -moz-transition:    0.4s ease-in-out 0.05s;
   -o-transition:      0.4s ease-in-out 0.05s;
@@ -184,6 +184,9 @@ header {
 }
   .drawer-push header {
     left:-20em;
+  }
+  .drawer-push .calendar-head {
+    margin-left:-25em;
   }
   header nav,header ul {
     float:none;
@@ -644,7 +647,38 @@ textarea {
 /* -- calendar styles -- */
 section.sp-calendar.module {
   padding:0;
-  margin-top:8em;
+  margin-top:7em;
+}
+.banner {
+  color: #ccc;
+  margin-top: 3em;
+  border: 1px solid #ccc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.9em;
+  padding: 1.5em 2.5em;
+  width: auto;
+  display: inline-block;
+}
+.cal-prev-arrow,.cal-next-arrow {
+  position:absolute;
+  top:1.5em;
+}
+.cal-prev-arrow {
+  left:0;
+  margin-left:-2em;
+}
+.cal-next-arrow {
+  right:0;
+  margin-right:-2em;
+}
+.calendar-head {
+  position: absolute;
+  z-index: 100;
+  top:1.5em;
+  left:50%;
+  width:10em;
+  margin-left:-5em;
 }
 .dow {
   background-color:#f6f6f6;

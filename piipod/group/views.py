@@ -66,17 +66,21 @@ def home():
     """group homepage"""
     return render_group('group/index.html')
 
-
+@group.route('/events/<string:start>')
 @group.route('/events')
-def events():
+def events(start=None):
     """group events"""
-    now = arrow.now()
+    if not start:
+        now = arrow.now()
+    else:
+        now = arrow.get(start, 'YYYYMMDD')
     begin, end = now.floor('week'), now.ceil('week')
     dows = [begin.replace(days=i) for i in range(7)]
     events, events_by_dow = g.group.events(begin, end), {}
     for event in events:
         events_by_dow.setdefault(event.start.format('d'), []).append(event)
-    return render_group('group/events.html', dows=dows, events=events_by_dow)
+    return render_group('group/events.html', dows=dows, events=events_by_dow,
+        now=now)
 
 
 @group.route('/members')
