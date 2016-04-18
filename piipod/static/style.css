@@ -662,7 +662,12 @@ section.sp-calendar.module {
 }
 .cal-prev-arrow,.cal-next-arrow {
   position:absolute;
-  top:1.5em;
+  top:0.8em;
+  font-size:1.5em;
+  color:#ccc;
+}
+.cal-prev-arrow:hover,.cal-next-arrow:hover {
+  color:#333;
 }
 .cal-prev-arrow {
   left:0;
@@ -671,6 +676,37 @@ section.sp-calendar.module {
 .cal-next-arrow {
   right:0;
   margin-right:-2em;
+}
+.cal-dates {
+  padding:0;
+  border-right:1px solid #eee;
+}
+.cal-date {
+  padding:1em;
+  border-bottom:1px solid #eee;
+}
+  .cal-date-no {
+    width:100%;
+    text-align:center;
+    font-size:1.5em;
+    display:inline-block;
+  }
+  .cal-date-mo {
+    text-transform:uppercase;
+  }
+.cal-list {
+  padding:0;
+}
+.cal-list-date {
+  margin:0;
+  text-transform:uppercase;
+  color:#999;
+  font-size:1em;
+  letter-spacing:0.15em;
+  font-weight:400;
+  padding:1em;
+  text-align:left;
+  border-bottom:1px solid #eee;
 }
 .calendar-head {
   position: absolute;
@@ -723,6 +759,8 @@ section.sp-calendar.module {
   color:#000;
   display:block;
   border-bottom:1px solid #eee;
+  font-size: 1.25em;
+  text-align: left;
 }
 .event.green {
   /*background-color:rgba(86, 137, 68, 0.1);*/
@@ -887,6 +925,9 @@ th, td {
 }
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
+  .event {
+    font-size:1em;
+  }
   main section.event-attendees {
     padding:9em 5em 5em 5em;
   }

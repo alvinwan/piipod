@@ -12,12 +12,34 @@
   <a href="{{ the_url('group.process') }}" class="small-button">Process Waitlists</a>
 </div>
 {% endif %} -->
-<div class="calendar-head">
+<div class="calendar-head hidden-sm hidden-xs">
   <a href="{{ the_url('group.events', start=now.replace(weeks=-1).format('YYYYMMDD')) }}" class="cal-prev-arrow">&larr;</a>
   <a href="{{ the_url('group.events', start=now.replace(weeks=1).format('YYYYMMDD')) }}" class="cal-next-arrow">&rarr;</a>
   <h3>{{ now.format('MMMM YYYY')}}</h3>
 </div>
-<table class="calendar">
+<div class="cal-events hidden-lg hidden-md">
+  <div class="cal-dates col-xs-2">
+    {% for dow in dows %}
+    <div class="cal-date">
+      <span class="cal-date-no">{{ dow.format('D') }}</span>
+      <span class="cal-date-mo">{{ dow.format('MMM') }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="cal-list col-xs-10">
+    {% for dow in dows %}
+    <h3 class="cal-list-date">{{ dow.format('MMMM D') }}</h3>
+    {% for event in events[dow.format('d')] %}
+    <a href="{{ the_url('event.home', event_id=event.id) }}" class="event">
+      <p class="event-time">{{ event.to_local('start', 'end').start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
+      <h2 class="event-title">{{ event.name }}</h2>
+      <p class="event-byline">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups').is_active %}/{{ event.setting('min_signups').value }}{% endif %} signups</p>
+    </a>
+    {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+<table class="calendar hidden-sm hidden-xs">
   <tr>
     {% for dow in dows %}
     <th class="dow">{{ dow.format('ddd D') }}</th>
