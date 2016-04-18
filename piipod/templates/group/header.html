@@ -1,0 +1,78 @@
+<header>
+  {% if g.group %}
+  <a href="{{ the_url('group.home') }}"><h1 class="hidden-xs col-sm-4 col-md-3 header-title">{{ g.group.name }} <span>{% if current_user.can('admin') %}Admin{% else %}group{% endif %}</span></h1></a>
+  <nav class="col-md-9 col-sm-8 col-xs-12">
+    <ul>
+      <li>
+        <span class="bars drawer-trigger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </span>
+      </li>
+      {% if current_user.is_authenticated %}
+      <li><span class="header-text"><span>Hi, {{ current_user.name }}<a class="logout" href="{{ the_url('group.logout') }}">Logout</a></span><span class="header-avatar"><span style="background: url('{{ current_user.image_url }}') center; background-size:cover;"></span></span></li>
+      {% else %}
+      <li><a href="{{ the_url('group.login') }}" class="small-button hidden-xs">Login</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% else %}
+  <a href="{{ domain }}"><h1 class="hidden-xs col-sm-4 col-md-3 header-title">Pii<span>Pod</span></h1></a>
+  <nav class="col-md-9 col-sm-8 col-xs-12">
+    <ul>
+      <li>
+        <span class="bars drawer-trigger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </span>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+  <aside class="drawer">
+    <div class="dclose">
+      <span class="closex">
+        <span class="bar"></span>
+        <span class="bar cross"></span>
+      </span>
+    </div>
+    <nav>
+      {% if current_user.is_authenticated %}
+      {% if current_user not in group %}
+      <ul>
+        <a class="button" href="{{ the_url('group.signup') }}">Join</a>
+      </ul>
+      {% elif current_user.can('create_event') %}
+      <ul>
+        <a class="button" href="{{ the_url('group.create_event') }}">+ Event</a>
+      </ul>
+      {% endif %}
+      {% endif %}
+      <ul class="primary">
+        <li><a href="{{ the_url('group.home') }}">Home</a></li>
+        <li><a href="{{ the_url('group.events') }}">Events</a></li>
+        <li><a href="{{ the_url('group.members') }}">Members</a></li>
+      </ul>
+      <ul class="secondary">
+        {% if current_user.is_authenticated %}
+        {% if current_user.can('edit_group_settings') %}
+        <li><a href="{{ the_url('group.settings') }}">Group Settings</a></li>
+        {% endif %}
+        {% if current_user.can('edit_group') %}
+        <li><a href="{{ the_url('group.edit') }}">Edit Group</a></li>
+        {% endif %}
+        {% endif %}
+        {% if current_user.is_authenticated %}
+          {% if current_user in group %}
+        <!-- <li><a href="{{ the_url('group.leave') }}">Leave</a></li> -->
+          {% endif %}
+        {% endif %}
+        {% if current_user.is_authenticated %}
+        <li><a href="{{ the_url('group.logout') }}">Logout</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </aside>
+</header>

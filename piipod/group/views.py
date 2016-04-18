@@ -5,7 +5,7 @@ from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
 from piipod.event.forms import EventForm
 from piipod.forms import choicify
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
-    Signup, Membership
+    Signup, Membership, Checkin
 from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import update, and_
@@ -66,18 +66,28 @@ def home():
     """group homepage"""
     return render_group('group/index.html')
 
-
+@group.route('/events/<string:start>')
 @group.route('/events')
-def events():
+def events(start=None):
     """group events"""
-    return render_group('group/events.html',
-        page=int(request.args.get('page', 1)))
+    if not start:
+        now = arrow.now()
+    else:
+        now = arrow.get(start, 'YYYYMMDD')
+    begin, end = now.floor('week'), now.ceil('week')
+    dows = [begin.replace(days=i) for i in range(7)]
+    events, events_by_dow = g.group.events(begin, end), {}
+    for event in events:
+        events_by_dow.setdefault(event.start.format('d'), []).append(event)
+    return render_group('group/events.html', dows=dows, events=events_by_dow,
+        now=now)
 
 
 @group.route('/members')
 def members():
     """group members"""
-    return render_group('group/members.html')
+    return render_group('group/members.html',
+        page=int(request.args.get('page', 1)))
 
 ##############
 # MANAGEMENT #
@@ -91,7 +101,7 @@ def edit():
     if request.method == 'POST' and form.validate():
         g.group.update(**request.form).save()
         return redirect(url_for('group.home'))
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Edit Group',
         submit='Save',
         form=form)
@@ -133,8 +143,10 @@ def create_event():
             event_id=current_user().signup(event, 'Owner',
                 category='Accepted').event_id))
     form.group_id.default = g.group.id
+    form.start.default = arrow.now().floor('hour').to('local')
+    form.end.default = form.start.default.replace(hours=1)
     form.process()
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Create Event',
         submit='Create',
         form=form,
@@ -148,7 +160,7 @@ def process():
     form = ProcessWaitlistsForm(request.form)
     if request.method == 'POST' and form.validate():
         pass
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Process Waitlists',
         submit='Process',
         form=form,
@@ -179,7 +191,7 @@ def import_signups():
             url=url_for('group.events'),
             action='Back',
             signups=signups)
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Import Signups',
         submit='Import',
         form=form,
@@ -191,14 +203,14 @@ def import_signups():
 def sync(service):
     """sync events with service"""
     try:
-        form, message = SyncForm(request.form), ''
+        form, message = SyncForm(request.form), 'See fields below for instructions.'
         setting = g.group.setting(service)
         calendars = setting.value.split(',') if setting.value else []
         form.calendar.choices = choicify(calendars)
         form.recurrence_start.default = arrow.now().to('local')
         form.recurrence_end.default = arrow.now().to('local').replace(weeks=1)
         if not calendars:
-            message = 'You have no %s to select from! Access the <a href="%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.label)
+            message = 'You have no %s to select from! Access the <a href="%s#%s">settings</a> window to add %s IDs.' % (setting.label, url_for('group.settings'), setting.name, setting.label)
             form = None
         if (request.method == 'POST' and form.validate() and calendars) or 'confirm' in request.form:
 
@@ -251,9 +263,10 @@ def sync(service):
                     name=e['name'],
                     start=e['start'].format('MMM D h:mm a'),
                     end=e['end'].format('MMM D h:mm a')) for e in events))
-                return render_group('form.html',
-                    title='Confirm Sync',
-                    message=message,
+                return render_group('group/form.html',
+                    wide_title=True,
+                    form_title='Confirm Sync',
+                    form_message=message,
                     submit='Sync',
                     form=form,
                     back=url_for('group.events'))
@@ -311,9 +324,10 @@ def sync(service):
             return redirect(url_for('group.events'))
         if form:
             form.process()
-        return render_group('form.html',
-            title='Sync with %s' % setting.label,
-            message=message,
+        return render_group('group/form.html',
+            wide_title=True,
+            form_title='Sync with %s' % setting.label,
+            form_description=message,
             submit='Sync',
             form=form,
             back=url_for('group.events'))
@@ -321,7 +335,7 @@ def sync(service):
         abort(404)
     except googleapiclient.errors.HttpError:
         form.errors.setdefault('calendar', []).append('Google Calendar failed to load. Wrong link perhaps?')
-        return render_group('form.html',
+        return render_group('group/form.html',
             title='Sync with %s' % setting.label,
             message=message,
             submit='Sync',
@@ -343,7 +357,7 @@ def delete_events():
             events.c.group_id == g.group.id)).values(is_active=False))
         db.session.commit()
         return redirect(url_for('group.events'))
-    return render_group('form.html',
+    return render_group('group/form.html',
         title='Delete Events En Masse',
         message='Be careful! This en masse is not undo-able.',
         submit='Delete',
@@ -362,7 +376,7 @@ def signup():
     form = GroupSignupForm(request.form)
     choose_role = g.group.setting('choose_role').is_active
     message = 'Thank you for your interest in %s! Just click "Join" to join.' % g.group.name
-    whitelisted, submit = [], 'Join'
+    whitelisted, submit = [], 'Confirm'
     for block in g.group.setting('whitelist').value.split(','):
         data = block.split('(')
         if len(data) == 2:
@@ -396,8 +410,10 @@ def signup():
     form.group_id.default = g.group.id
     form.user_id.default = current_user().id
     form.process()
-    return render_group('form.html',
-        title='Signup for %s' % g.group.name,
+    return render_group('group/form.html',
+        form_title='Signup for %s' % g.group.name,
+        form_description='Ready to join? Click confirm below.',
+        wide_title=True,
         submit=submit,
         form=form,
         message=message,
@@ -421,26 +437,37 @@ def leave():
 def member(user_id):
     """Displays information about member"""
     g.membership = Membership.query.filter_by(group_id=g.group.id, user_id=user_id).one_or_none()
+    checkins = Event.query.join(Checkin).filter(
+        Checkin.user_id==g.membership.user.id,
+        Event.group_id==g.group.id)
+
+    # naiive way of counting hours - need a query to do this!
+    hours = 0.0
+    for event in checkins:
+        hours += (event.end - event.start).seconds / 3600.0
+
     if not g.membership:
         abort(404)
     return render_group('group/member.html',
-        membership=g.membership)
+        membership=g.membership, total_checkins=checkins.count(), total_hours=hours)
 
 ################
 # LOGIN/LOGOUT #
 ################
 
-@group.route('/logout')
-def logout():
-    from piipod.public.views import logout
-    return logout()
-
-
 @group.route('/login', methods=['POST', 'GET'])
 def login():
+    """Login using globally defined login procedure"""
     from piipod.public.views import login
-    return login()
+    return login(
+        home=url_for('group.home', _external=True),
+        login=url_for('group.login', _external=True))
 
+@group.route('/logout')
+def logout():
+    """Logout using globally defined logout procedure"""
+    from piipod.public.views import logout
+    return logout(home=url_for('group.home', _external=True))
 
 @group.route('/tokenlogin', methods=['POST'])
 def token_login():

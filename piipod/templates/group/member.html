@@ -1,31 +1,37 @@
 {% extends "event/event.html" %}
 {% block event %}
-<div class="queue detail">
+<div class="event-main">
+  <aside class="event-info col-md-4">
   <p class="subnav">
-    <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
+    <!-- <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo; -->
     <a href="{{ the_url('group.members') }}">Members</a> &raquo;
     {{ membership.user.name }}
   </p>
+  <h3>{{ membership.role.name }}</h3>
   <h1>{{ membership.user.name }}</h1>
+  <h4>Statistics</h4>
+  <p>{{ total_checkins }} checkins</p>
+  <p>{{ total_hours }} hours</p>
+</aside>
+<section class="event-attendees col-md-8">
   <h2>Events</h2>
   <table>
     <tr>
       <td>Name</td>
-      <td>Start</td>
-      <td>End</td>
+      <td>Date</td>
       <td>Checkin</td>
       <td>Category</td>
     </tr>
   {% for signup in membership.signups() %}
     {% if signup.event_id %}
     <tr>
-      <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.to_local('start', 'end').name }}</a></td>
-      <td>{{ signup.event.start.format('h:mm a') }}</td>
-      <td>{{ signup.event.end.format('h:mm a') }}</td>
-      <td></td>
+      <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.to_local('start').name }}</a></td>
+      <td>{{ signup.event.start.format('MMM DD') }}</td>
+      <td>{% if signup.is_checked_in %}Yes{% else %}<i>No</i>{% endif %}</td>
       <td>{{ signup.category }}</td>
     </tr>
     {% endif %}
   {% endfor %}
   </table>
+</section>
 {% endblock %}

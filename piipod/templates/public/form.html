@@ -1,0 +1,31 @@
+{% extends "public/public.html" %}
+{% set main_class='sf-main' %}
+{% set body_class='staff-form' %}
+{% block modules %}
+  <section class="sf-module-banner module col-md-6">
+    <p class="sf-back"><a href="{{ back or the_url('dashboard.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
+    {% if form_title %}
+    <div class="sf-section-label">
+      <h2>{{ form_title }}</h2>
+      {% if form_description %}
+      <p>{{ form_description }}
+      {% endif %}
+    </div>
+    {% endif %}
+    <form action="{{ current_url() }}" method="POST">
+    {% for field in form %}
+      <div class="sf-field">
+        {{ field.label(class_='sf-label') }}
+      {% if field.description %}
+        <p class="sf-description">{{ field.description | safe }}</p>
+      {% endif %}
+      {% for error in form.errors[field.name] %}
+        <p style="color:red"><strong>Error!</strong> {{error}}</p>
+      {% endfor %}
+        {{ field(class_='sf-input-text') }}
+      </div>
+    {% endfor %}
+      <input type="submit" class="form-button" value="{{ submit }}">
+    </form>
+  </section>
+{% endblock %}

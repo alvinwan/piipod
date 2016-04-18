@@ -1,39 +1,46 @@
 {% extends "group/group.html" %}
-{% set panel='Settings' %}
-{% block panel %}
-<div class="queue">
-  <p>Available Roles (temporary display):</p>
-  <ul>
-  {% for r in g.group.roles() %}
-  <li>{{ r.name }}</li>
+{% set title='%s | %s' % (app_name, 'Settings') %}
+{% set main_class='sf-main' %}
+{% set body_class='staff-form' %}
+{% block modules %}
+<section class="sf-module-banner module col-md-8">
+  <p class="sf-back"><a href="{{ the_url('group.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
+  <!-- <div class="sf-section-label">
+    <h2>Settings</h2>
+    <p>From basic to advanced configurations.</p>
+  </div> -->
+  {% for setting in settings %}
+  <form id="{{ setting.name }}" class="sf-form" action="{{ current_url() }}" method="post">
+    <div class="sf-field">
+      <label class="sf-label">{{ setting.label }}</label>
+      <p class="sf-description">{{ setting.description | safe }}{% if setting.toggable %}<br>Enabled: <b>{{ setting.is_active }}</b>{% endif %}</p>
+      <input type="hidden" value="{{ setting.id }}" name="id">
+      {% if setting.is_active %}
+        {% if setting.type != 'boolean' %}
+          {% if setting.type == 'textarea' %}
+      <textarea class="sf-input-text" name="value">
+{{ setting.value }}</textarea>
+          {% else %}
+      <input class="sf-input-text" type="{{ setting.type }}" value="{{ setting.value }}" name="value">
+          {% endif %}
+      <input type="submit" class="form-button small" value="Save">
+        {% endif %}
+      {% else %}
+      {% if setting.enable_description %}
+      <p><b>Why enable?</b> {{ setting.enable_description }}</p>
+      {% endif %}
+      <input type="hidden" value="1" name="is_active">
+      <input type="submit" class="form-button small" value="Enable">
+      {% endif %}
+    </div>
+  </form>
+  {% if setting.is_active %}
+  <form method="POST">
+    <input type="hidden" value="{{ setting.id }}" name="id">
+    <input type="hidden" value="0" name="is_active">
+    <input type="submit" class="{% if setting.input_type != 'None' %}sp-disable{% endif %} form-button small" value="Disable">
+  </form>
+  {% endif %}
   {% endfor %}
-</ul>
-{% for setting in settings %}
-<div class="col-md-12">
-<h3>{{ setting.label }}</h3>
-<p>{{ setting.description | safe }}</p>
-{% if not setting.is_active %}
-<form method="post" class="col-md-12">
-  <input type="hidden" name="id" value="{{ setting.id }}">
-  <input type="hidden" name="is_active" value="1">
-  <input type="submit" class="button sm color" value="Enable">
-</form>
-{% endif %}
-{% if setting.is_active %}
-{% if setting.type != 'boolean' %}
-<form method="post" class="col-md-12">
-  <input type="hidden" name="id" value="{{ setting.id }}">
-  <input type="text" name="value" value="{{ setting.value}} ">
-  <input type="submit" class="button sm color" value="save">
-</form>
-{% endif %}
-<form method="post" class="col-md-12">
-  <input type="hidden" name="id" value="{{ setting.id }}">
-  <input type="hidden" name="is_active" value="0">
-  <input type="submit" class="button sm color" value="Disable">
-</form>
-{% endif %}
-</div>
-{% endfor %}
-</div>
+</section>
 {% endblock %}

@@ -1,56 +1,71 @@
 {% extends "group/group.html" %}
-{% set panel='Events' %}
-{% block panel %}
-<div class="queue events">
-<h1 class="col-md-6">Events</h1>
-{% if current_user.can('create_event') %}
-<div class="col-md-6">
-  <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="tr-action right button sm compact color">Google Calendar Sync</a>
-  <a href="{{ the_url('group.import_signups') }}" class="tr-action right button sm compact color">Import Signups</a>
-  <a href="{{ the_url('group.process') }}" class="tr-action right button sm compact color">Process Waitlists</a>
+{% block modules %}
+<section class="sp-calendar module">
+<!-- <h1 class="col-md-12">Events</h1> -->
+<!-- {% if g.group.num_events == 0 %}
+<p class="sp-byline">Looks like you've just created your group! Click to <a href="{{ the_url('group.create_event') }}">create an event</a>.</p>
+{% endif %} -->
+<!-- {% if current_user.can('create_event') %}
+<div class="col-md-12">
+  <a href="{{ the_url('group.sync', service='googlecalendar') }}" class="small-button">Google Calendar Sync</a>
+  <a href="{{ the_url('group.import_signups') }}" class="small-button">Import Signups</a>
+  <a href="{{ the_url('group.process') }}" class="small-button">Process Waitlists</a>
 </div>
-{% endif %}
-<table>
-<tr><th>Name</th><th>Start</th><th>End</th><th class="hidden-xs">Time Until Start</th><th class="hidden-xs">Signups</th>{% if current_user.is_authenticated %}<th>Actions</th>{% endif %}</tr>
-{% set pagination=g.group.events(page=page, per_page=10) %}
-{% for event in pagination.items %}
-<tr>
-  <td><a href="{{ the_url('event.home', event_id=event.id) }}">{{ event.to_local('start', 'end').name }}</a></td>
-  <td>{{ event.start.format('h:mm a') }}</td>
-  <td>{{ event.end.format('h:mm a') }}</td>
-  <td class="hidden-xs">{{ event.start.humanize() }}</td>
-  <td class="hidden-xs">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups').is_active %}/{{ event.setting('min_signups').value }}{% endif %}</td>
-  <td>
-    {% if current_user.can('create_event') %}
-    <a href="{{ the_url('event.delete', event_id=event.id) }}" class="button xs compact warning">Delete</a>
-    <a href="{{ the_url('event.edit', event_id=event.id) }}" class="button xs compact color">Edit</a>
-    <a href="{{ the_url('event.settings', event_id=event.id) }}" class="button xs compact color"><i class="fa fa-cog"></i></a>
-    {% endif %}
-    {% if current_user.is_authenticated %}
-    {% if event.setting('enable_signups').is_active and current_user not in event and event.num_signups < event.setting('max_signups').value | int %}
-    <a href="{{ the_url('event.signup', event_id=event.id) }}" class="button xs compact color">Signup</a>
-    {% elif event.setting('enable_leave').is_active and current_user in event and event.num_signups > event.setting('min_signups').value | int %}
-    <a href="{{ the_url('event.leave', event_id=event.id) }}" class="button xs compact color">Leave</a>
-    {% endif %}
-    {% endif %}
-  </td>
-</tr>
-{% endfor %}
-{% if g.group.num_events == 0 %}
-<p class="queue-note">Looks like you've just created your group! Click to <a href="{{ the_url('group.create_event') }}">create an event</a>.</p>
-{% endif %}
-</table>
-<div class=pagination>
-  {% for page in pagination.iter_pages() %}
-    {% if page %}
-      {% if page != pagination.page %}
-        <a class="page-item" href="{{ the_url('group.events', page=page) }}"><span>{{ page }}</span></a>
-      {% else %}
-        <div class="page-item"><span>{{ page }}</span></div>
-      {% endif %}
-    {% else %}
-      <span class=ellipsis>...</span>
-    {% endif %}
-  {% endfor %}
+{% endif %} -->
+<div class="calendar-head hidden-sm hidden-xs">
+  <a href="{{ the_url('group.events', start=now.replace(weeks=-1).format('YYYYMMDD')) }}" class="cal-prev-arrow">&larr;</a>
+  <a href="{{ the_url('group.events', start=now.replace(weeks=1).format('YYYYMMDD')) }}" class="cal-next-arrow">&rarr;</a>
+  <h3>{{ now.format('MMMM YYYY')}}</h3>
+</div>
+<div class="cal-events hidden-lg hidden-md">
+  <h3><a href="{{ the_url('group.events', start=now.replace(weeks=-1).format('YYYYMMDD')) }}" class="cal-prev-arrow">&larr;</a>{{ now.format('MMMM YYYY')}}<a href="{{ the_url('group.events', start=now.replace(weeks=1).format('YYYYMMDD')) }}" class="cal-next-arrow">&rarr;</a></h3>
+  <div class="cal-dates col-xs-2">
+    {% for dow in dows %}
+    <div class="cal-date">
+      <span class="cal-date-no">{{ dow.format('D') }}</span>
+      <span class="cal-date-mo">{{ dow.format('MMM') }}</span>
+    </div>
+    {% endfor %}
   </div>
+  {% if events %}
+  <div class="cal-list col-xs-10">
+    {% for dow in dows %}
+    <h3 class="cal-list-date">{{ dow.format('MMMM D') }}</h3>
+    {% for event in events[dow.format('d')] %}
+    <a href="{{ the_url('event.home', event_id=event.id) }}" class="event">
+      <p class="event-time">{{ event.to_local('start', 'end').start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
+      <h2 class="event-title">{{ event.name }}</h2>
+      <p class="event-byline">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups').is_active %}/{{ event.setting('min_signups').value }}{% endif %} signups</p>
+    </a>
+    {% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+<table class="calendar hidden-sm hidden-xs">
+  <tr>
+    {% for dow in dows %}
+    <th class="dow">{{ dow.format('ddd D') }}</th>
+    {% endfor %}
+  </tr>
+  {% if events %}
+  <tr>
+    {% for dow in dows %}
+    <td>
+      {% for event in events[dow.format('d')] %}
+      <a href="{{ the_url('event.home', event_id=event.id) }}" class="event">
+        <p class="event-time">{{ event.to_local('start', 'end').start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
+        <h2 class="event-title">{{ event.name }}</h2>
+        <p class="event-byline">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups').is_active %}/{{ event.setting('min_signups').value }}{% endif %} signups</p>
+      </a>
+      {% endfor %}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endif %}
+</table>
+{% if not events %}
+<p class="banner">No events found!</p>
+{% endif %}
+</section>
 {% endblock %}

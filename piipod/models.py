@@ -3,7 +3,7 @@ Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db, tz
 from flask import request, g
-from sqlalchemy import types, desc
+from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
@@ -205,7 +205,7 @@ class Setting(Base):
     description = db.Column(db.Text)
     value = db.Column(db.Text)
     type = db.Column(db.String(50))
-    toggable = db.Column(db.Boolean)
+    toggable = db.Column(db.Boolean, default=True)
 
 
 class Role(Base):
@@ -245,6 +245,7 @@ class User(Base, flask_login.UserMixin):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
     settings = relationship("UserSetting", backref="user")
+    image_url = db.Column(db.Text)
     google_id = db.Column(db.String(30), unique=True)
     signups = db.relationship('Signup', backref="user")
 
@@ -401,15 +402,18 @@ class Group(Base):
         """Number of events"""
         return Event.query.filter_by(group_id=self.id, is_active=True).count()
 
-    def events(self, page=1, per_page=10, paginated=True):
-        """Pagination for all events"""
-        pagination = Event.query.filter_by(group_id=self.id, is_active=True).order_by(desc(Event.start)).paginate(page, per_page)
-        return pagination if paginated else pagination.items
+    def events(self, start, end):
+        """Returns events between start and end"""
+        return Event.query.filter(
+            Event.group_id==self.id,
+            Event.is_active==True,
+            Event.start > start,
+            Event.start < end).order_by(asc(Event.start)).all()
 
-    @property
-    def members(self):
+    def members(self, page=1, per_page=10, paginated=True):
         """List of all members"""
-        return Membership.query.filter_by(group_id=self.id).all()
+        pagination = Membership.query.filter_by(group_id=self.id).paginate(page, per_page)
+        return pagination if paginated else pagination.items
 
     def setting_query(self):
         return GroupSetting.query.filter_by(group_id=self.id)
@@ -714,12 +718,12 @@ class Membership(Base):
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     role_id = db.Column(db.Integer, db.ForeignKey('group_role.id'))
 
-    # TODO: restrict to signups that belong to a specific group
     def signups(self):
         """Returns signups for this membership"""
-        return Signup.query.filter_by(
-            user_id=self.user_id,
-            is_active=True).all()
+        return Signup.query.join(Event).filter(
+            Event.group_id==self.group_id,
+            Signup.user_id==self.user_id,
+            Signup.is_active==True).all()
 
     def save(self):
         """save membership"""
