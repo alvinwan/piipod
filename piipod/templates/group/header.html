@@ -49,6 +49,10 @@
         <a class="button" href="{{ the_url('group.create_event') }}">+ Event</a>
       </ul>
       {% endif %}
+      {% else %}
+      <ul>
+        <a class="button" href="{{ the_url('group.login') }}">Login</a>
+      </ul>
       {% endif %}
       <ul class="primary">
         <li><a href="{{ the_url('group.home') }}">Home</a></li>
