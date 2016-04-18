@@ -2,11 +2,11 @@
 {% block event %}
 <div class="event-main">
 <aside class="event-info col-md-4">
-  <!-- <p class="subnav">
-    <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
+  <p class="subnav">
+    <!-- <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo; -->
     <a href="{{ the_url('group.events') }}">Events</a> &raquo;
     {{ event.name }}
-  </p> -->
+  </p>
   <h3>{{ event.start.format('MMM DD') }}</h3>
   <h1>{{ event.name }}</h1>
   <p>{{ event.description }}</p>

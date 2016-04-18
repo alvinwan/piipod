@@ -762,8 +762,11 @@ section.sp-calendar.module {
   .event-info p {
     font-size:1em;
     color:#999;
-    margin-top:0.5em;
+    margin-bottom:0;
   }
+    .event-info h4 + p {
+      margin-top:0.5em;
+    }
   .event-info .button,.event-info .select {
     width:100%;
     text-align:center;
@@ -780,7 +783,7 @@ section.sp-calendar.module {
 }
 main section.event-attendees {
   background-color:#FFF;
-  padding:9em 5em 5em 5em;
+  padding:0 5em 5em 5em;
   /*box-shadow:0 0 1em 0 rgba(0,0,0,0.15);*/
 }
   .event-attendees h2,.event-attendees p {
@@ -850,6 +853,9 @@ th, td {
 }
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: 992px) {
+  main section.event-attendees {
+    padding:9em 5em 5em 5em;
+  }
   .sp-title,.stp-title {
     font-size:7em;
   }
