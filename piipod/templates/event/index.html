@@ -38,18 +38,18 @@
   <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
   {% endif %}
 
-  {% elif g.event.setting('enable_signups').is_active %}
-  {% set max_signups = g.event.setting('max_signups') %}
-  {% set min_signups = g.event.setting('min_signups') %}
-
+  {% if g.event.setting('enable_signups').is_active %}
+    {% set max_signups = g.event.setting('max_signups') %}
+    {% set min_signups = g.event.setting('min_signups') %}
     {% if not current_user.is_authenticated %}
     <a href="{{ the_url('group.login') }}" class="button">Login to Signup</a>
     {% elif not max_signups.is_active or g.event.num_signups < max_signups.value | int %}
+    {% if not signup %}
     <a class="button" href="{{ the_url('event.signup') }}">Signup</a>
+    {% endif %}
     {% else %}
     <span class="button faded">Signup Cap Reached</span>
     {% endif %}
-
   {% endif %}
 
   {% if signup and not signup.num_check_ins %}
@@ -72,6 +72,7 @@
       </ul>
     </div>
   {% endif %}
+{% endif %}
 </aside>
 <section class="event-attendees col-md-8">
   {% for category in categories %}
