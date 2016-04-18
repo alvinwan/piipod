@@ -738,6 +738,7 @@ h3 .cal-prev-arrow, h3 .cal-next-arrow {
   border-left:1px solid #eee;
   width:14.7%;
   padding:0;
+  vertical-align:top;
 }
 .event-title {
   font-weight:400;
