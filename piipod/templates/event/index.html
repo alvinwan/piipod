@@ -16,20 +16,21 @@
   <h4>Statistics</h4>
   <p>Signups: {{ event.num_signups }}</p>
   {% set min_signups = g.event.setting('min_signups') %}
-  {% if current_user.is_authenticated and current_user in event %}
-    {% if current_user.can('edit_event') %}
-    <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
-    {% endif %}
   </div>
+{% if current_user.is_authenticated %}
 
   {% if not current_user.can('authorize') %}
     {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
-    {% if g.group.setting('self_checkin').is_active %}
+      {% if g.group.setting('self_checkin').is_active %}
 <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button">Checkin</a>
-  {% endif %}
+      {% endif %}
     {% else %}
 <span class="button faded">Checked In</span>
     {% endif %}
+  {% endif %}
+
+  {% if current_user.can('edit_event') %}
+  <a href="{{ the_url('event.edit') }}" class="button color sm">Edit Event</a>
   {% endif %}
 
   {% elif g.event.setting('enable_signups').is_active %}
@@ -72,61 +73,24 @@
   <div class="attendee">
     <div class="attendee-avatar"><span style="background: url('{{ signup.user.image_url }}') center; background-size:cover;"></span></div>
     <h3 class="attendee-name"><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name.split(' ')[0] }}</a></h3>
+    {% if current_user.can('authorize') %}
+      {% if current_user.id != signup.user.id %}
+    <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}">Delete</a>
+      {% endif %}
+    {% if not signup.category or signup.category == 'Waitlisted' %}
+  <a href="{{ the_url('event.categorize', signup_id=signup.id, category='Accepted') }}">Accept</a>
+    {% else %}
+      {% if not signup.user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
+  <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}">Checkin</a>
+      {% endif %}
+      {% if current_user.can('authorize') %}
+  <a href="{{ the_url('event.recategorize_signup', signup_id=signup.id) }}">Recategorize</a>
+      {% endif %}
+    {% endif %}
+    {% endif %}
   </div>
   </div>
   {% endfor %}
-  <!-- <table>
-    <tr>
-      <td>Name</td>
-      <td>Checkin</td>
-      <td>Signups</td>
-      {% if current_user.can('authorize') %}
-      <td>Waitlisted Signups</td>
-      <td>Non-Waitlisted Signups</td>
-      {% endif %}
-      {% if current_user.is_authenticated %}<td>Action</td>{% endif %}
-    </tr>
-    {% for signup in signups[category] %}
-    <tr>
-      <td><a href="{{ the_url('group.member', user_id=signup.user.id) }}">{{ signup.user.name }}</a></td>
-      <td>{% if signup.user.can('authorize') %}<span class="button xs">Official</span>{% elif signup.is_checked_in %}<span class="dot green"></span>Checked In{% else %}<span class="dot red"></span>Not Checked In{% endif %}</td>
-      <td>{{ signup.user.num_active_signups }}</td>
-      {% if current_user.can('authorize') %}
-      <td>{{ signup.user.num_waitlisted_signups }}</td>
-      <td>{{ signup.user.num_non_waitlisted_signups }}</td>
-      {% endif %}
-      {% if current_user.is_authenticated %}
-      <td>
-        {% if current_user.can('authorize') %}
-          {% if current_user.id != signup.user.id %}
-        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Delete</a>
-          {% endif %}
-          {% if not signup.category or signup.category == 'Waitlisted' %}
-        <a href="{{ the_url('event.categorize', signup_id=signup.id, category='Accept') }}" class="button xs color">Accept</a>
-          {% else %}
-            {% if not signup.user.can('authorize') and signup.num_check_ins < event.setting('max_check_ins').value | int %}
-        <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>
-            {% endif %}
-            {% if current_user.can('authorize') %}
-        <a href="{{ the_url('event.recategorize_signup', signup_id=signup.id) }}" class="button xs color">Recategorize</a>
-            {% endif %}
-          {% endif %}
-        {% elif g.group.setting('self_checkin').is_active and signup.user.id == current_user.id and signup.num_check_ins < event.setting('max_check_ins').value | int %}
-        <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button xs color">Checkin</a>
-        {% endif %}
-        {% set min_signups = g.event.setting('min_signups') %}
-        {% if current_user.id == signup.user.id %}
-          {% if current_user.can('authorize') or (g.event.setting('enable_leave').is_active and (not min_signups.is_active or min_signups.value | int < event.num_signups)) %}
-        <a href="{{ the_url('event.deactivate_signup', signup_id=signup.id) }}" class="button xs warning">Cancel</a>
-          {% else %}
-        <span class="button xs">Cancellation Disabled</span>
-          {% endif %}
-        {% endif %}
-      </td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-    </table> -->
   {% endfor %}
 </section>
 </div>
