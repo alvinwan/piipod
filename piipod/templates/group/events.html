@@ -18,6 +18,7 @@
   <h3>{{ now.format('MMMM YYYY')}}</h3>
 </div>
 <div class="cal-events hidden-lg hidden-md">
+  <h3><a href="{{ the_url('group.events', start=now.replace(weeks=-1).format('YYYYMMDD')) }}" class="cal-prev-arrow">&larr;</a>{{ now.format('MMMM YYYY')}}<a href="{{ the_url('group.events', start=now.replace(weeks=1).format('YYYYMMDD')) }}" class="cal-next-arrow">&rarr;</a></h3>
   <div class="cal-dates col-xs-2">
     {% for dow in dows %}
     <div class="cal-date">
@@ -26,6 +27,7 @@
     </div>
     {% endfor %}
   </div>
+  {% if events %}
   <div class="cal-list col-xs-10">
     {% for dow in dows %}
     <h3 class="cal-list-date">{{ dow.format('MMMM D') }}</h3>
@@ -38,6 +40,7 @@
     {% endfor %}
     {% endfor %}
   </div>
+  {% endif %}
 </div>
 <table class="calendar hidden-sm hidden-xs">
   <tr>

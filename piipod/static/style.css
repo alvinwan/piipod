@@ -660,6 +660,12 @@ section.sp-calendar.module {
   width: auto;
   display: inline-block;
 }
+h3 .cal-prev-arrow, h3 .cal-next-arrow {
+  font-size:0.8em;
+  margin:0;
+  top:auto;
+  padding:0.5em 2em;
+}
 .cal-prev-arrow,.cal-next-arrow {
   position:absolute;
   top:0.8em;
