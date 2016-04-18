@@ -18,7 +18,7 @@
     {% for page in pagination.iter_pages() %}
       {% if page %}
         {% if page != pagination.page %}
-          <a class="page-item" href="{{ the_url('group.events', page=page) }}"><span>{{ page }}</span></a>
+          <a class="page-item" href="{{ the_url('group.members', page=page) }}"><span>{{ page }}</span></a>
         {% else %}
           <div class="page-item"><span>{{ page }}</span></div>
         {% endif %}

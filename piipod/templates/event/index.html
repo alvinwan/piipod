@@ -15,6 +15,10 @@
   <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
   <h4>Statistics</h4>
   <p>Signups: {{ event.num_signups }}</p>
+  {% if signup %}
+  <h4>Your Category</h4>
+  <p>{{ signup.category }}</p>
+  {% endif %}
   {% set min_signups = g.event.setting('min_signups') %}
   </div>
 {% if current_user.is_authenticated %}
@@ -88,7 +92,6 @@
       {% endif %}
     {% endif %}
     {% endif %}
-  </div>
   </div>
   {% endfor %}
   {% endfor %}
