@@ -1,14 +1,20 @@
 {% extends "event/event.html" %}
 {% block event %}
 <div class="event-main">
-<aside class="event-info col-md-4">
+<aside class="event-info col-md-4 colored green">
   <!-- <p class="subnav">
     <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo;
     <a href="{{ the_url('group.events') }}">Events</a> &raquo;
     {{ event.name }}
   </p> -->
+  <h3>{{ event.start.format('MMM DD') }}</h3>
   <h1>{{ event.name }}</h1>
-  <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }} . {{ event.description }} . Signups: {{ event.num_signups }}</p>
+  <h4>Time</h4>
+  <p>{{ event.start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
+  <h4>Description</h4>
+  <p>{{ event.description }}</p>
+  <h4>Statistics</h4>
+  <p>Signups: {{ event.num_signups }}</p>
   <div class="action-cont col-md-12">
   {% if current_user.is_authenticated and current_user in event %}
     {% if current_user.can('edit_event') %}

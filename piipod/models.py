@@ -245,6 +245,7 @@ class User(Base, flask_login.UserMixin):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(PasswordType(schemes=['pbkdf2_sha512']))
     settings = relationship("UserSetting", backref="user")
+    image_url = db.Column(db.Text)
     google_id = db.Column(db.String(30), unique=True)
     signups = db.relationship('Signup', backref="user")
 

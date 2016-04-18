@@ -13,7 +13,7 @@ html,body {
 a:hover {
   text-decoration:none;
 }
-.sf-input-text,.sf-back-arr,.button,.arrow-down,.drawer {
+.sf-input-text,.sf-back-arr,.button,.arrow-down,.drawer,.event {
   -webkit-transition: 0.2s ease;
   -moz-transition:    0.2s ease;
   -o-transition:      0.2s ease;
@@ -53,6 +53,23 @@ a:hover {
     text-align:left;
     cursor:pointer;
   }
+  .colored .select {
+    background-color:transparent;
+    border:2px solid #FFF;
+    color:#FFF;
+  }
+    .colored .select .arrow-down {
+      border-bottom:1px solid #FFF;
+      border-right:1px solid #FFF;
+    }
+    .colored .select:hover {
+      background-color:#FFF;
+      color:inherit;
+    }
+    .colored .select:hover .arrow-down,.colored .select.s .arrow-down {
+      border-bottom:1px solid #000;
+      border-right:1px solid #000;
+    }
   .arrow-down {
     position:absolute;
     width:0.5em;
@@ -147,14 +164,14 @@ a:hover {
   .form-button.small {
     width:auto;
   }
-  .button.white {
+  .button.white,.colored .button {
     color:#FFF;
     background-color:transparent;
-    border:1px solid #FFF;
+    border:2px solid #FFF;
   }
-  .button.white:hover {
+  .button.white:hover,.colored .button:hover {
     background-color:#FFF;
-    color:#333;
+    color:inherit;
   }
 header {
   padding:2em 3em 1em 3em;
@@ -415,14 +432,6 @@ main section:nth-child(even) {
 .colored .header-title {
   color:#FFF;
 }
-.colored .button {
-  color:#FFF;
-  border:2px solid #FFF;
-}
-  .colored .button:hover {
-    background-color:#FFF;
-    color:inherit;
-  }
   .resolved footer {
     background-color:#5a8700;
   }
@@ -678,18 +687,47 @@ section.sp-calendar.module {
 }
 .event.green {
   /*background-color:rgba(86, 137, 68, 0.1);*/
-  color:#690;
+  color:#839767;
+}
+.event.green:hover {
+  color:#FFF;
+  background-color:#a5be81;
 }
 .event-info {
   text-align:left;
   padding:9em 5em 3em 5em;
+  color:#000;
 }
+.event-info.colored.gold {
+  background-color:#c90;
+  color:#C90;
+}
+.event-info.colored.dark {
+  background-color:#333;
+  color:#333;
+}
+.event-info.colored.green {
+  background-color:#a5be81;
+  color:#a5be81;
+}
+  .colored h1,.colored h2,.colored h3,.colored p,.colored h4 {
+    color:#FFF;
+  }
   .event-info h1 {
     margin-bottom:0.5em;
     font-weight:300;
   }
+  .event-info h4 {
+    opacity:0.5;
+    text-transform:uppercase;
+    font-size:0.9em;
+  }
+  .event-info h3 {
+    opacity:0.6;
+    font-weight:300;
+    font-size:2.5em;
+  }
   .event-info p {
-    color:#aaa;
     font-size:1.1em;
   }
   .event-info .button,.event-info .select {
@@ -701,10 +739,17 @@ section.sp-calendar.module {
 }
 main section.event-attendees {
   background-color:#FFF;
-  padding-top:6em;
+  padding:9em 3em 5em 3em;
 }
   .event-attendees h2,.event-attendees p {
     text-align:left;
+  }
+  .event-attendees h2 {
+    font-weight:300;
+    text-transform:none;
+  }
+  .green.event-attendees h2 {
+    color:#839767;
   }
 /* -- begin tables -- */
 th, td {

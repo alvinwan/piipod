@@ -22,7 +22,7 @@
     {% for dow in dows %}
     <td>
       {% for event in events[dow.format('d')] %}
-      <a href="{{ the_url('event.home', event_id=event.id) }}" class="event">
+      <a href="{{ the_url('event.home', event_id=event.id) }}" class="event green">
         <p class="event-time">{{ event.to_local('start', 'end').start.format('h:mm a') }} - {{ event.end.format('h:mm a') }}</p>
         <h2 class="event-title">{{ event.name }}</h2>
         <p class="event-byline">{{ event.num_non_waitlisted_signups }}{% if event.setting('min_signups').is_active %}/{{ event.setting('min_signups').value }}{% endif %} signups</p>
