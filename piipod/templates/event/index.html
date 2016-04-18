@@ -24,7 +24,7 @@
 {% if current_user.is_authenticated %}
 
   {% if not current_user.can('authorize') %}
-    {% if signup.num_check_ins < event.setting('max_check_ins').value | int %}
+    {% if signup and signup.num_check_ins < event.setting('max_check_ins').value | int %}
       {% if g.group.setting('self_checkin').is_active %}
 <a href="{{ the_url('event.checkin_signup', signup_id=signup.id) }}" class="button">Checkin</a>
       {% endif %}
