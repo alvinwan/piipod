@@ -53,8 +53,8 @@ def strip_subdomain(string):
     if '/subdomain' not in request.path or not getattr(g, 'group', None):
         return string
     string = string.replace('/subdomain', '')
-    if string.startswith('/%s' % g.group.url):
-        string = string.replace('/%s' % g.group.url, '')
+    if '/%s' % g.group.url in string:
+        string = string.replace('/%s' % g.group.url, '', 1)
     return string
 
 
