@@ -1,6 +1,13 @@
 {% extends "group/base.html" %}
 {% block main %}
-<h1>Confirmation</h1>
-<p>{{ message | safe }}</p>
-<a href="{{ url }}">{{ action }}</a>
+<main class="sp-main">
+  <section class="sp-module-list module">
+    <p class="sf-back"><a href="{{ back or the_url('public.home') }}"><span class="sf-back-arr">&larr;</span> back</a></p>
+    <h2>{{ title }}</h2>
+    <p class="sp-byline">{{ message | safe }}</p>
+    {% if url %}
+    <a href="{{ url }}" class="button">{{ action }}</a>
+    {% endif %}
+  </section>
+</main>
 {% endblock %}

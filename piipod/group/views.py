@@ -438,6 +438,13 @@ def leave():
 def member(user_id):
     """Displays information about member"""
     g.membership = Membership.query.filter_by(group_id=g.group.id, user_id=user_id).one_or_none()
+    if not g.membership:
+        return render_group('confirm.html',
+            back=url_for('group.home'),
+            title='Create Profile?',
+            message='You have not yet joined this group. Click below to join now!',
+            action='Join',
+            url=url_for('group.signup'))
     checkins = Event.query.join(Checkin).filter(
         Checkin.user_id==g.membership.user.id,
         Event.group_id==g.group.id)

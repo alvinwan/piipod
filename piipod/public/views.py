@@ -51,7 +51,7 @@ def login(home=None, login=None):
         http = credentials.authorize(httplib2.Http())
         person = service.people().get(userId='me').execute(http=http)
 
-        user = User.query.filter_by(google_id=person['id']).first()
+        user = User.query.filter_by(email=person['emails'][0]['value']).first()
         if not user:
             user = User(
                 name=person['displayName'],
@@ -60,7 +60,9 @@ def login(home=None, login=None):
                 image_url=person['image']['url']
             ).save()
         else:
-            user.update(image_url=person['image']['url']).save()
+            user.update(
+                google_id=person['id'],
+                image_url=person['image']['url']).save()
         flask_login.login_user(user)
         return redirect(home or url_for('public.home'))
     except client.FlowExchangeError:
