@@ -249,6 +249,13 @@ class User(Base, flask_login.UserMixin):
     google_id = db.Column(db.String(30), unique=True)
     signups = db.relationship('Signup', backref="user")
 
+    def signups_for_group(self, group_id):
+        """Grab all signups for a specific group"""
+        return Signup.query.join(Event).filter(
+            Event.group_id==group_id,
+            Signup.user_id==self.id,
+            Signup.is_active==True).all()
+
     def groups(self):
         """All groups for this user"""
         return Group.query.join(Membership).filter_by(user_id=self.id).all()

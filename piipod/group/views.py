@@ -5,7 +5,7 @@ from .forms import GroupForm, GroupSignupForm, ProcessWaitlistsForm, \
 from piipod.event.forms import EventForm
 from piipod.forms import choicify
 from piipod.models import Event, Group, Membership, GroupRole, GroupSetting,\
-    Signup, Membership, Checkin
+    Signup, Membership, Checkin, User
 from piipod.defaults import default_event_roles, default_group_roles
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import update, and_
@@ -437,16 +437,20 @@ def leave():
 @group.route('/u/<int:user_id>')
 def member(user_id):
     """Displays information about member"""
+
+    user = User.query.get(user_id)
     g.membership = Membership.query.filter_by(group_id=g.group.id, user_id=user_id).one_or_none()
-    if not g.membership:
+
+    if not g.membership and user_id == current_user():
         return render_group('confirm.html',
             back=url_for('group.home'),
             title='Create Profile?',
             message='You have not yet joined this group. Click below to join now!',
             action='Join',
             url=url_for('group.signup'))
+
     checkins = Event.query.join(Checkin).filter(
-        Checkin.user_id==g.membership.user.id,
+        Checkin.user_id==user_id,
         Event.group_id==g.group.id)
 
     # naiive way of counting hours - need a query to do this!
@@ -454,10 +458,8 @@ def member(user_id):
     for event in checkins:
         hours += (event.end - event.start).seconds / 3600.0
 
-    if not g.membership:
-        abort(404)
     return render_group('group/member.html',
-        membership=g.membership, total_checkins=checkins.count(), total_hours=hours)
+        membership=g.membership, user=user, total_checkins=checkins.count(), total_hours=hours)
 
 ################
 # LOGIN/LOGOUT #

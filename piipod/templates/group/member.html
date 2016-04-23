@@ -5,10 +5,10 @@
   <p class="subnav">
     <!-- <a href="{{ the_url('group.home') }}">{{ group.name }}</a> &raquo; -->
     <a href="{{ the_url('group.members') }}">Members</a> &raquo;
-    {{ membership.user.name }}
+    {{ user.name }}
   </p>
-  <h3>{{ membership.role.name }}</h3>
-  <h1>{{ membership.user.name }}</h1>
+  <h3>{% if membership %}{{ membership.role.name }}{% else %}<i>Unaffiliated Volunteer</i>{% endif %}</h3>
+  <h1>{{ user.name }}</h1>
   <h4>Statistics</h4>
   <p>{{ total_checkins }} checkins</p>
   <p>{{ total_hours }} hours</p>
@@ -22,7 +22,7 @@
       <td>Checkin</td>
       <td>Category</td>
     </tr>
-  {% for signup in membership.signups() %}
+  {% for signup in user.signups_for_group(group_id=g.group.id) %}
     {% if signup.event_id %}
     <tr>
       <td><a href="{{ the_url('event.home', event_id=signup.event.id)}}">{{ signup.event.to_local('start').name }}</a></td>
