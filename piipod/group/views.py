@@ -243,15 +243,16 @@ def sync(service):
 
             all_events = [e for e in all_events if (pattern == '*' or pattern.match(e.get('summary', 'None'))) and 'start' in e]
 
+            # hacky fix for daylight savings below
             events = [dict(
                 name=e.get('summary', '')[:50],
                 description=e.get('summary', ''),
                 start=arrow.get(
                     e['start'].get('dateTime', e['start'].get('date', None)
-                    )).to('local'),
+                    )).to('local').replace(hours=-1),
                 end=arrow.get(
                     e['end'].get('dateTime', e['start'].get('date', None)
-                    )).to('local'),
+                    )).to('local').replace(hours=-1),
                 google_id=e['id'],
                 group_id=g.group.id,
                 recurrence=e.get('recurrence', [])
