@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, session
 from .forms import *
-from piipod import app, login_manager, logger, googleclientID
+from piipod import app, login_manager, logger
 from piipod.models import User, Group
 from piipod.views import anonymous_required, render, url_for, current_url
 from urllib.parse import urlparse

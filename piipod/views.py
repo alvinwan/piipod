@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import url_for as flask_url_for, redirect, render_template, request, g, abort
 from flask_login import login_required
-from piipod import config, debug, domain
+from piipod import config
 import flask_login
 
 
@@ -15,7 +15,7 @@ def render(f, *args, **kwargs):
     for k, v in config.items():
         kwargs.setdefault('cfg_%s' % k, v)
     return render_template(f, *args,
-        domain=domain,
+        domain=config['domain'],
         request=request,
         g=g,
         logout=request.args.get('logout', False),

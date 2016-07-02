@@ -1,7 +1,7 @@
 from piipod.logger import logger
 logger.setLevel(5)
 
-from piipod import app, db, debug, port
+from piipod import app, config, db
 from sqlalchemy.exc import OperationalError
 import argparse
 import os
@@ -33,10 +33,10 @@ def run(app, with_tornado=False):
 
     if with_tornado:
         http_server = HTTPServer(WSGIContainer(app))
-        http_server.listen(port)
+        http_server.listen(config['port'])
         IOLoop.instance().start()
     else:
-        app.run(host='0.0.0.0', port=port, debug=debug)
+        app.run(host='0.0.0.0', port=config['port'], debug=config['debug'])
 
 
 parser = argparse.ArgumentParser(description='Small manager for this queue application.')

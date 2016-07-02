@@ -7,13 +7,13 @@ To get started, see [piipod.com](http://piipod.com)
 
 ## Features
 
-**Google Login** 
+**Google Login**
 One-click login and registration for ease-of-use
 
-**Staff Approval** 
+**Staff Approval**
 Add staff emails to the whitelist to auto-promote staff.
 
-**Google Calendar Sync** 
+**Google Calendar Sync**
 One-click synchronization to load events from Google calendar.
 
 Automatic Waitlist Resolution:
@@ -35,7 +35,7 @@ Check that Python3 and MySQL are installed using `make check`.
 
 1. Run the installation using `make install`.
   - Optionally, use `make install CONDA=false` instead, to use `virtualenv`.
-1. Add valid mysql user credentials to `config.cfg`.
+1. Add valid mysql user credentials to `configvars.py`.
 1. Create the database using `make db`.
 
 > If the bash scripts do not work, see the Details section below for an outline
@@ -56,8 +56,8 @@ installation bash script line by line:
 1. Setup a new virtual environment: `conda create -n piipod python=3.4`.
 1. Start the virtual environment: `source activate piipod`.
 1. Install all requirements: `pip install -r requirements.txt`.
-1. Make a new configuration file: `cp default-config.cfg config.cfg`.
-1. Add valid MySQL user credentials to `config.cfg`.
+1. Make a new configuration file: `cp sampleconfigvars.py configvars.py`.
+1. Add valid MySQL user credentials to `configvars.py`.
 1. Create the database: `python3 run.py -db create'`.
 
 Any model modifications should be followed by the following, which will
@@ -70,8 +70,8 @@ Because of incompatbility issues with the makefile, on Windows you will have to 
 1. Setup a new virtual environment by calling `python -m virtualenv env`.
 1. Start the virtual environment by calling `env/Scripts/activate.bat` in cmd.
 1. Install all requirements `pip install -r requirements.txt`.
-1. Make a new configuration file: `cp default-config.cfg config.cfg`.
-1. Add valid MySQL user credentials to `config.cfg`.
+1. Make a new configuration file: `cp sampleconfigvars.py configvars.py`.
+1. Add valid MySQL user credentials to `configvars.py`.
 1. Start the MySQL service using services.msc
 1. Create the database by using `mysql -u root -p`, then entering `create database queue;` in the interactive prompt.
 1. Setup the database using `python3 run.py -db create`.

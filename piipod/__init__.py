@@ -5,14 +5,14 @@ from .logger import logger
 import functools
 from flask_login import AnonymousUserMixin
 import flask_login
-from .config import config, secret_key, debug, whitelist, googleclientID, port, domain, tz
+from .config import config
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-print('Running in DEBUG mode.' if debug else
+print('Running in DEBUG mode.' if config['debug'] else
       'Running in PRODUCTION mode.')
 
-print('Google Client ID: %s' % googleclientID if googleclientID else
+print('Google Client ID: %s' % config['googleclientID'] if config['googleclientID'] else
       'No Google Client ID found.')
 
 # Flask app
@@ -20,11 +20,11 @@ app = Flask(__name__)
 
 # Configuration for mySQL database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{USERNAME}:{PASSWORD}@{HOST}/{DATABASE}'.format(**config)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{username}:{password}@{host}/{database}'.format(**config)
 db = SQLAlchemy(app)
 
 # Configuration for login sessions
-app.secret_key = secret_key
+app.secret_key = config['secret_key']
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 

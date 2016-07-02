@@ -33,8 +33,8 @@ function gs_install {
   pip install git+https://github.com/python-constraint/python-constraint.git
 
   # add configuration file if does not exist
-  if [ ! -f "config.cfg" ];
-    then cp default-config.cfg config.cfg
+  if [ ! -f "configvars.py" ];
+    then cp sampleconfigvars.py configvars.py
   fi
 
   echo "---

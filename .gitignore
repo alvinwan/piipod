@@ -1,5 +1,5 @@
 # configuration file
-config.cfg
+configvars.py
 migrations
 client_secret.json
 client_secrets.json

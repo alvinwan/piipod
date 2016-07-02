@@ -1,7 +1,7 @@
 """
 Important: Changes here need to be followed by `make refresh`.
 """
-from piipod import db, tz
+from piipod import db, config
 from flask import request, g
 from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
@@ -75,7 +75,7 @@ class Base(db.Model):
 
     def to_local(self, *fields):
         """Convert all to local times"""
-        return self.modify_time(*fields, act=lambda t: t.to(tz or 'local'))
+        return self.modify_time(*fields, act=lambda t: t.to(config['tz'] or 'local'))
 
     def to_utc(self, *fields):
         """Convert all to UTC times"""
@@ -89,7 +89,7 @@ class Base(db.Model):
     def set_local(self, *fields):
         """Set timezones of current times to be local time"""
         from dateutil import tz as t
-        return self.set_tz(*fields, tz=t.gettz(tz) if tz else t.tzlocal())
+        return self.set_tz(*fields, tz=t.gettz(config['tz']) if config['tz'] else t.tzlocal())
 
     def save(self):
         """Save object"""
@@ -436,8 +436,8 @@ class Group(Base):
     def current_events(self):
         """Fetch all events happening right now."""
         return Event.query.filter(
-            Event.start <= arrow.now(tz or 'local').replace(hours=2),
-            Event.end >= arrow.now(tz or 'local').replace(hours=-2),
+            Event.start <= arrow.now(config['tz'] or 'local').replace(hours=2),
+            Event.end >= arrow.now(config['tz'] or 'local').replace(hours=-2),
             Event.group_id==self.id,
             Event.is_active==True
         ).all()
