@@ -5,6 +5,7 @@ from piipod import db, config
 from flask import request, g
 from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import validates
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
 from piipod.defaults import default_event_settings, default_group_settings, \
@@ -480,7 +481,13 @@ class Event(Base):
     settings = relationship("EventSetting", backref="event")
     checkins = relationship("Checkin", backref="event")
     frequency = db.Column(db.String(20))
-    byday = db.Column(db.String(10))
+    on_mondays = db.Column(db.Boolean)
+    on_tuesdays = db.Column(db.Boolean)
+    on_wednesdays = db.Column(db.Boolean)
+    on_thursdays = db.Column(db.Boolean)
+    on_fridays = db.Column(db.Boolean)
+    on_saturdays = db.Column(db.Boolean)
+    on_sundays = db.Column(db.Boolean)
     until = db.Column(ArrowType)
 
     @property
@@ -602,6 +609,35 @@ class Event(Base):
                 event_data['start'], event_data['end'],
                 shift_duration, shift_alignment)]
 
+    def set_byday(
+            self,
+            on_mondays: bool=False,
+            on_tuesdays: bool=False,
+            on_wednesdays: bool=False,
+            on_thursdays: bool=False,
+            on_fridays: bool=False,
+            on_saturdays: bool=False,
+            on_sundays: bool=False) -> int:
+        """Pass in booleans representing the days for which an event happens.
+
+        Converts list of booleans into a bit representation.
+        """
+        self.on_mondays = on_mondays
+        self.on_tuesdays = on_tuesdays
+        self.on_wednesdays = on_wednesdays
+        self.on_thursdays = on_thursdays
+        self.on_fridays = on_fridays
+        self.on_saturdays = on_saturdays
+        self.on_sundays = on_sundays
+
+    @validates('frequency')
+    def validate_frequency(self, _, address):
+        """Check that frequency is an integer."""
+        try:
+            int(address)
+            return True
+        except TypeError:
+            return False
 
     def split_existing(self, event_data, shift_duration, shift_alignment):
         """

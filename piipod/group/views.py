@@ -138,13 +138,14 @@ def create_event():
     if request.method == 'POST' and form.validate():
         event = Event.from_request().save().load_roles(
             default_event_roles[g.group.category]
-        ).set_local('start', 'end').save()
+        ).set_local('start', 'end', 'until').save()
         return redirect(url_for('event.home',
             event_id=current_user().signup(event, 'Owner',
                 category='Accepted').event_id))
     form.group_id.default = g.group.id
     form.start.default = arrow.now().floor('hour').to('local')
     form.end.default = form.start.default.replace(hours=1)
+    form.until.default = form.end.default
     form.process()
     return render_group('group/form.html',
         title='Create Event',

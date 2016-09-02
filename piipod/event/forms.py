@@ -1,19 +1,32 @@
 from flask import g
-from wtforms_alchemy import ModelForm, ModelFieldList
+from wtforms import widgets
+from wtforms import SelectMultipleField
+from wtforms_alchemy import ModelForm
 import wtforms as wtf
-from piipod.models import Event
 from piipod.forms import choicify
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
 
 class EventForm(ModelForm):
     """form for user events"""
 
-    class Meta:
-        model = Event
-        only = ('name', 'description')
-
+    name = wtf.StringField('Name')
+    description = wtf.StringField('Description', description='(optional)')
     start = wtf.DateTimeField(description='2016-01-13 12:00:00')
     end = wtf.DateTimeField(description='2016-01-13 12:00:00')
     group_id = wtf.HiddenField('group_id')
+    days_of_the_week = MultiCheckboxField(
+        'Days of the Week',
+        choices=choicify(('Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun')),
+        description='Days of the week that this event repeats on')
+    frequency = wtf.IntegerField(
+        'Frequency',
+        description='Happens every _ weeks')
+    until = wtf.DateTimeField(description='2016-01-13 12:00:00')
 
 
 class EventSignupForm(wtf.Form):

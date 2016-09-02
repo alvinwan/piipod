@@ -18,6 +18,10 @@ print('Google Client ID: %s' % config['googleclientID'] if config['googleclientI
 # Flask app
 app = Flask(__name__)
 
+# If not in production, use test database
+if config['debug']:
+    config['database'] = 'test'
+
 # Configuration for mySQL database
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{username}:{password}@{host}/{database}'.format(**config)
