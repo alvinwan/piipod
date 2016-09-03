@@ -3,6 +3,7 @@ from wtforms import widgets
 from wtforms import SelectMultipleField
 from wtforms_alchemy import ModelForm
 import wtforms as wtf
+from piipod.models import Event
 from piipod.forms import choicify
 
 
@@ -21,7 +22,7 @@ class EventForm(ModelForm):
     group_id = wtf.HiddenField('group_id')
     days_of_the_week = MultiCheckboxField(
         'Days of the Week',
-        choices=choicify(('Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat', 'Sun')),
+        choices=choicify(Event.DAYS_OF_THE_WEEK),
         description='Days of the week that this event repeats on')
     frequency = wtf.IntegerField(
         'Frequency',

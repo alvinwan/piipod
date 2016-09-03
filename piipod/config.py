@@ -25,5 +25,5 @@ for attr in (
     'googleclientID',
     'allowed_netlocs',
     'domain',
-    'timezone'):
+    'tz'):
     config[attr] = get(attr, getattr(ConfigVars, attr))

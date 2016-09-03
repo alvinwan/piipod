@@ -515,10 +515,13 @@ h2 {
   font-family:'Raleway';
   margin-top:0;
 }
-.sf-field,.sf-field input:not([type="checkbox"]) {
+.sf-field,.sf-field input {
   width:100%;
   text-align:left;
 }
+  .sf-field input[type="checkbox"] {
+    width:auto;
+  }
   .sf-field input + .form-button {
     margin-top:1.5em;
   }

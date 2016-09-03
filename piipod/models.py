@@ -2,6 +2,7 @@
 Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db, config
+from collections import defaultdict
 from flask import request, g
 from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
@@ -12,6 +13,7 @@ from piipod.defaults import default_event_settings, default_group_settings, \
     default_user_settings
 import sqlalchemy
 import arrow
+import calendar
 import csv
 import flask_login
 import pymysql
@@ -60,7 +62,14 @@ class Base(db.Model):
     @classmethod
     def from_request(cls):
         """Create object from request"""
-        return cls(**dict(request.form.items()))
+        data = {}
+        for k, v in request.form.items():
+            lst = request.form.getlist(k)
+            if len(lst) == 1:
+                data[k] = v
+            else:
+                data[k] = lst
+        return cls().update(**data)
 
     def update(self, **kwargs):
         """Update object with kwargs"""
@@ -490,6 +499,18 @@ class Event(Base):
     on_sundays = db.Column(db.Boolean)
     until = db.Column(ArrowType)
 
+    DAYS_OF_THE_WEEK = tuple(calendar.day_name[i][:3] for i in range(7))
+
+    def __contains__(self, user):
+        """Check if user is in signups"""
+        if not user.is_authenticated:
+            return False
+        return Signup.query.filter_by(
+            user_id=user.id,
+            event_id=self.id,
+            is_active=True
+        ).one_or_none() is not None
+
     @property
     def group(self):
         return Group.query.get(self.group_id)
@@ -500,15 +521,6 @@ class Event(Base):
         return Signup.query.filter_by(
             event_id=self.id,
             is_active=True).all()
-
-    def signups_by_category(self, **kwargs):
-        """Returns all accepted participants"""
-        if kwargs['category'] == '*':
-            kwargs.pop('category')
-        return Signup.query.filter_by(
-            event_id=self.id,
-            is_active=True,
-            **kwargs).all()
 
     @property
     def num_signups(self):
@@ -535,6 +547,19 @@ class Event(Base):
         return counts
 
     @property
+    def days_of_the_week(self):
+        """Returns list of days of the week."""
+        return tuple(day for day, value in zip(Event.DAYS_OF_THE_WEEK, (
+            self.on_mondays,
+            self.on_tuesdays,
+            self.on_wednesdays,
+            self.on_thursdays,
+            self.on_fridays,
+            self.on_saturdays,
+            self.on_sundays)) if value)
+
+
+    @property
     def category_counts(self):
         """all event categories"""
         counts = []
@@ -546,16 +571,6 @@ class Event(Base):
                 event_id=self.id
             )))
         return counts
-
-    def __contains__(self, user):
-        """Check if user is in signups"""
-        if not user.is_authenticated:
-            return False
-        return Signup.query.filter_by(
-            user_id=user.id,
-            event_id=self.id,
-            is_active=True
-        ).one_or_none() is not None
 
     @property
     def num_non_waitlisted_signups(self):
@@ -609,6 +624,18 @@ class Event(Base):
                 event_data['start'], event_data['end'],
                 shift_duration, shift_alignment)]
 
+    @validates('frequency')
+    def validate_frequency(self, _, address):
+        """Check that frequency is an integer."""
+        return int(address[0])
+
+    def update(self, **kwargs):
+        """Intercept updates to object."""
+        if 'days_of_the_week' in kwargs:
+            dotw = kwargs.pop('days_of_the_week')
+            self.set_byday(*[day in dotw for day in Event.DAYS_OF_THE_WEEK])
+        return super().update(**kwargs)
+
     def set_byday(
             self,
             on_mondays: bool=False,
@@ -630,14 +657,14 @@ class Event(Base):
         self.on_saturdays = on_saturdays
         self.on_sundays = on_sundays
 
-    @validates('frequency')
-    def validate_frequency(self, _, address):
-        """Check that frequency is an integer."""
-        try:
-            int(address)
-            return True
-        except TypeError:
-            return False
+    def signups_by_category(self, **kwargs):
+        """Returns all accepted participants"""
+        if kwargs['category'] == '*':
+            kwargs.pop('category')
+        return Signup.query.filter_by(
+            event_id=self.id,
+            is_active=True,
+            **kwargs).all()
 
     def split_existing(self, event_data, shift_duration, shift_alignment):
         """
