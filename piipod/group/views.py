@@ -275,6 +275,7 @@ def sync(service):
                     back=url_for('group.events'))
 
             for event_data in events:
+
                 query = Event.query.filter_by(google_id=event_data['google_id'])
                 raw_recurrence = event_data.pop('recurrence')
                 if raw_recurrence:
@@ -284,45 +285,13 @@ def sync(service):
                     event_data.update({
                         'frequency': recurrence.get('FREQ', ''),
                         'until': arrow.get(recurrence.get('UNTIL', ''), 'YYYYMMDD'),
-                        'byday': recurrence.get('BYDAY', '')
+                        # 'byday': recurrence.get('BYDAY', '') # TODO: properly implement byday
                     })
 
-                # ['RRULE:FREQ=WEEKLY;UNTIL=20160426T160000Z;BYDAY=TU']
-                recurrence_start = arrow.get(request.form['recurrence_start'], 'YYYY-MM-DD HH:mm:ss')
-                recurrence_end = arrow.get(request.form['recurrence_end'], 'YYYY-MM-DD HH:mm:ss')
-                shift_duration = int(request.form['shift_duration'])
-                shift_alignment = request.form['shift_alignment']
-
                 if not query.count():
-                    event = Event(**event_data).save()
+                    Event(**event_data).save()
                 else:
-                    event = query.first().update(**event_data).save()
-                if shift_duration:
-                    event.deactivate()
-
-                event_data.pop('google_id', '')
-                event_data['parent_id'] = event.id
-
-                if event.until and recurrence_start < event.until:
-                    # TODO: spans are a little dumb
-                    span = recurrence_start-event.start
-                    start, end = event.start, event.end
-                    while start < recurrence_end:
-                        if event.frequency == 'DAILY':
-                            diff = span.days
-                            start = start.replace(days=diff)
-                            end = end.replace(days=diff)
-                            span = (start.replace(days=1)-start)
-                        if event.frequency == 'WEEKLY':
-                            diff = span.days // 7
-                            start = start.replace(weeks=diff)
-                            end = end.replace(weeks=diff)
-                            span = start.replace(weeks=1)-start
-                        # does not support MONTHLY yet
-                        if recurrence_start < start < recurrence_end:
-                            event_data.update({'start': start, 'end': end})
-                            Event.split(
-                                event_data, shift_duration, shift_alignment)
+                    query.first().update(**event_data).save()
 
             return redirect(url_for('group.events'))
         if form:
