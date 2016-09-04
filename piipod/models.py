@@ -7,6 +7,7 @@ from flask import request, g
 from sqlalchemy import types, desc, asc
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
+from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
 from piipod.defaults import default_event_settings, default_group_settings, \
@@ -421,11 +422,32 @@ class Group(Base):
 
     def events(self, start, end):
         """Returns events between start and end"""
-        return Event.query.filter(
-            Event.group_id==self.id,
-            Event.is_active==True,
-            Event.start > start,
-            Event.start < end).order_by(asc(Event.start)).all()
+        events = Event.query.filter(
+            Event.group_id == self.id,
+            Event.is_active == True
+        ).filter(
+            ((Event.start <= start) & (Event.until > start)) |
+            ((Event.start > start) & (Event.start < end))
+        ).order_by(asc(Event.start)).all()
+
+        week_start = start.floor('week')
+        displayed_events = []
+        for event in events:
+            if event.start > start:
+                displayed_events.append(event)
+            else:
+                for i, day in enumerate(event.days_of_the_week_booleans):
+                    if day:
+                        new_event = Event.from_parent(event)
+                        day = week_start.replace(days=+i)
+                        new_event.start = day.replace(
+                            hour=event.start.hour,
+                            minute=event.start.minute)
+                        new_event.end = new_event.start.replace(
+                            hour=event.end.hour,
+                            minute=event.start.minute)
+                        displayed_events.append(new_event)
+        return displayed_events
 
     def members(self, page=1, per_page=10, paginated=True):
         """List of all members"""
@@ -547,17 +569,23 @@ class Event(Base):
         return counts
 
     @property
-    def days_of_the_week(self):
-        """Returns list of days of the week."""
-        return tuple(day for day, value in zip(Event.DAYS_OF_THE_WEEK, (
+    def days_of_the_week_booleans(self):
+        """Returns boolean values for days of the week."""
+        return tuple((
             self.on_mondays,
             self.on_tuesdays,
             self.on_wednesdays,
             self.on_thursdays,
             self.on_fridays,
             self.on_saturdays,
-            self.on_sundays)) if value)
+            self.on_sundays))
 
+    @property
+    def days_of_the_week(self):
+        """Returns list of days of the week."""
+        return tuple(day for day, value in zip(
+            Event.DAYS_OF_THE_WEEK,
+            self.days_of_the_week_booleans) if value)
 
     @property
     def category_counts(self):
@@ -623,6 +651,15 @@ class Event(Base):
             for i, j in Event.range(
                 event_data['start'], event_data['end'],
                 shift_duration, shift_alignment)]
+
+    @classmethod
+    def from_parent(cls, parent):
+        event = Event(
+            id=parent.id,
+            name=parent.name,
+            description=parent.description)
+        event._parent = parent
+        return event
 
     @validates('frequency')
     def validate_frequency(self, _, address):

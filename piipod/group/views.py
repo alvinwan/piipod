@@ -78,7 +78,8 @@ def events(start=None):
     dows = [begin.replace(days=i) for i in range(7)]
     events, events_by_dow = g.group.events(begin, end), {}
     for event in events:
-        events_by_dow.setdefault(event.to_local('start','end').start.format('d'), []).append(event)
+        events_by_dow.setdefault(
+            event.to_local('start', 'end').start.format('d'), []).append(event)
     return render_group('group/events.html', dows=dows, events=events_by_dow,
         now=now)
 
