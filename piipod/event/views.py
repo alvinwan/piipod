@@ -79,8 +79,37 @@ def home():
     signups = g.event.signups
     data = {}
     for signup in signups:
-        data.setdefault((signup.category or 'Waitlisted').strip().capitalize(), []).append(signup)
-    return render_event('event/index.html', categories=sorted(data.keys()), signups=data)
+        data.setdefault((signup.category or 'Waitlisted')
+                        .strip()
+                        .capitalize(), []).append(signup)
+    return render_event('event/index.html',
+                        categories=sorted(data.keys()), signups=data)
+
+
+@event.route('/shift/<string:yyyymmdd>')
+def shift(yyyymmdd):
+    """Event shift page.
+
+    :param yyyymmdd: date formatted as YYYYMMDD
+    """
+    date = arrow.get(yyyymmdd, 'YYYYMMDD')
+    candidate = g.event.get_shift_or_none(date)
+    action = {}
+    if candidate:
+        return redirect(url_for('event.home', event_id=candidate.id))
+    if current_user().can('create_event'):
+        action = dict(
+            url=url_for('event.copy', yyyymmdd=yyyymmdd),
+            action='Activate')
+    return render_event(
+        'confirm.html',
+        title='Pending "{name}"'.format(name=event.name),
+        message='This shift for the recurring event "{name}" on {date} has not'
+        ' yet been activated.'.format(
+            name=event.name,
+            date=date.format('MMMM D, YYYY')),
+        back=url_for('group.events'),
+        **action)
 
 
 @event.route('/signup', methods=['GET', 'POST'])
@@ -402,3 +431,14 @@ def restore():
     """restore deleted event"""
     g.event.activate()
     return redirect(url_for('group.events'))
+
+
+@event.route('/copy/<string:yyyymmdd>', methods=['GET', 'POST'])
+@login_required
+def copy(yyyymmdd):
+    """copy event"""
+    date = arrow.get(yyyymmdd, 'YYYYMMDD')
+    candidate = g.event.get_shift_or_none(date)
+    if not candidate:
+        candidate = g.event.create_shift(yyyymmdd).save()
+    return redirect(url_for('event.home', event_id=candidate.id))

@@ -2,12 +2,10 @@
 Important: Changes here need to be followed by `make refresh`.
 """
 from piipod import db, config
-from collections import defaultdict
 from flask import request, g
-from sqlalchemy import types, desc, asc
+from sqlalchemy import desc, asc
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
-from sqlalchemy.ext.declarative import synonym_for
 from sqlalchemy_utils import PasswordType, ArrowType
 from passlib.context import CryptContext
 from piipod.defaults import default_event_settings, default_group_settings, \
@@ -17,7 +15,6 @@ import arrow
 import calendar
 import csv
 import flask_login
-import pymysql
 
 
 class Base(db.Model):
@@ -424,7 +421,8 @@ class Group(Base):
         """Returns events between start and end"""
         events = Event.query.filter(
             Event.group_id == self.id,
-            Event.is_active == True
+            Event.is_active == True,
+            Event.parent_id == None  # TODO: remove ugly hack - prevent dups
         ).filter(
             ((Event.start <= start) & (Event.until > start)) |
             ((Event.start > start) & (Event.start < end))
@@ -438,15 +436,9 @@ class Group(Base):
             else:
                 for i, day in enumerate(event.days_of_the_week_booleans):
                     if day:
-                        new_event = Event.from_parent(event)
-                        day = week_start.replace(days=+i)
-                        new_event.start = day.replace(
-                            hour=event.start.hour,
-                            minute=event.start.minute)
-                        new_event.end = new_event.start.replace(
-                            hour=event.end.hour,
-                            minute=event.start.minute)
-                        displayed_events.append(new_event)
+                        displayed_events.append(Event.from_parent(
+                            event,
+                            week_start.replace(days=+i)))
         return displayed_events
 
     def members(self, page=1, per_page=10, paginated=True):
@@ -653,18 +645,71 @@ class Event(Base):
                 shift_duration, shift_alignment)]
 
     @classmethod
-    def from_parent(cls, parent):
-        event = Event(
-            id=parent.id,
-            name=parent.name,
-            description=parent.description)
-        event._parent = parent
-        return event
+    def from_parent(cls, parent, date=None):
+        """
+        Create a new event from the parent object.
+
+        All child events do NOT contain recurrence information. Only the parent
+        event does.
+
+        Args:
+            parent: the parent event, containing recurrence information
+            date: the date to create the new event on, transfer only the time
+            of day from the old event
+
+        Returns:
+            new event object, on the new day but with old times
+        """
+        start = parent.start
+        end = parent.end
+        if date:
+            start = date.replace(
+                hour=parent.start.hour,
+                minute=parent.start.minute)
+            end = start.replace(
+                hour=parent.end.hour,
+                minute=parent.end.minute)
+        return parent.copy(
+            parent_id=parent.id,
+            start=start,
+            end=end)
 
     @validates('frequency')
     def validate_frequency(self, _, address):
         """Check that frequency is an integer."""
         return int(address[0])
+
+    def create_shift(self, yyyymmdd):
+        """
+        Creates a child event.
+
+        Note this child event does NOT contain recurrence information.
+
+        Args:
+            yyyymmdd: A date formatted as YYYYMMDD (e.g., 20160902)
+
+        Returns:
+            A child event
+        """
+        return Event.from_parent(self, arrow.get(yyyymmdd, 'YYYYMMDD'))
+
+    def copy(self, **kwargs):
+        """Makes copy for newly-created shifts."""
+        data = dict(
+            name=self.name,
+            description=self.description,
+            group_id=self.group_id)
+        data.update(kwargs)
+        return Event(**data)
+
+    def get_shift_or_none(self, date):
+        """Get shift for the provided date."""
+        current_day = date.replace(hour=0, minutes=0)
+        next_day = current_day.replace(days=+1, seconds=-1)
+        return Event.query.filter(
+            Event.parent_id == self.id,
+            Event.start >= current_day,
+            Event.start <= next_day).one_or_none()
 
     def update(self, **kwargs):
         """Intercept updates to object."""
